@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗓</text></svg>">
+    <title>6명 회의 조율 케이스 스터디</title>
+    <meta
+      name="description"
+      content="토스 디자이너 챌린지 2026 제출 링크의 과정 페이지입니다. 6명 회의 일정 조율 문제정의, 리서치, 의사결정 로그, 핵심 화면을 압축해 보여줘요."
+    >
+    <link rel="stylesheet" href="./case.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 바로가기</a>
+
+    <header class="hero">
+      <div class="hero__inner">
+        <p class="eyebrow">TOSS DESIGNER CHALLENGE 2026 · 과정 기록</p>
+        <h1>6명 회의 조율은 빈 시간 찾기가 아니라, 숨은 제약을 안전하게 모아 결정 부담을 줄이는 문제예요.</h1>
+        <p class="hero__copy">
+          제출 답안 700자 안에 담기 어려운 문제정의, 리서치 연결, 버린 대안, 화면 의도를 한 페이지로 압축했어요.
+        </p>
+        <a class="hero__button" href="../prototype/index.html">프로토타입 열기</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="section section--problem" aria-labelledby="problem-title">
+        <div class="section__inner">
+          <div class="section__head">
+            <p class="eyebrow">01 · 문제 정의</p>
+            <h2 id="problem-title">원문 단서에서 출발했어요.</h2>
+          </div>
+
+          <div class="clue-table" role="table" aria-label="과제 원문 단서와 해석">
+            <div class="clue-row clue-row--head" role="row">
+              <span role="columnheader">원문 단서</span>
+              <span role="columnheader">해석</span>
+            </div>
+            <div class="clue-row" role="row">
+              <span role="cell">점심 직후를 피하고 싶어</span>
+              <span role="cell">가능하지만 부담인 소프트 제약이에요.</span>
+            </div>
+            <div class="clue-row" role="row">
+              <span role="cell">특정 요일에 외근이 많아</span>
+              <span role="cell">물리적으로 어려운 하드 제약이에요.</span>
+            </div>
+            <div class="clue-row" role="row">
+              <span role="cell">꼭 참석 / 선택 참석</span>
+              <span role="cell">사람마다 다른 참석의 무게예요.</span>
+            </div>
+            <div class="clue-row" role="row">
+              <span role="cell">다음 주까지, 딱 1시간</span>
+              <span role="cell">완벽하지 않아도 기한 안에 결정해야 해요.</span>
+            </div>
+          </div>
+
+          <p class="problem-summary">
+            6명의 “괜찮다”는 강도와 무게가 다른데, 조율 화면에는 가능/불가로만 남아요. 완벽한 시간이 없으면 주최자는 왜곡된 정보로 누구의 불편이 감수 가능한지 혼자 추측해야 해요.
+          </p>
+
+          <div class="layer-grid" aria-label="문제의 3층위 요약">
+            <article class="layer-card">
+              <span class="layer-card__number">1</span>
+              <h3>조건의 해상도가 줄어요.</h3>
+              <p>외근처럼 불가능한 제약과 점심 직후처럼 부담인 제약이 같은 색으로 뭉개져요. 참가자는 부담을 숨기거나 불가로 과장하게 돼요.</p>
+            </article>
+            <article class="layer-card">
+              <span class="layer-card__number">2</span>
+              <h3>판단이 주최자에게 쏠려요.</h3>
+              <p>빈 슬롯을 찾은 뒤에도 “누가 양보해도 되는가”는 남아요. 기존 도구는 표를 보여주고 멈춰서, 결정·재촉·통보가 한 사람에게 몰려요.</p>
+            </article>
+            <article class="layer-card">
+              <span class="layer-card__number">3</span>
+              <h3>공개 발화가 부담을 키워요.</h3>
+              <p>모두가 보는 채팅에서 개인 사정이나 약한 선호를 말하기는 어려워요. 그래서 캘린더상 가능과 실제로 괜찮음 사이가 벌어져요.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--research" aria-labelledby="research-title">
+        <div class="section__inner">
+          <div class="section__head section__head--inline">
+            <div>
+              <p class="eyebrow">02 · 리서치 한 장</p>
+              <h2 id="research-title">데스크 리서치 10건 + 사용자 인터뷰(진행 중)</h2>
+            </div>
+            <p class="section-note">출처 나열 대신, 설계에 남은 판단만 1줄로 줄였어요.</p>
+          </div>
+
+          <ol class="insight-list">
+            <li><span>001</span> 전용 툴을 써도 결정·확정·후속이 남으면 사람들은 메신저 협상으로 돌아가요.</li>
+            <li><span>002</span> 한국 직장 맥락은 단정하지 않고, 말하기 어려운 제약을 줄이는 설계 가설로 다뤄야 해요.</li>
+            <li><span>003</span> 빈 공간은 비공개 소프트 제약 수집, 참석 무게, 추천 이유를 동시에 다루는 지점이에요.</li>
+            <li><span>004</span> 좋은 제출물은 최종 화면보다 문제, 제약, 의사결정, 검증이 설계로 연결되는 방식을 보여줘야 해요.</li>
+            <li><span>005</span> 토스 케이스는 불편을 기능으로 바꾸기 전에 사용자가 실제로 판단하는 지점을 다시 써요.</li>
+            <li><span>006</span> 차별점은 “더 잘 설명”이 아니라 사유 비공개, 소규모 익명성, 결정 설명의 동시 충족이에요.</li>
+            <li><span>007</span> 익숙한 문법은 시간축 그리드와 추천 리스트이고, 새로울 부분은 왜 추천됐는지의 설명이에요.</li>
+            <li><span>008</span> free/busy는 신뢰와 선호 강도 표현이 약해서, 가능하지만 부담인 상태를 따로 받아야 해요.</li>
+            <li><span>009</span> 사람이 다시 쓰지 않아도 되는 정보는 자동 칩으로 채우고, 민감한 내용은 범주만 노출해야 해요.</li>
+            <li><span>010</span> 추측 UI는 흐린 표시와 근거, 정정이 함께 있어야 하지만 이 버전에서는 기본값이 아니라 보조 판단이에요.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section section--decisions" aria-labelledby="decisions-title">
+        <div class="section__inner">
+          <div class="section__head">
+            <p class="eyebrow">03 · 의사결정 로그</p>
+            <h2 id="decisions-title">버린 대안을 남겼어요.</h2>
+          </div>
+
+          <div class="decision-list">
+            <article class="decision-item">
+              <h3>전체 캘린더 뷰</h3>
+              <p>익숙하지만 free/busy를 더 크게 보여줄 뿐이라, 숨은 제약과 양보 판단이 다시 주최자에게 남아요.</p>
+            </article>
+            <article class="decision-item">
+              <h3>채팅형 조율</h3>
+              <p>맥락은 잘 담지만 공개 발화 비용이 커지고, “가능하긴 한데 싫음”을 안전하게 구조화하지 못해요.</p>
+            </article>
+            <article class="decision-item">
+              <h3>단순 투표</h3>
+              <p>빠르지만 표 수가 참석 무게와 제약 강도를 덮어서 “가장 많이 되는 시간” 답습이 돼요.</p>
+            </article>
+            <article class="decision-item">
+              <h3>AI 자동확정</h3>
+              <p>편해 보이지만 사용자가 납득해야 할 트레이드오프를 시스템이 대신 확정하면 불신이 생겨요.</p>
+            </article>
+            <article class="decision-item">
+              <h3>추론·정정 시스템</h3>
+              <p>v1에 만들었지만 추측이 화면의 주인공이 되면서 핵심인 비공개 제약과 결정 설명이 흐려져 뺐어요.</p>
+            </article>
+            <article class="decision-item">
+              <h3>외부 참석자 범위</h3>
+              <p>원문이 같은 회사 동료 6명으로 한정해서, 외부 캘린더 권한 문제는 이번 답안 범위에서 제외했어요.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--screens" aria-labelledby="screens-title">
+        <div class="section__inner">
+          <div class="section__head">
+            <p class="eyebrow">04 · 핵심 화면 4개</p>
+            <h2 id="screens-title">스크린샷 대신 의도와 구조를 보여줘요.</h2>
+          </div>
+
+          <div class="screen-grid">
+            <article class="screen-card">
+              <div class="mock mock--message" aria-hidden="true">
+                <div class="mock__bar"></div>
+                <div class="mock__bubble mock__bubble--wide"></div>
+                <div class="mock__bubble"></div>
+                <div class="mock__button"></div>
+              </div>
+              <h3>메신저 진입</h3>
+              <p>이미 조율이 일어나는 대화 안에서 캘린더 기반 추천을 시작하게 해요.</p>
+            </article>
+
+            <article class="screen-card">
+              <div class="mock mock--input" aria-hidden="true">
+                <div class="mock__slot mock__slot--filled"></div>
+                <div class="mock__slot"></div>
+                <div class="mock__slot mock__slot--soft"></div>
+                <div class="mock__chip-row">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+              <h3>비공개 제약 입력</h3>
+              <p>사유를 공개하지 않고, 절대 불가와 가능하지만 부담을 분리해서 받게 해요.</p>
+            </article>
+
+            <article class="screen-card">
+              <div class="mock mock--compare" aria-hidden="true">
+                <div class="mock__rank mock__rank--top"></div>
+                <div class="mock__rank"></div>
+                <div class="mock__rank mock__rank--warning"></div>
+                <div class="mock__legend"></div>
+              </div>
+              <h3>추천·대안 비교</h3>
+              <p>“현재 입력 기준 합의 비용 최저”와 강등된 후보의 이유를 같이 보여줘요.</p>
+            </article>
+
+            <article class="screen-card">
+              <div class="mock mock--confirm" aria-hidden="true">
+                <div class="mock__summary"></div>
+                <div class="mock__summary mock__summary--short"></div>
+                <div class="mock__notice"></div>
+                <div class="mock__button mock__button--dark"></div>
+              </div>
+              <h3>확정</h3>
+              <p>누가 특정되지 않게 양보된 제약과 후속 공유를 확인한 뒤 캘린더 초대로 닫아요.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--principles" aria-labelledby="principles-title">
+        <div class="section__inner">
+          <div class="section__head">
+            <p class="eyebrow">05 · 설계 원칙</p>
+            <h2 id="principles-title">프로토타입에서 지킨 기준이에요.</h2>
+          </div>
+
+          <div class="principle-list">
+            <article>
+              <h3>누군지 짐작할 수 없게</h3>
+              <p>6명 팀에서는 "1명"이라는 숫자도 누군지 드러내요. 부담 표시가 3명 미만이면 이름도 인원수도 숨기고, 결정에 필요한 최소 신호만 보여줘요.</p>
+            </article>
+            <article>
+              <h3>재택은 방식</h3>
+              <p>재택은 참석 불가나 벌점이 아니라, 화상 참석 같은 회의 방식 조건으로 다뤄요.</p>
+            </article>
+            <article>
+              <h3>추측은 타이브레이커</h3>
+              <p>본인 입력과 캘린더 하드 충돌을 먼저 보고, 리서치 기본값은 동률을 가를 때만 써요.</p>
+            </article>
+            <article>
+              <h3>발명 금지</h3>
+              <p>새 문법보다 메신저, 캘린더, 추천 리스트처럼 이미 익숙한 조율 문법 안에서 바꿔요.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>AI 도구(Claude·Codex)를 리서치·빌드·검증에 사용했어요.</p>
+    </footer>
+  </body>
+</html>
