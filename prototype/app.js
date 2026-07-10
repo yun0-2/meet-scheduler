@@ -497,7 +497,7 @@
 
   function stressCardCopy(slot) {
     if (slot.conditional.length > 0) {
-      // 비공개 제약은 인원수도 안 센다 (k-익명 원칙, 감사 016-4)
+      // 비공개 제약은 인원수도 안 센다 (k-익명 원칙)
       return "다 되긴 하는데 금요일 늦은 오후예요. 끝나고 바로 다음 일정이 걸린다는 표시도 있어요.";
     }
     if (hasPrivateBurden(slot)) {
@@ -544,7 +544,7 @@
   }
 
   // 비공개로 입력한 하드 제약(예: 하늘의 17시 이후 불가)은 캘린더 일정과 달리
-  // 어디에서도 이름과 결합해 표시하면 안 된다 (감사 012-1).
+  // 어디에서도 이름과 결합해 표시하면 안 된다.
   function hasPrivateHardConflict(slot) {
     return slot.busyConflicts.some(function (item) {
       return item.private;
@@ -999,7 +999,7 @@
         var active = state.activeSlotId === slot.id;
         var open = state.openSlotId === slot.id;
         var unavailable = isUnavailableSlot(slot);
-        // 감사 016-3: 격자 표면에도 부담 신호를 올린다 — 호버/팝업 뒤에만 숨기면
+        // 격자 표면에도 부담 신호를 올린다 — 호버/팝업 뒤에만 숨기면
         // When2meet류 여유 히트맵과 첫인상이 같아져 이 도구의 차별점(소프트·비공개
         // 부담 반영)이 안 보인다. 인원수·이름은 여전히 절대 노출하지 않는다(k-익명).
         var privateBurden = !unavailable && burdenCount(slot) > 0;
@@ -1174,7 +1174,7 @@
 
   function renderAttendeeStatus(slot) {
     if (hasPrivateHardConflict(slot)) {
-      // 비공개 하드 제약이 있는 슬롯은 사람별 상태를 그리지 않는다 — 이름 결합 금지 (감사 012-1)
+      // 비공개 하드 제약이 있는 슬롯은 사람별 상태를 그리지 않는다 — 이름 결합 금지
       return '<p class="privacy-note">이 시간은 비공개 사정 때문에 확정하기 어려워요. 다른 시간을 골라주세요.</p>';
     }
     return data.people.map(function (person) {

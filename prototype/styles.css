@@ -897,7 +897,7 @@ button {
   box-shadow: none;
 }
 
-/* 감사 016-3: 격자 표면 부담 신호(앰버 점) — 파랑 여유 히트맵/회색 불가 칸과
+/* 격자 표면 부담 신호(앰버 점) — 파랑 여유 히트맵/회색 불가 칸과
    혼동 없게 앰버 계열로만 표시한다. 인원수·이름은 절대 담지 않는다(k-익명). */
 .slot-cell.has-private-burden:not(.is-unavailable)::after {
   content: "";
