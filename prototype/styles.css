@@ -238,7 +238,6 @@ button {
 }
 
 .btn:focus-visible,
-.avatar-button:focus-visible,
 .slot-cell:focus-visible,
 .card-summary:focus-visible,
 .card-button:focus-visible,
@@ -449,10 +448,68 @@ button {
   letter-spacing: 0.02em;
 }
 
+/* 섹션 라벨 옆 안내 캡션 — 대문자 라벨과 달리 평문 회색 */
+.compose-section-caption {
+  margin-left: var(--space-2);
+  color: var(--gray-500);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
 .compose-list {
   display: grid;
   gap: var(--space-1);
   margin: 0 0 var(--space-6);
+}
+
+/* ── 채널에 보낼 메시지 (제안 문안 = 유령 글자) ── */
+.compose-message-input {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-12);
+  background: var(--surface);
+  color: var(--gray-900);
+  padding: var(--space-3);
+  line-height: 1.5;
+}
+
+.compose-message-input::placeholder {
+  color: var(--gray-400);
+}
+
+.compose-message-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+/* 제안 문안 수락 칩 — Tab 키와 동일 동작의 클릭 어포던스 */
+.compose-accept-chip {
+  margin: var(--space-2) 0 var(--space-6);
+  border-radius: 999px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  font-size: var(--text-12);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+}
+
+.compose-accept-chip:hover {
+  background: var(--gray-200);
+  color: var(--gray-900);
+}
+
+/* 게시된 곁들임 메시지 — 앱 카드 위 일반 메시지 텍스트 */
+.posted-message-text {
+  margin: 0 0 var(--space-3);
+  color: var(--gray-800);
+  font-size: var(--text-14);
+  white-space: pre-wrap;
 }
 
 .compose-row {
@@ -736,6 +793,19 @@ button {
   background: var(--slot-unavailable);
   color: var(--gray-500);
   cursor: not-allowed;
+}
+
+/* 내 캘린더 일정 이름 — 셀 안 작은 회색 텍스트, 넘치면 말줄임 */
+.mini-slot-label {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 2px;
+  color: var(--gray-500);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mini-slot:disabled {
