@@ -32,7 +32,11 @@
     composePosted: false,
     composeAdded: {},
     attendanceOverride: {},
-    course: null
+    course: null,
+    meetingTitle: null,
+    meetingContext: "",
+    composeQuery: "",
+    bannerOpen: false
   };
 
   // 시나리오 카드 카피 — 상황 설명은 제품 화면(#app) 밖, 이 데모 레이어에서만.
@@ -79,6 +83,12 @@
       return scenarioByCourse[state.course][route];
     }
     return null;
+  }
+
+  state.meetingTitle = data.meeting.title;
+
+  function meetingTitle() {
+    return state.meetingTitle || data.meeting.title;
   }
 
   var slotHours = buildSlotHours();
@@ -741,10 +751,8 @@
 
     function renderStepButton(step) {
       return (
-        '<button type="button" class="demo-nav-btn" data-route="' + step.hash + '" aria-label="' + step.num + '단계, ' + step.label + '"' + (step.active ? ' aria-current="page"' : '') + '>' +
-          '<span class="demo-nav-num" aria-hidden="true">' + step.num + '</span>' +
-          '<span class="demo-nav-avatar" aria-hidden="true"' + avatarVars(step.person) + '>' + initials(step.person.name) + '</span>' +
-          '<span class="demo-nav-label" aria-hidden="true">' + step.label + '</span>' +
+        '<button type="button" class="demo-nav-btn" data-route="' + step.hash + '" aria-label="' + step.label + '"' + (step.active ? ' aria-current="page"' : '') + '>' +
+          '<span class="demo-nav-label">' + step.label + '</span>' +
         '</button>'
       );
     }
@@ -909,6 +917,7 @@
           '</aside>' +
           '<section class="channel-panel" aria-label="슬랙 스타일 채널">' +
             '<header class="channel-header"><h1># q3-kickoff</h1></header>' +
+            (state.composePosted ? renderMeetingBanner() : '') +
             '<div class="message-thread">' +
               '<article class="message">' +
                 '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
@@ -924,6 +933,31 @@
       renderToast();
   }
 
+  // 채널 상단 배너 — 예정 회의가 있으면 공지처럼 떠 있고, 펼치면 응답 현황
+  function renderMeetingBanner() {
+    var people = activePeople();
+    var waiting = unrespondedPeople();
+    var responded = people.length - waiting.length;
+    var body = "";
+    if (state.bannerOpen) {
+      body =
+        '<div class="meeting-banner-body">' +
+          '<span class="banner-line">응답 ' + responded + '/' + people.length +
+            (waiting.length > 0 ? ' · ' + waiting.map(function (p) { return p.name; }).join(', ') + '님 답 기다리는 중' : ' · 모두 응답했어요') + '</span>' +
+          '<button type="button" class="btn btn-secondary banner-cta" data-action="go-compare">추천 보기</button>' +
+        '</div>';
+    }
+    return (
+      '<div class="meeting-banner">' +
+        '<button type="button" class="meeting-banner-head" data-action="toggle-banner" aria-expanded="' + String(state.bannerOpen) + '">' +
+          '<span class="banner-title">예정 회의 · ' + meetingTitle() + '</span>' +
+          '<span class="banner-meta">응답 ' + responded + '/' + people.length + '</span>' +
+          '<span class="banner-chevron" aria-hidden="true">' + (state.bannerOpen ? '∧' : '∨') + '</span>' +
+        '</button>' + body +
+      '</div>'
+    );
+  }
+
   // 나머지 5명(주최자 제외) — 작성 단계 "참석자 추가" 후보 목록
   function composeCandidates() {
     return data.people.filter(function (person) {
@@ -935,22 +969,50 @@
     return Boolean(state.composeAdded[person.id]);
   }
 
+  function escapeAttr(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+
+  function composeSuggestions() {
+    var query = state.composeQuery.trim();
+    return composeCandidates().filter(function (person) {
+      if (isComposeAdded(person)) {
+        return false;
+      }
+      if (!query) {
+        return true;
+      }
+      return person.name.indexOf(query) >= 0 || (person.role || "").indexOf(query) >= 0;
+    });
+  }
+
+  function renderComposeSuggestions() {
+    var items = composeSuggestions();
+    var heading = state.composeQuery.trim()
+      ? ""
+      : '<p class="compose-suggest-label">' + meetingTitle() + ' 관련 일정에서 자주 함께한 동료</p>';
+    if (items.length === 0) {
+      return heading + '<p class="compose-suggest-empty">일치하는 동료가 없어요</p>';
+    }
+    return heading + items.map(renderCandidateRow).join("");
+  }
+
   function renderComposeCard(jiwoo) {
-    var candidates = composeCandidates();
-    var addedCount = candidates.filter(isComposeAdded).length;
-    var rowsHtml = renderOrganizerRow(jiwoo) + candidates.map(function (person) {
-      return isComposeAdded(person) ? renderAddedRow(person) : renderCandidateRow(person);
-    }).join("");
+    var addedCount = composeCandidates().filter(isComposeAdded).length;
+    var addedRows = renderOrganizerRow(jiwoo) + composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
     return (
       '<div class="schedule-card compose-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
-        '<h2>' + data.meeting.title + '</h2>' +
+        '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
+        '<input class="compose-context-input" id="compose-context" type="text" value="' + escapeAttr(state.meetingContext) + '" placeholder="어떤 회의인지 알려주세요 (선택)" aria-label="회의 설명" />' +
         '<div class="meeting-facts">' +
           '<span class="fact-pill">1시간</span>' +
           '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
         '</div>' +
-        '<p class="compose-section-label">참석자 추가</p>' +
-        '<div class="compose-list">' + rowsHtml + '</div>' +
+        '<p class="compose-section-label">참석자</p>' +
+        '<div class="compose-list">' + addedRows + '</div>' +
+        '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="이름으로 추가" aria-label="참석자 검색" autocomplete="off" />' +
+        '<div class="compose-suggestions" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
         '<button class="btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
       '</div>'
     );
@@ -1006,16 +1068,31 @@
     return (
       '<div class="schedule-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
-        '<h2>' + data.meeting.title + '</h2>' +
+        '<h2>' + meetingTitle() + '</h2>' +
         '<div class="meeting-facts">' +
           '<span class="fact-pill">1시간</span>' +
           '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
         '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
+        renderResponseStatusLine() +
         '<button class="btn" data-action="go-compare">추천 보기</button>' +
       '</div>'
     );
+  }
+
+  // 주최자가 채널 카드에서 보는 응답 현황
+  function renderResponseStatusLine() {
+    var people = activePeople();
+    var waiting = unrespondedPeople();
+    var responded = people.length - waiting.length;
+    var text = "응답 " + responded + "/" + people.length;
+    if (waiting.length > 0) {
+      text += " · " + waiting.map(function (p) { return p.name; }).join(", ") + "님 답 기다리는 중";
+    } else {
+      text += " · 모두 응답했어요";
+    }
+    return '<p class="response-status-line">' + text + '</p>';
   }
 
   function renderParticipantRows() {
@@ -1049,7 +1126,7 @@
             '<div class="phone-status"><span>Slack 링크</span><span>' + person.name + '</span></div>' +
             '<div class="phone-body">' +
               '<section class="context-card compact">' +
-                '<p class="eyebrow">Q3 프로젝트 킥오프 · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
+                '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
                 '<h1>다음 주 킥오프, 피하고 싶은 시간이 있나요?</h1>' +
                 (optional ? '<p class="input-guidance">선택 참석이에요 — 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
               '</section>' +
@@ -1385,7 +1462,7 @@
           '<h1 class="screen-title">이 시간으로 정할까요?</h1>' +
           '<div class="confirm-layout">' +
             '<section class="confirm-panel">' +
-              '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>1시간 · ' + data.meeting.title + '</span><button class="btn-ghost-dark" data-action="go-compare">다른 시간 보기</button></div>' +
+              '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>1시간 · ' + meetingTitle() + '</span><button class="btn-ghost-dark" data-action="go-compare">다른 시간 보기</button></div>' +
               '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
               '<p class="confirm-section-label">확정 전 확인 — 주최자에게만 보여요</p>' +
               '<ul class="summary-list">' + renderSummary(slot) + '</ul>' +
@@ -1477,7 +1554,7 @@
         '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
         '<div>' +
           '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">방금</span></div>' +
-          '<strong>' + data.meeting.title + ' 시간이 정해졌어요</strong>' +
+          '<strong>' + meetingTitle() + ' 시간이 정해졌어요</strong>' +
           '<p>' + displayTime(slot) + ' · 1시간</p>' +
           '<p class="helper-copy">참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</p>' +
         '</div>' +
@@ -1555,6 +1632,28 @@
     );
   }
 
+  app.addEventListener("input", function (event) {
+    var field = event.target;
+    if (!field || !field.id) {
+      return;
+    }
+    if (field.id === "compose-title") {
+      state.meetingTitle = field.value;
+      return;
+    }
+    if (field.id === "compose-context") {
+      state.meetingContext = field.value;
+      return;
+    }
+    if (field.id === "compose-search") {
+      state.composeQuery = field.value;
+      var box = document.getElementById("compose-suggestions");
+      if (box) {
+        box.innerHTML = renderComposeSuggestions();
+      }
+    }
+  });
+
   app.addEventListener("click", function (event) {
     var target = event.target.closest("[data-action]");
     if (!target) {
@@ -1591,10 +1690,20 @@
       state.openReasonId = state.openReasonId === personId ? null : personId;
       render();
     }
+    if (action === "toggle-banner") {
+      state.bannerOpen = !state.bannerOpen;
+      render();
+    }
     if (action === "compose-add") {
       var addId = target.getAttribute("data-person-id");
       state.composeAdded[addId] = true;
+      state.composeQuery = "";
       render();
+      // 연속 추가가 자연스럽게 — 검색 입력으로 포커스 복귀
+      var searchEl = document.getElementById && document.getElementById("compose-search");
+      if (searchEl && searchEl.focus) {
+        searchEl.focus();
+      }
     }
     if (action === "compose-remove") {
       var removeId = target.getAttribute("data-person-id");

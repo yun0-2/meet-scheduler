@@ -2089,3 +2089,121 @@ button {
   font-size: var(--text-12);
   font-weight: 500;
 }
+
+
+/* ── 작성 카드: 텍스트필드 + 검색 (슬랙 모달 문법의 필드 배치) ── */
+.compose-title-input,
+.compose-context-input,
+.compose-search-input {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-8);
+  background: var(--surface);
+  padding: 10px 12px;
+  font-size: var(--text-14);
+  color: var(--gray-900);
+}
+
+.compose-title-input {
+  margin-top: var(--space-2);
+  font-size: var(--text-18);
+  font-weight: 700;
+}
+
+.compose-context-input {
+  margin-top: var(--space-2);
+}
+
+.compose-search-input {
+  margin-top: var(--space-3);
+}
+
+.compose-title-input:focus,
+.compose-context-input:focus,
+.compose-search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.compose-suggestions {
+  margin-top: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-12);
+  background: var(--surface);
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: var(--space-3);
+}
+
+.compose-suggest-label,
+.compose-suggest-empty {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  color: var(--gray-500);
+  font-size: var(--text-12);
+}
+
+/* ── 게시 카드 응답 현황 ── */
+.response-status-line {
+  margin: var(--space-2) 0 var(--space-3);
+  color: var(--gray-600);
+  font-size: var(--text-13);
+}
+
+/* ── 채널 상단 회의 배너 (공지 문법) ── */
+.meeting-banner {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.meeting-banner-head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  padding: var(--space-2) var(--space-6);
+  cursor: pointer;
+  text-align: left;
+}
+
+.meeting-banner-head:hover {
+  background: var(--gray-50);
+}
+
+.banner-title {
+  font-size: var(--text-13);
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.banner-meta {
+  font-size: var(--text-12);
+  color: var(--gray-500);
+}
+
+.banner-chevron {
+  margin-left: auto;
+  color: var(--gray-400);
+  font-size: 10px;
+}
+
+.meeting-banner-body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-6) var(--space-3);
+}
+
+.banner-line {
+  font-size: var(--text-13);
+  color: var(--gray-600);
+}
+
+.banner-cta {
+  margin-left: auto;
+  min-height: 32px;
+  font-size: var(--text-13);
+}
