@@ -21,7 +21,40 @@
     dragPaintValue: null,
     dragStartId: null,
     dragLastPaintedId: null,
-    suppressNextSoftToggle: false
+    suppressNextSoftToggle: false,
+    scenarioSeen: {},
+    scenarioLastRoute: null,
+    scenarioOverlayOpen: false,
+    scenarioFocusReturn: null
+  };
+
+  // 시나리오 카드 카피 — 상황 설명은 제품 화면(#app) 밖, 이 데모 레이어에서만.
+  var scenarioContent = {
+    entry: {
+      eyebrow: "1/4 · 주최자",
+      body: "당신은 회의를 잡아야 하는 주최자예요. 팀 채널에 조율 카드를 올렸어요.",
+      mission: "'시간 정하기'를 눌러 시작해보세요."
+    },
+    input: {
+      eyebrow: "2/4 · 참석자",
+      body: "이번엔 초대받은 참석자예요. 캘린더가 모르는 사정이 있죠.",
+      mission: "피하고 싶은 시간을 직접 칠하고 제출해보세요."
+    },
+    "input-optional": {
+      eyebrow: "2/4 · 선택 참석자",
+      body: "선택 참석자에게는 다른 선택지가 하나 더 있어요.",
+      mission: "'참석 어려움'도 눌러보세요."
+    },
+    compare: {
+      eyebrow: "3/4 · 주최자",
+      body: "다시 주최자예요. 응답이 모였어요.",
+      mission: "1순위 추천의 이유를 눌러 확인해보세요."
+    },
+    confirm: {
+      eyebrow: "4/4 · 주최자",
+      body: "이제 확정하고 채널에 알릴 차례예요.",
+      mission: "확정 후 게시된 카드를 살펴보세요."
+    }
   };
 
   var slotHours = buildSlotHours();
@@ -535,11 +568,12 @@
   }
 
   function softSelectedByDefault(slotKey) {
-    var hour = Number(slotKey.split("-")[1]);
     if (Object.prototype.hasOwnProperty.call(state.selectedSoftSlots, slotKey)) {
       return state.selectedSoftSlots[slotKey];
     }
-    return hour === 13;
+    // 빈 캔버스: 심사자가 직접 칠하기 전까지는 아무 칸도 미리 표시하지 않는다.
+    // (추천 화면의 캐스트 폴백은 softConstraintStatus에서 별도로 유지된다.)
+    return false;
   }
 
   function softSelectedForInput(person, slotKey) {
@@ -605,6 +639,10 @@
       renderEntry();
     }
     renderDemoNav();
+    if (state.route !== state.scenarioLastRoute) {
+      state.scenarioLastRoute = state.route;
+      renderScenarioCard(state.route, false);
+    }
   }
 
   // 데모 전용 플로팅 네비게이터 — 제품 화면(#app) 바깥의 리모컨.
@@ -651,7 +689,70 @@
         '</div>';
     }
 
-    nav.innerHTML = '<div class="demo-nav-track">' + buttonsHtml + '</div>' + subToggleHtml;
+    nav.innerHTML =
+      '<div class="demo-nav-track">' + buttonsHtml + '</div>' + subToggleHtml +
+      '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="지금 단계 안내 다시 보기">?</button>';
+  }
+
+  // 시나리오 카드 — 각 단계 첫 진입 시 1회만, #app 밖(다크 오버레이)에 상황 설명을 띄운다.
+  // forceOpen이 없으면 이미 본 단계는 조용히 건너뛴다(memory-only, localStorage 미사용).
+  function renderScenarioCard(route, forceOpen) {
+    var content = scenarioContent[route];
+    if (!content) {
+      return;
+    }
+    if (!forceOpen && state.scenarioSeen[route]) {
+      return;
+    }
+    var layer;
+    try {
+      layer = document.getElementById("scenario-layer");
+    } catch (lookupError) {
+      // 테스트 하네스 등 #scenario-layer가 없는 최소 DOM 목업에서는 조용히 건너뛴다.
+      return;
+    }
+    if (!layer) {
+      return;
+    }
+    state.scenarioSeen[route] = true;
+    state.scenarioOverlayOpen = true;
+    state.scenarioFocusReturn = (document.activeElement && document.activeElement !== document.body)
+      ? document.activeElement
+      : null;
+    layer.innerHTML =
+      '<div class="scenario-overlay">' +
+        '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="' + content.eyebrow + '">' +
+          '<p class="scenario-eyebrow">' + content.eyebrow + '</p>' +
+          '<p class="scenario-body">' + content.body + '</p>' +
+          '<p class="scenario-mission">' + content.mission + '</p>' +
+          '<button type="button" class="scenario-start-btn" data-action="scenario-close">시작하기</button>' +
+        '</div>' +
+      '</div>';
+    var startBtn = layer.querySelector ? layer.querySelector(".scenario-start-btn") : null;
+    if (startBtn && startBtn.focus) {
+      startBtn.focus();
+    }
+  }
+
+  function closeScenarioCard() {
+    if (!state.scenarioOverlayOpen) {
+      return;
+    }
+    state.scenarioOverlayOpen = false;
+    var layer;
+    try {
+      layer = document.getElementById("scenario-layer");
+    } catch (lookupError) {
+      return;
+    }
+    if (layer) {
+      layer.innerHTML = "";
+    }
+    var returnEl = state.scenarioFocusReturn;
+    state.scenarioFocusReturn = null;
+    if (returnEl && returnEl.focus && document.body && document.body.contains && document.body.contains(returnEl)) {
+      returnEl.focus();
+    }
   }
 
   function renderEntry() {
@@ -779,7 +880,7 @@
         }
         html +=
           '<button class="mini-slot' + (hard ? " is-hard" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + '" ' +
-          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="미리 표시해 둔 시간이에요 — 눌러서 바꿀 수 있어요"' : "") + '>' +
+          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
             (video ? '<span class="mini-video-badge" aria-hidden="true"></span>' : '') +
           '</button>';
       });
@@ -1369,6 +1470,12 @@
       state.openSlotId = null;
       render();
     });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && state.scenarioOverlayOpen) {
+        closeScenarioCard();
+      }
+    });
   }
 
   var demoNav = null;
@@ -1380,11 +1487,38 @@
   }
   if (demoNav) {
     demoNav.addEventListener("click", function (event) {
-      var target = event.target.closest("[data-route]");
-      if (!target) {
+      var routeTarget = event.target.closest("[data-route]");
+      if (routeTarget) {
+        setRoute(routeTarget.getAttribute("data-route"));
         return;
       }
-      setRoute(target.getAttribute("data-route"));
+      var replayTarget = event.target.closest("[data-action='scenario-replay']");
+      if (replayTarget) {
+        renderScenarioCard(state.route, true);
+      }
+    });
+  }
+
+  var scenarioLayer = null;
+  try {
+    scenarioLayer = document.getElementById("scenario-layer");
+  } catch (lookupError) {
+    // 테스트 하네스 등 #scenario-layer가 없는 최소 DOM 목업에서는 조용히 건너뛴다.
+    scenarioLayer = null;
+  }
+  if (scenarioLayer) {
+    scenarioLayer.addEventListener("click", function (event) {
+      var closeBtn = event.target.closest ? event.target.closest("[data-action='scenario-close']") : null;
+      if (closeBtn) {
+        closeScenarioCard();
+        return;
+      }
+      var card = event.target.closest ? event.target.closest(".scenario-card") : null;
+      if (card) {
+        // 카드 내부(버튼 제외) 클릭은 닫지 않는다.
+        return;
+      }
+      closeScenarioCard();
     });
   }
 

@@ -1632,7 +1632,106 @@ button {
   color: white;
 }
 
+.demo-nav-help {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.demo-nav-help:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 #demo-nav button:focus-visible {
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
+}
+
+/* ── 시나리오 카드 오버레이 ──
+   #demo-nav와 같은 다크 문법의 데모 레이어. 제품 화면(#app)에는
+   설명 문구를 넣지 않는다는 원칙에 따라, 상황 설명은 여기로만 분리한다. */
+#scenario-layer:empty {
+  display: none;
+}
+
+#scenario-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.scenario-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(25, 31, 40, 0.5);
+}
+
+.scenario-card {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--space-6);
+  border-radius: var(--radius-16);
+  background: var(--gray-900);
+  color: white;
+  box-shadow: var(--shadow-pop);
+}
+
+.scenario-eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-12);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.scenario-body {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-14);
+  line-height: 1.5;
+  color: white;
+}
+
+.scenario-mission {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-14);
+  font-weight: 700;
+  color: white;
+}
+
+.scenario-start-btn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 12px var(--space-4);
+  border-radius: 999px;
+  background: white;
+  color: var(--gray-900);
+  font-size: var(--text-14);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scenario-start-btn:hover {
+  background: var(--gray-100);
+}
+
+.scenario-start-btn:focus-visible,
+.demo-nav-help:focus-visible {
   outline: 3px solid var(--accent-ring);
   outline-offset: 2px;
 }
@@ -1679,5 +1778,15 @@ button {
   .demo-nav-subtoggle button {
     padding: 3px 5px;
     font-size: 11px;
+  }
+
+  .demo-nav-help {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  .scenario-card {
+    padding: var(--space-4);
   }
 }
