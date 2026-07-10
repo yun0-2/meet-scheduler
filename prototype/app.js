@@ -597,17 +597,62 @@
     state.route = currentRoute();
     if (state.route === "input" || state.route === "input-optional") {
       renderInput();
-      return;
-    }
-    if (state.route === "compare") {
+    } else if (state.route === "compare") {
       renderCompare();
-      return;
-    }
-    if (state.route === "confirm") {
+    } else if (state.route === "confirm") {
       renderConfirm();
+    } else {
+      renderEntry();
+    }
+    renderDemoNav();
+  }
+
+  // 데모 전용 플로팅 네비게이터 — 제품 화면(#app) 바깥의 리모컨.
+  // 주최자/참석자 시점 전환이 암시적이라 프로토타입을 처음 보는 사람이
+  // 놓치기 쉬워서, 제품 UI 밖에 별도로 붙인 이동 수단이다.
+  function renderDemoNav() {
+    var nav;
+    try {
+      nav = document.getElementById("demo-nav");
+    } catch (lookupError) {
+      // 테스트 하네스 등 #demo-nav가 없는 최소 DOM 목업에서는 조용히 건너뛴다.
       return;
     }
-    renderEntry();
+    if (!nav) {
+      return;
+    }
+    var route = state.route;
+    var isInputOptional = route === "input-optional";
+    var jiwoo = getPerson("jiwoo");
+    var inputPerson = isInputOptional ? getPerson("seyoung") : getPerson("haneul");
+    var inputLabel = isInputOptional ? "입력 · 세영" : "입력 · 하늘";
+    var steps = [
+      { num: 1, hash: "entry", person: jiwoo, label: "요청 · 지우", active: route === "entry" },
+      { num: 2, hash: isInputOptional ? "input-optional" : "input", person: inputPerson, label: inputLabel, active: route === "input" || isInputOptional },
+      { num: 3, hash: "compare", person: jiwoo, label: "추천 · 지우", active: route === "compare" },
+      { num: 4, hash: "confirm", person: jiwoo, label: "확정 · 지우", active: route === "confirm" }
+    ];
+
+    var buttonsHtml = steps.map(function (step) {
+      return (
+        '<button type="button" class="demo-nav-btn" data-route="' + step.hash + '" aria-label="' + step.num + '단계, ' + step.label + '"' + (step.active ? ' aria-current="page"' : '') + '>' +
+          '<span class="demo-nav-num" aria-hidden="true">' + step.num + '</span>' +
+          '<span class="demo-nav-avatar" aria-hidden="true"' + avatarVars(step.person) + '>' + initials(step.person.name) + '</span>' +
+          '<span class="demo-nav-label" aria-hidden="true">' + step.label + '</span>' +
+        '</button>'
+      );
+    }).join("");
+
+    var subToggleHtml = "";
+    if (route === "input" || isInputOptional) {
+      subToggleHtml =
+        '<div class="demo-nav-subtoggle" role="group" aria-label="입력 화면 대상 전환">' +
+          '<button type="button" data-route="input" aria-pressed="' + String(route === "input") + '">하늘</button>' +
+          '<button type="button" data-route="input-optional" aria-pressed="' + String(isInputOptional) + '">세영</button>' +
+        '</div>';
+    }
+
+    nav.innerHTML = '<div class="demo-nav-track">' + buttonsHtml + '</div>' + subToggleHtml;
   }
 
   function renderEntry() {
@@ -1324,6 +1369,23 @@
       }
       state.openSlotId = null;
       render();
+    });
+  }
+
+  var demoNav = null;
+  try {
+    demoNav = document.getElementById("demo-nav");
+  } catch (lookupError) {
+    // 테스트 하네스 등 #demo-nav가 없는 최소 DOM 목업에서는 조용히 건너뛴다.
+    demoNav = null;
+  }
+  if (demoNav) {
+    demoNav.addEventListener("click", function (event) {
+      var target = event.target.closest("[data-route]");
+      if (!target) {
+        return;
+      }
+      setRoute(target.getAttribute("data-route"));
     });
   }
 
