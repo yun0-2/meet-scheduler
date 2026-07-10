@@ -819,7 +819,6 @@
       '<div class="legend" role="group" aria-label="격자 범례">' +
         '<span class="legend-item"><span class="legend-swatch is-unavailable" aria-hidden="true"></span>안 돼요</span>' +
         '<span class="legend-item"><span class="legend-ramp" aria-hidden="true"><span class="is-low"></span><span class="is-mid"></span><span class="is-high"></span></span>여유</span>' +
-        '<span class="legend-item"><span class="legend-swatch is-ring" aria-hidden="true"></span>추천</span>' +
       '</div>'
     );
   }
@@ -867,6 +866,9 @@
     }
     if (recommended) {
       parts.push("추천");
+    }
+    if (state.selectedSlotId === slot.id) {
+      parts.push("선택됨");
     }
     return parts.join(", ");
   }
@@ -968,7 +970,7 @@
             (slot.conditional.length ? '<span class="metric-pill"><span class="video-icon" aria-hidden="true"></span>화상</span>' : '') +
           '</div>' +
           (isOpen ? '<p class="recommend-detail">' + card.detail + '</p>' : '') +
-          '<button class="card-button" data-action="choose-slot" data-slot-id="' + slot.id + '">이 시간 선택</button>' +
+          '<button class="card-button' + (state.selectedSlotId === slot.id ? " is-chosen" : "") + '" data-action="choose-slot" data-slot-id="' + slot.id + '">' + (state.selectedSlotId === slot.id ? "✓ 선택됨" : "이 시간 선택") + '</button>' +
         '</article>'
       );
     }).join("");
