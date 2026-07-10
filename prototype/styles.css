@@ -369,7 +369,7 @@ button {
   color: var(--avatar-text, var(--gray-700));
 }
 
-/* 토글 어포던스 — 참석 이유가 펼쳐지는 버튼임을 알리는 쉐브론 (감사 019 E-2) */
+/* 토글 어포던스 — 참석 이유가 펼쳐지는 버튼임을 알리는 쉐브론 */
 .avatar-button::after {
   content: "∨";
   position: absolute;
@@ -1597,7 +1597,7 @@ button {
 
 }
 
-/* 제출 피드백 토스트 (감사 019 I-1) — 데모 리모컨 위, 화면 하단 중앙 */
+/* 제출 피드백 토스트 — 데모 리모컨 위, 화면 하단 중앙 */
 .submit-toast-layer {
   position: fixed;
   left: 50%;

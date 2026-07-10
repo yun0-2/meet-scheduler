@@ -81,7 +81,7 @@
     return hours;
   }
 
-  // 아바타 이니셜은 성 1글자로 통일 (감사 019 E-1) — 6인 캐스트는 성이 전부 달라 충돌 없음
+  // 아바타 이니셜은 성 1글자로 통일 — 6인 캐스트는 성이 전부 달라 충돌 없음
   function initials(name) {
     return name.slice(0, 1);
   }
@@ -1323,7 +1323,7 @@
     });
   }
 
-  // 입력 제출 피드백 토스트 (감사 019 I-1) — 2.5초 노출 후 opacity 트랜지션으로 사라짐
+  // 입력 제출 피드백 토스트 — 2.5초 노출 후 opacity 트랜지션으로 사라짐
   function scheduleToastDismiss() {
     if (typeof window.setTimeout !== "function") {
       return;
