@@ -497,7 +497,7 @@
 
   function stressCardCopy(slot) {
     if (slot.conditional.length > 0) {
-      // 비공개 제약은 인원수도 안 센다 (k-익명 원칙)
+      // 비공개 제약은 인원수도 안 센다 (k-익명 원칙, 감사 016-4)
       return "다 되긴 하는데 금요일 늦은 오후예요. 끝나고 바로 다음 일정이 걸린다는 표시도 있어요.";
     }
     if (hasPrivateBurden(slot)) {
@@ -544,7 +544,7 @@
   }
 
   // 비공개로 입력한 하드 제약(예: 하늘의 17시 이후 불가)은 캘린더 일정과 달리
-  // 어디에서도 이름과 결합해 표시하면 안 된다.
+  // 어디에서도 이름과 결합해 표시하면 안 된다 (감사 012-1).
   function hasPrivateHardConflict(slot) {
     return slot.busyConflicts.some(function (item) {
       return item.private;
@@ -838,7 +838,7 @@
                 renderInputLegend() +
                 '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
               '</section>' +
-              '<p class="privacy-note">표시한 이유는 주최자에게 보이지 않아요</p>' +
+              '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
               '<button class="btn btn-full" data-action="go-compare">제출</button>' +
             '</div>' +
           '</div>' +
@@ -979,7 +979,7 @@
       '<div class="legend" role="group" aria-label="격자 범례">' +
         '<span class="legend-item"><span class="legend-swatch is-unavailable" aria-hidden="true"></span>안 돼요</span>' +
         '<span class="legend-item"><span class="legend-ramp" aria-hidden="true"><span class="is-low"></span><span class="is-mid"></span><span class="is-high"></span></span>여유</span>' +
-        '<span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>부담 표시 있음</span>' +
+        '<span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>피하고 싶은 표시 있음</span>' +
       '</div>'
     );
   }
@@ -999,7 +999,7 @@
         var active = state.activeSlotId === slot.id;
         var open = state.openSlotId === slot.id;
         var unavailable = isUnavailableSlot(slot);
-        // 격자 표면에도 부담 신호를 올린다 — 호버/팝업 뒤에만 숨기면
+        // 감사 016-3: 격자 표면에도 부담 신호를 올린다 — 호버/팝업 뒤에만 숨기면
         // When2meet류 여유 히트맵과 첫인상이 같아져 이 도구의 차별점(소프트·비공개
         // 부담 반영)이 안 보인다. 인원수·이름은 여전히 절대 노출하지 않는다(k-익명).
         var privateBurden = !unavailable && burdenCount(slot) > 0;
@@ -1024,7 +1024,7 @@
       parts.push("여유 " + availabilityLevel(slot) + "단계");
     }
     if (burdenCount(slot) > 0) {
-      parts.push("부담 표시 있음");
+      parts.push("피하고 싶은 표시 있음");
     }
     if (recommended) {
       parts.push("추천");
@@ -1099,7 +1099,7 @@
       parts.push("안 돼요");
     }
     if (hasPrivateBurden(slot)) {
-      parts.push("피하고 싶단 표시 있음");
+      parts.push("피하고 싶은 표시 있음");
     }
     if (slot.conditional.length > 0) {
       parts.push("화상 참여 있음");
@@ -1153,18 +1153,18 @@
           '<h1 class="screen-title">이 시간으로 정할까요?</h1>' +
           '<div class="confirm-layout">' +
             '<section class="confirm-panel">' +
-              '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>1시간 · ' + data.meeting.title + '</span></div>' +
+              '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>1시간 · ' + data.meeting.title + '</span><button class="btn-ghost-dark" data-action="go-compare">다른 시간 보기</button></div>' +
               '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
+              '<p class="confirm-section-label">확정 전 확인 — 주최자에게만 보여요</p>' +
               '<ul class="summary-list">' + renderSummary(slot) + '</ul>' +
               '<p class="privacy-note">비공개 정보는 노출하지 않아요</p>' +
               '<div class="button-row">' +
                 '<button class="btn" data-action="post-confirm">이 시간으로 확정하기</button>' +
-                '<button class="btn btn-secondary" data-action="go-compare">다른 시간 보기</button>' +
               '</div>' +
-              '<div class="posted-message ' + (state.posted ? "is-visible" : "") + '" role="status">슬랙 채널에 확정 메시지를 올렸어요. 시간을 바꿔야 하면 여기서 다시 조율할 수 있어요.</div>' +
+              '<div class="posted-message ' + (state.posted ? "is-visible" : "") + '" role="status">슬랙 채널에 확정 메시지를 올렸어요. 참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</div>' +
             '</section>' +
             '<aside class="slack-preview">' +
-              '<h2>슬랙 채널</h2>' +
+              '<h2>#q3-kickoff 채널의 조율 카드에 올라가요</h2>' +
               renderSlackPreview(slot) +
             '</aside>' +
           '</div>' +
@@ -1174,7 +1174,7 @@
 
   function renderAttendeeStatus(slot) {
     if (hasPrivateHardConflict(slot)) {
-      // 비공개 하드 제약이 있는 슬롯은 사람별 상태를 그리지 않는다 — 이름 결합 금지
+      // 비공개 하드 제약이 있는 슬롯은 사람별 상태를 그리지 않는다 — 이름 결합 금지 (감사 012-1)
       return '<p class="privacy-note">이 시간은 비공개 사정 때문에 확정하기 어려워요. 다른 시간을 골라주세요.</p>';
     }
     return data.people.map(function (person) {
@@ -1224,7 +1224,7 @@
       items.push("선택 참석자도 들어올 수 있어요. 정해지면 결과도 같이 공유해요.");
     }
     if (burdenCount(slot) > 0) {
-      items.push("양보가 필요한 표시가 있어요. 개인 사유는 보이지 않아요.");
+      items.push("피하고 싶은 표시가 있어요. 개인 사유는 보이지 않아요.");
     }
     if (slot.conditional.length > 0) {
       items.push("화상으로 들어오는 참석자가 있어요.");
@@ -1245,7 +1245,7 @@
           '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">방금</span></div>' +
           '<strong>' + data.meeting.title + ' 시간이 정해졌어요</strong>' +
           '<p>' + displayTime(slot) + ' · 1시간</p>' +
-          '<p class="helper-copy">참석하기 어려운 분에게는 결과를 따로 공유해요. 비공개 사유는 올리지 않았어요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</p>' +
+          '<p class="helper-copy">참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</p>' +
         '</div>' +
       '</div>'
     );

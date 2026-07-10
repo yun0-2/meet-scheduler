@@ -219,6 +219,16 @@ button {
   box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.26);
 }
 
+/* 누름 피드백은 pointer-down 즉시 — 들어갈 땐 0ms, 뗄 때만 기존 200ms로 복귀 */
+.btn:active,
+.btn-secondary:active,
+.btn-ghost-dark:active,
+.card-button:active,
+.remind-btn:active,
+.mini-slot:not(:disabled):active {
+  transition-duration: 0ms;
+}
+
 .btn:focus-visible,
 .avatar-button:focus-visible,
 .slot-cell:focus-visible,
@@ -226,6 +236,11 @@ button {
 .card-button:focus-visible,
 .sort-toggle button:focus-visible {
   outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
+}
+
+.btn-ghost-dark:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.7);
   outline-offset: 2px;
 }
 
@@ -897,7 +912,7 @@ button {
   box-shadow: none;
 }
 
-/* 격자 표면 부담 신호(앰버 점) — 파랑 여유 히트맵/회색 불가 칸과
+/* 감사 016-3: 격자 표면 부담 신호(앰버 점) — 파랑 여유 히트맵/회색 불가 칸과
    혼동 없게 앰버 계열로만 표시한다. 인원수·이름은 절대 담지 않는다(k-익명). */
 .slot-cell.has-private-burden:not(.is-unavailable)::after {
   content: "";
@@ -986,7 +1001,13 @@ button {
   top: calc(100% + var(--space-2));
   left: 50%;
   z-index: 8;
-  display: none;
+  /* display 토글 대신 opacity+scale — 트리거(셀)에서 자라나듯 등장 (apple-design §7 앵커링) */
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.98;
+  transform-origin: top center;
+  pointer-events: none;
   width: 286px;
   max-width: min(286px, 82vw);
   gap: var(--space-2);
@@ -998,6 +1019,8 @@ button {
   padding: var(--space-3);
   text-align: left;
   transform: translateX(-50%);
+  /* 닫힐 때 visibility는 페이드가 끝난 뒤에 꺼진다 */
+  transition: opacity 150ms ease-out, scale 150ms ease-out, visibility 0s linear 150ms;
 }
 
 .popover-title {
@@ -1109,7 +1132,12 @@ button {
 .slot-cell:hover .slot-popover,
 .slot-cell:focus-visible .slot-popover,
 .slot-cell.is-open .slot-popover {
-  display: block;
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+  /* 열릴 때 visibility는 즉시 켜져야 페이드가 보인다 */
+  transition: opacity 150ms ease-out, scale 150ms ease-out;
 }
 
 .slot-detail-panel {
@@ -1244,6 +1272,37 @@ button {
 
 .selected-time strong {
   font-size: var(--text-20);
+}
+
+.btn-ghost-dark {
+  display: inline-flex;
+  margin-left: auto;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: var(--text-13);
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 6px 12px;
+  transition: background-color 200ms ease-out;
+}
+
+.btn-ghost-dark:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-ghost-dark:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.confirm-section-label {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--gray-500);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .attendee-status {
