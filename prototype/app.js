@@ -625,12 +625,11 @@
     var isInputOptional = route === "input-optional";
     var jiwoo = getPerson("jiwoo");
     var inputPerson = isInputOptional ? getPerson("seyoung") : getPerson("haneul");
-    var inputLabel = isInputOptional ? "입력 · 세영" : "입력 · 하늘";
     var steps = [
-      { num: 1, hash: "entry", person: jiwoo, label: "요청 · 지우", active: route === "entry" },
-      { num: 2, hash: isInputOptional ? "input-optional" : "input", person: inputPerson, label: inputLabel, active: route === "input" || isInputOptional },
-      { num: 3, hash: "compare", person: jiwoo, label: "추천 · 지우", active: route === "compare" },
-      { num: 4, hash: "confirm", person: jiwoo, label: "확정 · 지우", active: route === "confirm" }
+      { num: 1, hash: "entry", person: jiwoo, label: "요청 · 주최자", active: route === "entry" },
+      { num: 2, hash: isInputOptional ? "input-optional" : "input", person: inputPerson, label: "입력 · 참석자", active: route === "input" || isInputOptional },
+      { num: 3, hash: "compare", person: jiwoo, label: "추천 · 주최자", active: route === "compare" },
+      { num: 4, hash: "confirm", person: jiwoo, label: "확정 · 주최자", active: route === "confirm" }
     ];
 
     var buttonsHtml = steps.map(function (step) {
@@ -647,8 +646,8 @@
     if (route === "input" || isInputOptional) {
       subToggleHtml =
         '<div class="demo-nav-subtoggle" role="group" aria-label="입력 화면 대상 전환">' +
-          '<button type="button" data-route="input" aria-pressed="' + String(route === "input") + '">하늘</button>' +
-          '<button type="button" data-route="input-optional" aria-pressed="' + String(isInputOptional) + '">세영</button>' +
+          '<button type="button" data-route="input" aria-pressed="' + String(route === "input") + '">필수</button>' +
+          '<button type="button" data-route="input-optional" aria-pressed="' + String(isInputOptional) + '">선택</button>' +
         '</div>';
     }
 
