@@ -967,15 +967,12 @@ button {
 
 .legend-dot::after {
   content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--amber-strong);
-  border: 1px solid var(--amber-line);
-  transform: translate(-50%, -50%);
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid var(--amber-line);
 }
 
 .schedule-grid {
@@ -1043,14 +1040,14 @@ button {
 }
 
 .slot-cell.is-unavailable {
-  border-color: var(--slot-unavailable-border);
-  background: var(--slot-unavailable);
+  border-color: var(--border);
+  background: var(--surface);
   box-shadow: none;
 }
 
 .slot-cell.is-unavailable:hover {
   border-color: var(--border-strong);
-  background: var(--slot-unavailable);
+  background: var(--surface);
   box-shadow: none;
 }
 
@@ -1059,13 +1056,13 @@ button {
 .slot-cell.has-private-burden:not(.is-unavailable)::after {
   content: "";
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--amber-strong);
-  border: 1px solid var(--amber-line);
+  top: 5px;
+  right: 5px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid var(--amber-line);
   z-index: 1;
 }
 
@@ -2206,4 +2203,55 @@ button {
   margin-left: auto;
   min-height: 32px;
   font-size: var(--text-13);
+}
+
+
+/* 격자 순위 칩 — 카드(1·2·3순위)와 1:1 연결 */
+.rank-tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--surface);
+  border: 1px solid var(--gray-300);
+  color: var(--gray-600);
+}
+
+.rank-tag.is-first {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 태그 칩 토널화 — 필수는 파랑 토널, 선택은 뉴트럴 필 */
+.tag-required {
+  background: var(--accent-soft) !important;
+  color: var(--accent-strong) !important;
+  border: 0 !important;
+}
+
+.tag-optional {
+  background: var(--gray-100) !important;
+  color: var(--gray-600) !important;
+  border: 0 !important;
+}
+
+/* compare 격자 점심 행 — 시스템이 잠근 시간(회색 비활성) */
+.grid-time.is-lunch {
+  color: var(--gray-400);
+}
+
+.grid-lunch-band {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  border-radius: var(--radius-6);
+  background: var(--gray-100);
+  color: var(--gray-400);
+  font-size: var(--text-12);
 }

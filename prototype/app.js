@@ -13,7 +13,6 @@
     posted: false,
     activeSlotId: null,
     openSlotId: null,
-    openReasonId: null,
     openCardId: null,
     sortMode: "recommended",
     dragActive: false,
@@ -36,6 +35,8 @@
     meetingTitle: null,
     meetingContext: "",
     composeQuery: "",
+    composeSuggestOpen: false,
+    composeMessage: "",
     bannerOpen: false
   };
 
@@ -50,7 +51,7 @@
       },
       compare: {
         eyebrow: "2/3 · 주최자",
-        body: "참석자들의 응답이 모였어요.",
+        body: "며칠 뒤, 참석자들의 응답이 모였어요.",
         mission: "왜 이 시간이 1순위인지 이유를 눌러 확인해보세요."
       },
       confirm: {
@@ -89,6 +90,41 @@
 
   function meetingTitle() {
     return state.meetingTitle || data.meeting.title;
+  }
+
+  // 검색 제안의 근거 칩 — 디렉토리/이력 데이터라고 시스템이 아는 것만 (cast.js는 수정하지 않음)
+  var suggestReason = {
+    taeho: "지난 킥오프 참석",
+    minjun: "지난 킥오프 참석",
+    haneul: "지난 킥오프 참석",
+    sua: "지난 킥오프 결과 공유",
+    seyoung: "지난 킥오프 결과 공유"
+  };
+
+  // 채널에 곁들여 보낼 메시지 제안 — 입력값(제목·맥락)에서 생성. 유령 글자(placeholder)로만 노출.
+  function suggestedMessage() {
+    var context = state.meetingContext.trim();
+    return (
+      "『" + meetingTitle() + "』 시간을 잡으려고 해요. 1시간이면 돼요." +
+      (context ? " 안건: " + context + "." : "") +
+      " 다음 주 안에 정하려고 하니, 어려운 시간이 있으면 카드에서 알려주세요."
+    );
+  }
+
+  // 사람 행 공용 문법 — 아바타 / [이름 + 필수·선택 태그] / 직책(회색).
+  // 작성·게시 카드가 같은 두 줄 구조를 쓰도록 한 함수로 뽑음.
+  function personIdentityBlock(person, attendance) {
+    var isRequired = attendance === "required";
+    return (
+      '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
+      '<div class="compose-row-main">' +
+        '<span class="compose-row-line">' +
+          '<span class="compose-row-name">' + person.name + '</span>' +
+          '<span class="tag ' + (isRequired ? "tag-required" : "tag-optional") + '">' + (isRequired ? "필수" : "선택") + '</span>' +
+        '</span>' +
+        '<span class="compose-row-role">' + person.role + '</span>' +
+      '</div>'
+    );
   }
 
   var slotHours = buildSlotHours();
@@ -506,7 +542,7 @@
       {
         key: "stress",
         slot: featured.stress,
-        recommendedRank: "비교",
+        recommendedRank: "3순위",
         copy: stressCardCopy(featured.stress),
         detail: stressCardDetail(featured.stress)
       }
@@ -923,7 +959,7 @@
                 '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
                 '<div>' +
                   '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">오전 10:04</span></div>' +
-                  (state.composePosted ? renderPostedCard() : renderComposeCard(jiwoo)) +
+                  (state.composePosted ? (renderPostedMessageText() + renderPostedCard()) : renderComposeCard(jiwoo)) +
                 '</div>' +
               '</article>' +
             '</div>' +
@@ -973,6 +1009,10 @@
     return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   }
 
+  function escapeText(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  }
+
   function composeSuggestions() {
     var query = state.composeQuery.trim();
     return composeCandidates().filter(function (person) {
@@ -1010,9 +1050,14 @@
           '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
         '</div>' +
         '<p class="compose-section-label">참석자</p>' +
+        '<div class="compose-search-wrap">' +
+          '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="이름으로 추가" aria-label="참석자 검색" autocomplete="off" />' +
+          '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
+        '</div>' +
         '<div class="compose-list">' + addedRows + '</div>' +
-        '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="이름으로 추가" aria-label="참석자 검색" autocomplete="off" />' +
-        '<div class="compose-suggestions" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
+        '<p class="compose-section-label">채널에 보낼 메시지 <span class="compose-section-caption">비워두면 제안 문안이 그대로 나가요</span></p>' +
+        '<textarea class="compose-message-input" id="compose-message" rows="3" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()) + '">' + escapeText(state.composeMessage) + '</textarea>' +
+        '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>' +
         '<button class="btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
       '</div>'
     );
@@ -1021,25 +1066,20 @@
   function renderOrganizerRow(jiwoo) {
     return (
       '<div class="compose-row is-organizer">' +
-        '<span class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</span>' +
-        '<div class="compose-row-main">' +
-          '<span class="compose-row-name">' + jiwoo.name + '</span>' +
-          '<span class="compose-row-role">' + jiwoo.role + '</span>' +
-        '</div>' +
-        '<span class="tag tag-required">필수</span>' +
+        personIdentityBlock(jiwoo, "required") +
       '</div>'
     );
   }
 
   function renderCandidateRow(person) {
+    var reason = suggestReason[person.id];
     return (
       '<div class="compose-row">' +
-        '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
-        '<div class="compose-row-main">' +
-          '<span class="compose-row-name">' + person.name + '</span>' +
-          '<span class="compose-row-role">' + person.role + '</span>' +
+        personIdentityBlock(person, effectiveAttendance(person)) +
+        '<div class="compose-row-controls">' +
+          (reason ? '<span class="compose-evidence-chip">' + reason + '</span>' : '') +
+          '<button type="button" class="btn btn-secondary btn-small compose-add-btn" data-action="compose-add" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자로 추가">+ 추가</button>' +
         '</div>' +
-        '<button type="button" class="btn btn-secondary btn-small compose-add-btn" data-action="compose-add" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자로 추가">+ 추가</button>' +
       '</div>'
     );
   }
@@ -1048,11 +1088,7 @@
     var attendance = effectiveAttendance(person);
     return (
       '<div class="compose-row is-added">' +
-        '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
-        '<div class="compose-row-main">' +
-          '<span class="compose-row-name">' + person.name + '</span>' +
-          '<span class="compose-row-reason">' + person.attendanceReason + '</span>' +
-        '</div>' +
+        personIdentityBlock(person, attendance) +
         '<div class="compose-row-controls">' +
           '<div class="compose-segmented" role="group" aria-label="' + person.name + ' 참석 구분">' +
             '<button type="button" class="' + (attendance === "required" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "required") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="required">필수</button>' +
@@ -1060,8 +1096,15 @@
           '</div>' +
           '<button type="button" class="compose-remove-btn" data-action="compose-remove" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자에서 제거">×</button>' +
         '</div>' +
+        '<span class="compose-row-caption">지난 회의 기준 추천 — 바꿀 수 있어요</span>' +
       '</div>'
     );
+  }
+
+  // 슬랙에서 앱 카드에 곁들여 보낸 일반 메시지 텍스트 — 비워서 보냈으면 제안 문안이 그대로 나간다.
+  function renderPostedMessageText() {
+    var text = state.composeMessage.trim() || suggestedMessage();
+    return '<p class="posted-message-text">' + escapeText(text) + '</p>';
   }
 
   function renderPostedCard() {
@@ -1097,19 +1140,9 @@
 
   function renderParticipantRows() {
     return activePeople().map(function (person) {
-      var isOpen = state.openReasonId === person.id;
-      var attendance = effectiveAttendance(person);
       return (
-        '<div class="participant-row">' +
-          '<button class="avatar-button ' + (attendance === "required" ? "is-required" : "is-optional") + '" data-action="toggle-reason" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석 이유 보기" aria-expanded="' + String(isOpen) + '"' + avatarVars(person) + '>' + initials(person.name) + '</button>' +
-          '<div>' +
-            '<div class="participant-main">' +
-              '<span class="participant-name">' + person.name + '</span>' +
-              '<span class="tag ' + (attendance === "required" ? "tag-required" : "tag-optional") + '">' + (attendance === "required" ? "필수" : "선택") + '</span>' +
-              '<span class="helper-copy">' + person.role + '</span>' +
-            '</div>' +
-          '</div>' +
-          (isOpen ? '<p class="reason-box">' + person.attendanceReason + '</p>' : '') +
+        '<div class="compose-row is-static">' +
+          personIdentityBlock(person, effectiveAttendance(person)) +
         '</div>'
       );
     }).join("");
@@ -1172,17 +1205,21 @@
       html += '<div class="mini-time">' + hour + '</div>';
       data.meeting.days.forEach(function (day) {
         var id = slotId(day, hour);
-        var hard = participantHardForInput(person, day, hour);
+        // 내 캘린더의 일정 — 본인 화면이라 비공개 하드(예: 학원)도 제목 노출 OK
+        var hardInfo = participantHardForInput(person, day, hour);
+        var hard = Boolean(hardInfo);
+        var hardLabel = hard ? (hardInfo.title || hardInfo.label || "") : "";
         var soft = !hard && !optedOut && softSelectedForInput(person, id);
         var video = !hard && conditionalStatus(person, day);
         var disabled = hard || optedOut;
-        var label = day + "요일 " + hour + "시, " + (hard ? "안 되는 시간" : optedOut ? "비활성화된 시간" : soft ? "피하고 싶은 시간" : "가능한 시간");
+        var label = day + "요일 " + hour + "시, " + (hard ? (hardLabel ? hardLabel + " 일정이 있어요" : "안 되는 시간") : optedOut ? "비활성화된 시간" : soft ? "피하고 싶은 시간" : "가능한 시간");
         if (video) {
           label += ", 화상 참여 가능";
         }
         html +=
           '<button class="mini-slot' + (hard ? " is-hard" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + '" ' +
           'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
+            (hard && hardLabel ? '<span class="mini-slot-label">' + escapeText(hardLabel) + '</span>' : '') +
             (video ? '<span class="mini-video-badge" aria-hidden="true"></span>' : '') +
           '</button>';
       });
@@ -1194,7 +1231,7 @@
   function renderInputLegend() {
     return (
       '<div class="legend legend-input" role="group" aria-label="입력 범례">' +
-        '<span class="legend-item"><span class="legend-swatch is-busy" aria-hidden="true"></span>일정 있음</span>' +
+        '<span class="legend-item"><span class="legend-swatch is-busy" aria-hidden="true"></span>내 일정</span>' +
         '<span class="legend-item"><span class="legend-swatch is-preferred" aria-hidden="true"></span>피하고 싶어요</span>' +
         '<span class="legend-item"><span class="legend-swatch is-open" aria-hidden="true"></span>괜찮아요</span>' +
       '</div>'
@@ -1275,7 +1312,7 @@
   function renderLegend() {
     return (
       '<div class="legend" role="group" aria-label="격자 범례">' +
-        '<span class="legend-item"><span class="legend-swatch is-unavailable" aria-hidden="true"></span>안 돼요</span>' +
+
         '<span class="legend-item"><span class="legend-ramp" aria-hidden="true"><span class="is-low"></span><span class="is-mid"></span><span class="is-high"></span></span>여유</span>' +
         '<span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>피하고 싶은 표시 있음</span>' +
       '</div>'
@@ -1283,12 +1320,23 @@
   }
 
   function renderScheduleGrid(featured) {
+    // 후보 순위(카드와 동일 계산)를 격자 표면에 1:1로 연결
+    var rankBySlot = {};
+    recommendedCards().forEach(function (card) {
+      rankBySlot[card.slot.id] = card.recommendedRank;
+    });
     var html = '<div class="grid-corner">시간</div>';
     data.meeting.days.forEach(function (day) {
       html += '<div class="grid-day">' + day + '</div>';
     });
 
+    var lunchStart = data.meeting.workHours.lunch[0];
     slotHours.forEach(function (hour) {
+      if (hour === lunchStart + 1) {
+        // 12시 점심 행 — 시스템이 잠근 시간은 회색 비활성 (격자 의미 체계 §4)
+        html += '<div class="grid-time is-lunch">' + String(lunchStart).padStart(2, "0") + ':00</div>' +
+          '<div class="grid-lunch-band" role="note" aria-label="' + lunchStart + '시 점심시간, 후보에서 제외">점심시간</div>';
+      }
       html += '<div class="grid-time">' + String(hour).padStart(2, "0") + ':00</div>';
       data.meeting.days.forEach(function (day) {
         var slot = slotById(slotId(day, hour));
@@ -1300,11 +1348,14 @@
         // 격자 표면에도 부담 신호를 올린다 — 호버/팝업 뒤에만 숨기면
         // When2meet류 여유 히트맵과 첫인상이 같아져 이 도구의 차별점(소프트·비공개
         // 부담 반영)이 안 보인다. 인원수·이름은 여전히 절대 노출하지 않는다(k-익명).
-        var privateBurden = !unavailable && burdenCount(slot) > 0;
+        // 세모는 본인이 직접 남긴 표시(privateSoft)만 — 추론·통념까지 그리면
+        // 후보마다 전부 표시가 붙는 부조리가 된다. 약한 신호는 카드 문장의 몫.
+        var privateBurden = !unavailable && slot.privateSoft.length > 0;
+        var rankLabel = !unavailable ? rankBySlot[slot.id] : null;
         html +=
           '<button class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
           'data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
-            (recommended && !unavailable ? '<span class="mini-tag">추천</span>' : '') +
+            (rankLabel ? '<span class="rank-tag' + (rankLabel === "1순위" ? " is-first" : "") + '">' + rankLabel + '</span>' : '') +
             '<span class="slot-popover" role="dialog" aria-label="' + displayTime(slot) + ' 상세">' + renderSlotPopover(slot) + '</span>' +
           '</button>';
       });
@@ -1321,7 +1372,7 @@
       parts.push(slot.totalAvailable + "명 참석 가능");
       parts.push("여유 " + availabilityLevel(slot) + "단계");
     }
-    if (burdenCount(slot) > 0) {
+    if (slot.privateSoft.length > 0) {
       parts.push("피하고 싶은 표시 있음");
     }
     if (recommended) {
@@ -1639,10 +1690,17 @@
     }
     if (field.id === "compose-title") {
       state.meetingTitle = field.value;
+      syncComposeMessagePlaceholder();
       return;
     }
     if (field.id === "compose-context") {
       state.meetingContext = field.value;
+      syncComposeMessagePlaceholder();
+      return;
+    }
+    if (field.id === "compose-message") {
+      // 직접 타이핑 = 자기 글. placeholder(제안 문안)는 브라우저가 알아서 숨긴다.
+      state.composeMessage = field.value;
       return;
     }
     if (field.id === "compose-search") {
@@ -1654,7 +1712,50 @@
     }
   });
 
+  // 제목·맥락이 바뀌면 제안 문안(유령 글자)만 새로 만든다 — value는 절대 건드리지 않는다.
+  function syncComposeMessagePlaceholder() {
+    var msgEl = document.getElementById && document.getElementById("compose-message");
+    if (msgEl) {
+      msgEl.placeholder = suggestedMessage();
+    }
+  }
+
+  // 제안 문안을 그대로 수락 (Tab 키 / 칩 공용) — value에 채워 넣는다.
+  function acceptSuggestedMessage() {
+    var msgEl = document.getElementById && document.getElementById("compose-message");
+    state.composeMessage = suggestedMessage();
+    if (msgEl) {
+      msgEl.value = state.composeMessage;
+    }
+  }
+
+  function openComposeSuggest() {
+    state.composeSuggestOpen = true;
+    var box = document.getElementById && document.getElementById("compose-suggestions");
+    if (box && box.classList) {
+      box.classList.add("is-open");
+    }
+  }
+
+  function closeComposeSuggest() {
+    if (!state.composeSuggestOpen) {
+      return;
+    }
+    state.composeSuggestOpen = false;
+    var box = document.getElementById && document.getElementById("compose-suggestions");
+    if (box && box.classList) {
+      box.classList.remove("is-open");
+    }
+  }
+
   app.addEventListener("click", function (event) {
+    // 검색 오버레이 바깥 클릭이면 닫는다 (오버레이 안 행 클릭은 wrap 안이라 유지)
+    if (state.composeSuggestOpen) {
+      var inWrap = event.target.closest ? event.target.closest(".compose-search-wrap") : null;
+      if (!inWrap) {
+        closeComposeSuggest();
+      }
+    }
     var target = event.target.closest("[data-action]");
     if (!target) {
       if (state.openSlotId) {
@@ -1726,6 +1827,10 @@
       state.toastFading = false;
       state.toastText = "채널에 보냈어요";
       scheduleToastDismiss();
+      if (window.location.hash !== "#compare") {
+        setRoute("compare");
+        return;
+      }
       render();
     }
     if (action === "toggle-soft") {
