@@ -1390,63 +1390,43 @@
   // never show a person's name, or a count, beside private information anywhere (audit 012-1).
   // 팝업은 기호·배지를 해독하지 않아도 읽히도록 평문 문장으로만 구성한다 (019 평문화).
   // 정상 참석자는 아바타만, 예외(미응답/공개 일정 충돌/화상)는 이름 + 문장으로 각자 한 줄.
-  function slotPeopleBreakdown(slot) {
-    var normal = [];
-    var exceptions = [];
-    activePeople().forEach(function (person) {
+  function slotPeopleStates(slot) {
+    return activePeople().map(function (person) {
       var away = slot.busyConflicts.some(function (item) {
         return item.person.id === person.id && !item.private;
       });
-      var video = !away && slot.conditional.some(function (item) {
-        return item.person.id === person.id;
-      });
       var unresponded = !away && person.responded === false;
-      if (away) {
-        exceptions.push({ person: person, text: person.name + " — 일정이 있어요" });
-      } else if (unresponded) {
-        exceptions.push({ person: person, text: person.name + " — 아직 응답 전이라 캘린더 기준이에요" });
-      } else if (video) {
-        exceptions.push({ person: person, text: person.name + " — 화상으로 들어와요" });
-      } else {
-        normal.push(person);
-      }
+      return { person: person, away: away, unresponded: unresponded };
     });
-    return { normal: normal, exceptions: exceptions };
   }
 
   function renderSlotPopover(slot) {
-    var breakdown = slotPeopleBreakdown(slot);
-    var allAvailable = breakdown.exceptions.length === 0;
+    // 아바타 회색 처리 문법 — 불참(회색 흐림)·미응답(반투명)은 범례 없이 읽힌다.
+    // 이름별 설명 문장은 과설명이라 쓰지 않는다.
+    var states = slotPeopleStates(slot);
+    var avatars = states.map(function (item) {
+      var cls = "slot-avatar " + (effectiveAttendance(item.person) === "required" ? "is-required" : "is-optional");
+      var sr = item.person.name + " 참석 가능";
+      if (item.away) {
+        cls += " is-away";
+        sr = item.person.name + " 못 옴";
+      } else if (item.unresponded) {
+        cls += " is-unresponded";
+        sr = item.person.name + " 아직 응답 전 — 캘린더 기준";
+      }
+      return (
+        '<span class="' + cls + '" title="' + item.person.name + '"' + avatarVars(item.person) + '>' +
+          '<span aria-hidden="true">' + initials(item.person.name) + '</span>' +
+          '<span class="sr-only">' + sr + '</span>' +
+        '</span>'
+      );
+    }).join("");
     return (
       '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
-      '<span class="popover-avatar-stack">' + renderSlotAvailableAvatars(breakdown.normal) + '</span>' +
-      (allAvailable ? '<span class="popover-all-line">' + breakdown.normal.length + '명 모두 올 수 있어요</span>' : '') +
-      (breakdown.exceptions.length ? '<span class="popover-exceptions">' + renderSlotExceptions(breakdown.exceptions) + '</span>' : '') +
-      (hasPrivateBurden(slot) ? '<span class="popover-note">비공개로 피하고 싶다는 표시가 있어요</span>' : '') +
-      (hasPrivateHardConflict(slot) ? '<span class="popover-note">비공개 사정으로 어려운 사람이 있어요</span>' : '')
+      '<span class="popover-avatar-stack">' + avatars + '</span>' +
+      (slot.privateSoft.length > 0 ? '<span class="popover-note">피하고 싶다는 표시가 있어요</span>' : '') +
+      (hasPrivateHardConflict(slot) ? '<span class="popover-note">사정이 있어 어려운 사람이 있어요</span>' : '')
     );
-  }
-
-  function renderSlotAvailableAvatars(people) {
-    return people.map(function (person) {
-      return (
-        '<span class="slot-avatar ' + (effectiveAttendance(person) === "required" ? "is-required" : "is-optional") + '" title="' + person.name + '"' + avatarVars(person) + '>' +
-          '<span aria-hidden="true">' + initials(person.name) + '</span>' +
-          '<span class="sr-only">' + person.name + " 참석 가능" + '</span>' +
-        '</span>'
-      );
-    }).join("");
-  }
-
-  function renderSlotExceptions(exceptions) {
-    return exceptions.map(function (item) {
-      return (
-        '<span class="popover-exception">' +
-          '<span class="popover-exception-avatar" aria-hidden="true"' + avatarVars(item.person) + '>' + initials(item.person.name) + '</span>' +
-          '<span>' + item.text + '</span>' +
-        '</span>'
-      );
-    }).join("");
   }
 
   function slotStatusTitle(slot) {
@@ -1786,11 +1766,6 @@
       }
       setRoute("compare");
     }
-    if (action === "toggle-reason") {
-      var personId = target.getAttribute("data-person-id");
-      state.openReasonId = state.openReasonId === personId ? null : personId;
-      render();
-    }
     if (action === "toggle-banner") {
       state.bannerOpen = !state.bannerOpen;
       render();
@@ -1799,12 +1774,16 @@
       var addId = target.getAttribute("data-person-id");
       state.composeAdded[addId] = true;
       state.composeQuery = "";
+      // 연속 추가 — 오버레이는 열린 채로 두고 검색 입력으로 포커스 복귀
+      state.composeSuggestOpen = true;
       render();
-      // 연속 추가가 자연스럽게 — 검색 입력으로 포커스 복귀
       var searchEl = document.getElementById && document.getElementById("compose-search");
       if (searchEl && searchEl.focus) {
         searchEl.focus();
       }
+    }
+    if (action === "compose-accept-message") {
+      acceptSuggestedMessage();
     }
     if (action === "compose-remove") {
       var removeId = target.getAttribute("data-person-id");
@@ -1967,12 +1946,26 @@
   });
 
   app.addEventListener("focusin", function (event) {
+    // 검색창에 포커스가 오면 제안 오버레이를 연다 (전체 재렌더 없이 클래스만 토글 — 포커스 보존)
+    if (event.target && event.target.id === "compose-search") {
+      openComposeSuggest();
+      return;
+    }
     var cell = event.target.closest ? event.target.closest(".slot-cell") : null;
     if (!cell) {
       return;
     }
     state.activeSlotId = cell.getAttribute("data-slot-id");
     updateActiveSlotDetail();
+  });
+
+  // 제안 문안 수락 — value가 비어 있을 때 Tab 키로 (keydown 캡처, 기본 포커스 이동 막음)
+  app.addEventListener("keydown", function (event) {
+    var field = event.target;
+    if (field && field.id === "compose-message" && event.key === "Tab" && !field.value) {
+      event.preventDefault();
+      acceptSuggestedMessage();
+    }
   });
 
   function updateActiveSlotDetail() {
@@ -1987,6 +1980,10 @@
 
   if (document.addEventListener) {
     document.addEventListener("click", function (event) {
+      // #app 바깥 클릭이면 열려 있던 검색 오버레이를 닫는다
+      if (state.composeSuggestOpen && !(app.contains && app.contains(event.target))) {
+        closeComposeSuggest();
+      }
       if (!state.openSlotId || (app.contains && app.contains(event.target))) {
         return;
       }
@@ -1997,6 +1994,9 @@
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && state.scenarioOverlayOpen) {
         closeScenarioCard();
+      }
+      if (event.key === "Escape" && state.composeSuggestOpen) {
+        closeComposeSuggest();
       }
     });
   }

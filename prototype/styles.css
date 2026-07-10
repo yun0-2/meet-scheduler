@@ -342,8 +342,7 @@ button {
   align-items: start;
 }
 
-.avatar,
-.avatar-button {
+.avatar {
   display: inline-grid;
   width: 40px;
   height: 40px;
@@ -353,35 +352,6 @@ button {
   color: var(--avatar-text, var(--gray-700));
   font-size: var(--text-13);
   font-weight: 700;
-}
-
-.avatar-button {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  cursor: pointer;
-}
-
-/* 필수/선택 색 구분 제거 — 정체성 파스텔만, 구분은 태그가 함 */
-.avatar-button.is-required,
-.avatar-button.is-optional {
-  background: var(--avatar, var(--gray-200));
-  color: var(--avatar-text, var(--gray-700));
-}
-
-/* 토글 어포던스 — 참석 이유가 펼쳐지는 버튼임을 알리는 쉐브론 */
-.avatar-button::after {
-  content: "∨";
-  position: absolute;
-  right: -2px;
-  bottom: -2px;
-  font-size: 8px;
-  line-height: 1;
-  color: var(--gray-400);
-}
-
-.avatar-button[aria-expanded="true"]::after {
-  content: "∧";
 }
 
 .message-meta {
@@ -469,36 +439,6 @@ button {
   margin: var(--space-4) 0 var(--space-6);
 }
 
-.participant-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  column-gap: var(--space-3);
-  row-gap: var(--space-1);
-  align-items: center;
-  padding: var(--space-1) 0;
-}
-
-.participant-main {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
-}
-
-.participant-name {
-  font-weight: 700;
-}
-
-.reason-box {
-  grid-column: 2;
-  margin: var(--space-1) 0 0;
-  border-radius: var(--radius-8);
-  background: var(--gray-100);
-  color: var(--gray-600);
-  font-size: var(--text-13);
-  padding: var(--space-2) var(--space-3);
-}
-
 /* ── 작성 중 조율 카드 — 참석자 추가 ── */
 .compose-section-label {
   margin: 0 0 var(--space-2);
@@ -519,6 +459,7 @@ button {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   column-gap: var(--space-3);
+  row-gap: var(--space-1);
   align-items: center;
   padding: var(--space-2) 0;
   border-bottom: 1px solid var(--border);
@@ -528,9 +469,22 @@ button {
   border-bottom: 0;
 }
 
+/* 게시 카드 참석자 행 — 컨트롤 없는 정적 표시 (2열) */
+.compose-row.is-static {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
 .compose-row-main {
   display: grid;
   gap: 2px;
+  min-width: 0;
+}
+
+/* 첫 줄: 이름 + 필수·선택 태그를 한 줄에 (모든 사람 행 공용 문법) */
+.compose-row-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   min-width: 0;
 }
 
@@ -538,10 +492,17 @@ button {
   font-weight: 700;
 }
 
-.compose-row-role,
-.compose-row-reason {
+/* 둘째 줄: 직책 (회색) */
+.compose-row-role {
   color: var(--gray-600);
   font-size: var(--text-13);
+}
+
+/* 추가된 행 하단 캡션 — 이력 기반 필수/선택 추천 안내 (이름 열 아래 정렬) */
+.compose-row-caption {
+  grid-column: 2 / -1;
+  color: var(--gray-500);
+  font-size: 10px;
 }
 
 .compose-row-controls {
@@ -1178,8 +1139,9 @@ button {
 
 .popover-avatar-stack {
   display: flex;
-  align-items: center;
-  padding-left: var(--space-2);
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0 4px;
 }
 
 .slot-avatar {
@@ -1196,8 +1158,7 @@ button {
 }
 
 .slot-avatar + .slot-avatar {
-  margin-left: -8px;
-}
+  }
 
 .slot-avatar.is-required,
 .slot-avatar.is-optional {
@@ -2124,14 +2085,29 @@ button {
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
+/* 검색창 위에 얹히는 오버레이 드롭다운 — 목록이 아래 참석자 리스트를 밀어내지 않게 */
+.compose-search-wrap {
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+
 .compose-suggestions {
-  margin-top: var(--space-2);
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: none;
+  max-height: 240px;
+  overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius-12);
   background: var(--surface);
-  max-height: 240px;
-  overflow-y: auto;
-  margin-bottom: var(--space-3);
+  box-shadow: var(--shadow-pop);
+}
+
+.compose-suggestions.is-open {
+  display: block;
 }
 
 .compose-suggest-label,
@@ -2140,6 +2116,24 @@ button {
   padding: var(--space-2) var(--space-3);
   color: var(--gray-500);
   font-size: var(--text-12);
+}
+
+/* 검색 제안 행은 오버레이 안에서 좌우 여백 확보 */
+.compose-suggestions .compose-row {
+  padding: var(--space-2) var(--space-3);
+}
+
+/* 이력 근거 칩 — 디렉토리가 아는 사실만 (지난 회의 참석/결과 공유) */
+.compose-evidence-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  font-weight: 600;
+  padding: 2px var(--space-2);
+  white-space: nowrap;
 }
 
 /* ── 게시 카드 응답 현황 ── */
