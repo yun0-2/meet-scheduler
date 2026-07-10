@@ -912,7 +912,7 @@ button {
   box-shadow: none;
 }
 
-/* 감사 016-3: 격자 표면 부담 신호(앰버 점) — 파랑 여유 히트맵/회색 불가 칸과
+/* 격자 표면 부담 신호(앰버 점) — 파랑 여유 히트맵/회색 불가 칸과
    혼동 없게 앰버 계열로만 표시한다. 인원수·이름은 절대 담지 않는다(k-익명). */
 .slot-cell.has-private-burden:not(.is-unavailable)::after {
   content: "";
@@ -1740,6 +1740,8 @@ button {
   justify-content: center;
   padding: var(--space-4);
   background: rgba(25, 31, 40, 0.5);
+  /* 스크림+카드가 함께 페이드 인 — 뚝 나타나지 않게 (materialize) */
+  animation: scenario-fade-in 150ms ease-out;
 }
 
 .scenario-card {
@@ -1750,6 +1752,20 @@ button {
   background: var(--gray-900);
   color: white;
   box-shadow: var(--shadow-pop);
+  /* 카드는 살짝 작게 시작해 제자리로 — 바운스 없음 (등장엔 모멘텀이 없으므로) */
+  animation: scenario-pop-in 200ms ease-out;
+}
+
+@keyframes scenario-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes scenario-pop-in {
+  from {
+    scale: 0.98;
+  }
 }
 
 .scenario-eyebrow {
