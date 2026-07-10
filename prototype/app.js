@@ -1087,7 +1087,7 @@
             '<div>' +
               '<p class="eyebrow">주최자 서지우</p>' +
               '<h1 class="screen-title">추천 시간</h1>' +
-              '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 제일 무난한 순서로 정리했어요.</p>' +
+              '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 캘린더 일정과 직접 남긴 표시를 함께 보고, 부담이 적은 순서로 정리했어요.</p>' +
               renderResponseLine() +
             '</div>' +
             renderSortToggle() +
@@ -1140,7 +1140,7 @@
   function renderSortToggle() {
     return (
       '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
-        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">추천 순</button>' +
+        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">부담 적은 순</button>' +
         '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
       '</div>'
     );
