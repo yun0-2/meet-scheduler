@@ -559,6 +559,24 @@ button {
   font-weight: 700;
 }
 
+.mini-time-lunch {
+  min-height: 20px;
+  color: var(--gray-400);
+  font-weight: 600;
+}
+
+.mini-lunch-band {
+  grid-column: 2 / -1;
+  display: grid;
+  min-height: 20px;
+  place-items: center;
+  border-radius: var(--radius-8);
+  background: var(--gray-100);
+  color: var(--gray-400);
+  font-size: var(--text-12);
+  font-weight: 600;
+}
+
 .mini-slot {
   position: relative;
   display: grid;

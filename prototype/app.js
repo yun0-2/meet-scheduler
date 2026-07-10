@@ -711,7 +711,17 @@
       html += '<div class="mini-head">' + day + '</div>';
     });
 
+    var lunchStart = data.meeting.workHours.lunch[0];
+    var lunchEnd = data.meeting.workHours.lunch[1];
+    var lunchInserted = false;
+
     slotHours.forEach(function (hour) {
+      if (!lunchInserted && hour === lunchEnd) {
+        html +=
+          '<div class="mini-time mini-time-lunch" aria-hidden="true">' + lunchStart + '</div>' +
+          '<div class="mini-lunch-band" role="note" aria-label="' + lunchStart + '시 점심시간, 후보에서 제외">점심시간</div>';
+        lunchInserted = true;
+      }
       html += '<div class="mini-time">' + hour + '</div>';
       data.meeting.days.forEach(function (day) {
         var id = slotId(day, hour);
@@ -725,7 +735,7 @@
         }
         html +=
           '<button class="mini-slot' + (hard ? " is-hard" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + '" ' +
-          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + '" ' + (disabled ? "disabled" : "") + '>' +
+          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="미리 표시해 둔 시간이에요 — 눌러서 바꿀 수 있어요"' : "") + '>' +
             (video ? '<span class="mini-video-badge" aria-hidden="true"></span>' : '') +
           '</button>';
       });
