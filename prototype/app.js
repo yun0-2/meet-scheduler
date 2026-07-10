@@ -25,7 +25,9 @@
     scenarioSeen: {},
     scenarioLastRoute: null,
     scenarioOverlayOpen: false,
-    scenarioFocusReturn: null
+    scenarioFocusReturn: null,
+    toastVisible: false,
+    toastFading: false
   };
 
   // 시나리오 카드 카피 — 상황 설명은 제품 화면(#app) 밖, 이 데모 레이어에서만.
@@ -79,11 +81,8 @@
     return hours;
   }
 
+  // 아바타 이니셜은 성 1글자로 통일 (감사 019 E-1) — 6인 캐스트는 성이 전부 달라 충돌 없음
   function initials(name) {
-    return name.slice(1, 3);
-  }
-
-  function shortInitial(name) {
     return name.slice(0, 1);
   }
 
@@ -758,9 +757,37 @@
     if (returnEl && returnEl.focus && document.body && document.body.contains && document.body.contains(returnEl)) {
       returnEl.focus();
     }
+    revealMissionCta();
+  }
+
+  // 시나리오 카드가 가리키는 CTA가 폴드 아래 잘려 있으면 화면 안으로 데려온다.
+  // (예: 1단계 미션 "'시간 정하기'를 눌러…" — 버튼이 스크롤 밖이면 미션을 수행할 수 없다)
+  var missionCtaByRoute = {
+    entry: '[data-action="go-input"]',
+    confirm: '[data-action="post-confirm"]'
+  };
+
+  function revealMissionCta() {
+    var selector = missionCtaByRoute[state.route];
+    if (!selector || !app.querySelector) {
+      return;
+    }
+    var cta = app.querySelector(selector);
+    if (!cta || !cta.getBoundingClientRect || !cta.scrollIntoView) {
+      return;
+    }
+    var rect = cta.getBoundingClientRect();
+    var viewportHeight = window.innerHeight || 0;
+    // 하단 88px는 데모 리모컨이 덮는 영역
+    if (rect.bottom <= viewportHeight - 88 && rect.top >= 0) {
+      return;
+    }
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    cta.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
   }
 
   function renderEntry() {
+    var jiwoo = getPerson("jiwoo");
     app.innerHTML =
       '<section class="screen">' +
         '<div class="screen-inner messenger-shell">' +
@@ -777,7 +804,7 @@
             '<header class="channel-header"><h1># q3-kickoff</h1></header>' +
             '<div class="message-thread">' +
               '<article class="message">' +
-                '<div class="avatar" aria-hidden="true" style="--avatar:#E0E7FF;--avatar-text:#4338CA">서</div>' +
+                '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
                 '<div>' +
                   '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">오전 10:04</span></div>' +
                   '<div class="schedule-card">' +
@@ -935,7 +962,8 @@
             '</aside>' +
           '</div>' +
         '</div>' +
-      '</section>';
+      '</section>' +
+      renderToast();
   }
 
   // 미응답은 비공개 제약이 아니라 진행 상태라서 이름을 보여도 된다 (자기 사례 000-6).
@@ -1079,7 +1107,7 @@
       }
       return (
         '<span class="slot-avatar ' + (person.attendance === "required" ? "is-required" : "is-optional") + (away ? " is-away" : "") + (video ? " is-video" : "") + (unresponded && !away ? " is-unresponded" : "") + '" title="' + person.name + '"' + avatarVars(person) + '>' +
-          '<span aria-hidden="true">' + shortInitial(person.name) + '</span>' +
+          '<span aria-hidden="true">' + initials(person.name) + '</span>' +
           (away ? '<span class="avatar-badge is-away" aria-hidden="true">×</span>' : '') +
           (unresponded && !away ? '<span class="avatar-badge is-pending" aria-hidden="true">?</span>' : '') +
           (video ? '<span class="avatar-badge is-video" aria-hidden="true"></span>' : '') +
@@ -1132,7 +1160,7 @@
             (slot.conditional.length ? '<span class="metric-pill"><span class="video-icon" aria-hidden="true"></span>화상</span>' : '') +
           '</div>' +
           (isOpen ? '<p class="recommend-detail">' + card.detail + '</p>' : '') +
-          '<button class="card-button' + (state.selectedSlotId === slot.id ? " is-chosen" : "") + '" data-action="choose-slot" data-slot-id="' + slot.id + '">' + (state.selectedSlotId === slot.id ? "✓ 선택됨" : "이 시간 선택") + '</button>' +
+          '<button class="card-button' + (index > 0 ? " is-secondary" : "") + (state.selectedSlotId === slot.id ? " is-chosen" : "") + '" data-action="choose-slot" data-slot-id="' + slot.id + '">' + (state.selectedSlotId === slot.id ? "✓ 선택됨" : "이 시간 선택") + '</button>' +
         '</article>'
       );
     }).join("");
@@ -1159,7 +1187,7 @@
               '<ul class="summary-list">' + renderSummary(slot) + '</ul>' +
               '<p class="privacy-note">비공개 정보는 노출하지 않아요</p>' +
               '<div class="button-row">' +
-                '<button class="btn" data-action="post-confirm">이 시간으로 확정하기</button>' +
+                '<button class="btn" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "이 시간으로 확정하기") + '</button>' +
               '</div>' +
               '<div class="posted-message ' + (state.posted ? "is-visible" : "") + '" role="status">슬랙 채널에 확정 메시지를 올렸어요. 참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</div>' +
             '</section>' +
@@ -1202,7 +1230,7 @@
       return (
         '<div class="status-row">' +
           '<div class="status-person">' +
-            '<span class="person-dot ' + (person.attendance === "required" ? "is-required" : "is-optional") + '" aria-hidden="true"' + avatarVars(person) + '><span>' + shortInitial(person.name) + '</span></span>' +
+            '<span class="person-dot ' + (person.attendance === "required" ? "is-required" : "is-optional") + '" aria-hidden="true"' + avatarVars(person) + '><span>' + initials(person.name) + '</span></span>' +
             '<div><div class="status-name">' + person.name + '</div><div class="status-detail">' + detail + '</div></div>' +
           '</div>' +
           '<span class="status-badge ' + badgeClass + '">' + badge + '</span>' +
@@ -1238,9 +1266,10 @@
     if (!state.posted) {
       return '<p class="empty-preview">확정하면 이 채널에 올라갈 메시지가 보여요.</p>';
     }
+    var jiwoo = getPerson("jiwoo");
     return (
       '<div class="preview-message">' +
-        '<div class="avatar" aria-hidden="true" style="--avatar:#E0E7FF;--avatar-text:#4338CA">서</div>' +
+        '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
         '<div>' +
           '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">방금</span></div>' +
           '<strong>' + data.meeting.title + ' 시간이 정해졌어요</strong>' +
@@ -1285,12 +1314,40 @@
             { transform: "translate(0, 0)", opacity: 1 }
           ],
           {
-            duration: 360,
+            // 모션 사다리(120/200/320ms) 안에서 최댓값 — 브리프 규율과 일치
+            duration: 320,
             easing: "cubic-bezier(0.16, 1, 0.3, 1)"
           }
         );
       });
     });
+  }
+
+  // 입력 제출 피드백 토스트 (감사 019 I-1) — 2.5초 노출 후 opacity 트랜지션으로 사라짐
+  function scheduleToastDismiss() {
+    if (typeof window.setTimeout !== "function") {
+      return;
+    }
+    window.setTimeout(function () {
+      state.toastFading = true;
+      render();
+      window.setTimeout(function () {
+        state.toastVisible = false;
+        state.toastFading = false;
+        render();
+      }, 200);
+    }, 2500);
+  }
+
+  function renderToast() {
+    if (!state.toastVisible) {
+      return "";
+    }
+    return (
+      '<div class="submit-toast-layer" aria-live="polite">' +
+        '<div class="submit-toast' + (state.toastFading ? " is-fading" : "") + '">피하고 싶은 시간을 보냈어요</div>' +
+      '</div>'
+    );
   }
 
   app.addEventListener("click", function (event) {
@@ -1314,7 +1371,13 @@
       setRoute("entry");
     }
     if (action === "go-compare") {
+      var submittedFromInput = state.route === "input" || state.route === "input-optional";
       state.posted = false;
+      if (submittedFromInput) {
+        state.toastVisible = true;
+        state.toastFading = false;
+        scheduleToastDismiss();
+      }
       setRoute("compare");
     }
     if (action === "toggle-reason") {
@@ -1429,7 +1492,9 @@
     state.dragLastPaintedId = id;
   });
 
-  app.addEventListener("pointerup", function () {
+  // window 레벨: 창 밖에서 손을 떼거나(pointerup 유실) OS가 제스처를 가로채도(pointercancel)
+  // 드래그 상태가 남지 않게 한다.
+  function endSoftDrag() {
     if (!state.dragActive) {
       return;
     }
@@ -1439,7 +1504,10 @@
       state.suppressNextSoftToggle = true;
       render();
     }
-  });
+  }
+
+  window.addEventListener("pointerup", endSoftDrag);
+  window.addEventListener("pointercancel", endSoftDrag);
 
   app.addEventListener("mouseover", function (event) {
     var cell = event.target.closest ? event.target.closest(".slot-cell") : null;
