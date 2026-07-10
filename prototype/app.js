@@ -34,6 +34,7 @@
     course: null,
     meetingTitle: null,
     meetingContext: "",
+    durationHours: 1,
     composeQuery: "",
     composeSuggestOpen: false,
     composeMessage: "",
@@ -105,7 +106,7 @@
   function suggestedMessage() {
     var context = state.meetingContext.trim();
     return (
-      "『" + meetingTitle() + "』 시간을 잡으려고 해요. 1시간이면 돼요." +
+      "『" + meetingTitle() + "』 시간을 잡으려고 해요. ' + durationLabel() + '이면 돼요." +
       (context ? " 안건: " + context + "." : "") +
       " 다음 주 안에 정하려고 하니, 어려운 시간이 있으면 카드에서 알려주세요."
     );
@@ -120,7 +121,7 @@
       '<div class="compose-row-main">' +
         '<span class="compose-row-line">' +
           '<span class="compose-row-name">' + person.name + '</span>' +
-          '<span class="tag ' + (isRequired ? "tag-required" : "tag-optional") + '">' + (isRequired ? "필수" : "선택") + '</span>' +
+          (isRequired ? '' : '<span class="tag tag-optional">선택</span>') +
         '</span>' +
         '<span class="compose-row-role">' + person.role + '</span>' +
       '</div>'
@@ -214,8 +215,28 @@
     });
   }
 
+  function meetingDuration() {
+    return state.durationHours || 1;
+  }
+
+  function durationLabel() {
+    var map = { 0.5: "30분", 1: "1시간", 1.5: "90분", 2: "2시간" };
+    return map[meetingDuration()] || "1시간";
+  }
+
+  // 회의가 점심시간(12–13)이나 근무 종료(18시)를 침범하면 그 시작 시각은 불가
+  function slotBlockedByHours(start) {
+    var end = start + meetingDuration();
+    var lunchStart = data.meeting.workHours.lunch[0];
+    var lunchEnd = lunchStart + 1;
+    if (end > data.meeting.workHours.end) {
+      return true;
+    }
+    return start < lunchEnd && end > lunchStart;
+  }
+
   function personHasBusy(person, day, start) {
-    var end = start + 1;
+    var end = start + meetingDuration();
     return person.busy.find(function (event) {
       return event.day === day && overlaps(event, start, end);
     });
@@ -227,7 +248,7 @@
       if (constraint.type !== "hard" || !constraint.rule.unavailableAfter) {
         return;
       }
-      if (start >= constraint.rule.unavailableAfter) {
+      if (start + meetingDuration() > constraint.rule.unavailableAfter) {
         found = {
           label: constraint.label,
           visibility: constraint.visibility,
@@ -244,7 +265,7 @@
       if (constraint.type !== "hard" || !constraint.rule.unavailableAfter) {
         return;
       }
-      if (start < constraint.rule.unavailableAfter && start + 1 >= constraint.rule.unavailableAfter) {
+      if (start + meetingDuration() < constraint.rule.unavailableAfter && start + meetingDuration() + 1 >= constraint.rule.unavailableAfter) {
         found = {
           label: "바로 다음 일정",
           visibility: constraint.visibility,
@@ -317,6 +338,7 @@
   }
 
   function scoreSlot(day, start) {
+    var blockedByHours = slotBlockedByHours(start);
     var requiredUnavailable = [];
     var optionalUnavailable = [];
     var privateSoft = [];
@@ -399,7 +421,8 @@
       conditional: conditional,
       research: research,
       busyConflicts: busyConflicts,
-      allHardAvailable: busyConflicts.length === 0,
+      blockedByHours: blockedByHours,
+      allHardAvailable: !blockedByHours && busyConflicts.length === 0,
       requiredAvailable: requiredPeople().length - requiredUnavailable.length,
       optionalAvailable: optionalPeople().length - optionalUnavailable.length,
       totalAvailable: activePeople().length - busyConflicts.length
@@ -457,8 +480,17 @@
 
   function buildFeaturedSlots(slots) {
     var requiredOk = slots.filter(function (slot) {
-      return slot.requiredUnavailable.length === 0;
+      return !slot.blockedByHours && slot.requiredUnavailable.length === 0;
     });
+    if (requiredOk.length === 0) {
+      // 필수 전원이 가능한 슬롯이 없는 지형(예: 소요 시간이 길 때) — 가장 덜 걸리는 후보로 폴백
+      requiredOk = slots.filter(function (slot) {
+        return !slot.blockedByHours;
+      });
+    }
+    if (requiredOk.length === 0) {
+      requiredOk = slots;
+    }
 
     var recommended = requiredOk
       .filter(function (slot) {
@@ -556,6 +588,9 @@
   }
 
   function primaryCardCopy(slot) {
+    if (slot.requiredUnavailable.length > 0) {
+      return "이 길이로는 필수 참석자가 모두 가능한 시간이 없어요. 가장 가까운 후보예요.";
+    }
     if (slot.totalAvailable === activePeople().length && slot.start < 16) {
       return "6명이 낮에 다 올 수 있는 시간이에요.";
     }
@@ -644,7 +679,7 @@
   }
 
   function isUnavailableSlot(slot) {
-    return slot.requiredUnavailable.length > 0;
+    return slot.blockedByHours || slot.requiredUnavailable.length > 0;
   }
 
   function availabilityLevel(slot) {
@@ -1046,7 +1081,13 @@
         '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
         '<input class="compose-context-input" id="compose-context" type="text" value="' + escapeAttr(state.meetingContext) + '" placeholder="어떤 회의인지 알려주세요 (선택)" aria-label="회의 설명" />' +
         '<div class="meeting-facts">' +
-          '<span class="fact-pill">1시간</span>' +
+          '<label class="fact-select-wrap">소요 시간 ' +
+            '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
+              [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
+                return '<option value="' + opt[0] + '"' + (meetingDuration() === opt[0] ? " selected" : "") + '>' + opt[1] + '</option>';
+              }).join("") +
+            '</select>' +
+          '</label>' +
           '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
         '</div>' +
         '<p class="compose-section-label">참석자</p>' +
@@ -1085,18 +1126,17 @@
   }
 
   function renderAddedRow(person) {
+    // 구글 문법: 기본은 무표기(필수 취급), '선택'만 예외로 표시한다
     var attendance = effectiveAttendance(person);
+    var optional = attendance === "optional";
     return (
       '<div class="compose-row is-added">' +
         personIdentityBlock(person, attendance) +
         '<div class="compose-row-controls">' +
-          '<div class="compose-segmented" role="group" aria-label="' + person.name + ' 참석 구분">' +
-            '<button type="button" class="' + (attendance === "required" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "required") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="required">필수</button>' +
-            '<button type="button" class="' + (attendance === "optional" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "optional") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="optional">선택</button>' +
-          '</div>' +
+          '<button type="button" class="compose-optional-toggle' + (optional ? " is-on" : "") + '" aria-pressed="' + String(optional) + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="' + (optional ? "required" : "optional") + '">' + (optional ? "필수로 표시" : "선택으로 표시") + '</button>' +
           '<button type="button" class="compose-remove-btn" data-action="compose-remove" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자에서 제거">×</button>' +
         '</div>' +
-        '<span class="compose-row-caption">지난 회의 기준 추천 — 바꿀 수 있어요</span>' +
+        (optional ? '<span class="compose-row-caption">지난 회의 기준 추천 — 바꿀 수 있어요</span>' : '') +
       '</div>'
     );
   }
@@ -1113,7 +1153,7 @@
         '<p class="card-kicker">회의 시간 정하기</p>' +
         '<h2>' + meetingTitle() + '</h2>' +
         '<div class="meeting-facts">' +
-          '<span class="fact-pill">1시간</span>' +
+          '<span class="fact-pill">' + durationLabel() + '</span>' +
           '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
@@ -1493,7 +1533,7 @@
           '<h1 class="screen-title">이 시간으로 정할까요?</h1>' +
           '<div class="confirm-layout">' +
             '<section class="confirm-panel">' +
-              '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>1시간 · ' + meetingTitle() + '</span><button class="btn-ghost-dark" data-action="go-compare">다른 시간 보기</button></div>' +
+              '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>' + durationLabel() + ' · ' + meetingTitle() + '</span><button class="btn-ghost-dark" data-action="go-compare">다른 시간 보기</button></div>' +
               '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
               '<p class="confirm-section-label">확정 전 확인 — 주최자에게만 보여요</p>' +
               '<ul class="summary-list">' + renderSummary(slot) + '</ul>' +
@@ -1662,6 +1702,14 @@
       '</div>'
     );
   }
+
+  app.addEventListener("change", function (event) {
+    var sel = event.target;
+    if (sel && sel.id === "compose-duration") {
+      state.durationHours = parseFloat(sel.value);
+      render();
+    }
+  });
 
   app.addEventListener("input", function (event) {
     var field = event.target;

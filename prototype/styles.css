@@ -2319,3 +2319,44 @@ button {
   color: var(--gray-400);
   font-size: var(--text-12);
 }
+
+/* 소요 시간 선택 + 선택 토글 (구글 문법: 필수 무표기) */
+.fact-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: var(--text-13);
+  color: var(--gray-600);
+}
+
+.fact-select {
+  border: 0;
+  background: transparent;
+  font-size: var(--text-13);
+  font-weight: 600;
+  color: var(--gray-900);
+  cursor: pointer;
+}
+
+.compose-optional-toggle {
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray-600);
+  font-size: var(--text-12);
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.compose-optional-toggle:hover {
+  background: var(--gray-50);
+}
+
+.compose-optional-toggle.is-on {
+  border-color: var(--gray-300);
+  background: var(--gray-100);
+}
