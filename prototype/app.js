@@ -495,14 +495,14 @@
     if (slot.totalAvailable === activePeople().length && slot.start < 16) {
       return "6명이 낮에 다 올 수 있는 시간이에요.";
     }
-    return "필수 참석자가 모두 가능한 시간 중 부담이 가장 낮아요.";
+    return "필수 참석자가 모두 가능한 시간 중 걸리는 게 가장 적어요.";
   }
 
   function primaryCardDetail(slot) {
     if (hasPrivateBurden(slot)) {
       // 과제 단서 "점심 직후 기피"는 사유(시간대)까지 밝힌다 — 누가·몇 명인지는 계속 숨긴다
       if (data.researchDefaults.postLunchDip.hours.indexOf(slot.start) >= 0) {
-        return "점심 직후라 피하고 싶다는 표시가 있어요. 그래도 오후 중 가장 이른 시작이라 부담이 가장 적어요.";
+        return "점심 직후라 피하고 싶다는 표시가 있어요. 그래도 오후 중 가장 이른 시작이라 그나마 걸리는 게 가장 적어요.";
       }
       return "피하고 싶은 표시가 조금 있어요. 그래도 가장 무난한 시간이에요.";
     }
@@ -513,7 +513,7 @@
     if (slot.optionalUnavailable.length > 0) {
       return "필수 4명은 다 괜찮아요. " + names(slot.optionalUnavailable) + "은 어려운데, 정해지면 결과만 알려드릴까요?";
     }
-    return "다음으로 부담이 적은 시간이에요.";
+    return "다음으로 걸리는 게 적은 시간이에요.";
   }
 
   function runnerUpCardDetail(slot) {
@@ -536,7 +536,7 @@
 
   function stressCardDetail(slot) {
     // 화상은 벌점이 아니므로 강등 이유로 쓰지 않는다 — 진짜 이유(시간대·직후 일정)만
-    return "가능 인원만 보면 좋아 보이지만, 시간대 부담과 바로 다음 일정까지 보면 여유가 적어요.";
+    return "가능 인원만 보면 좋아 보이지만, 걸리는 시간대와 바로 다음 일정까지 보면 여유가 적어요.";
   }
 
   function cardOrder(mode) {
@@ -1087,7 +1087,7 @@
             '<div>' +
               '<p class="eyebrow">주최자 서지우</p>' +
               '<h1 class="screen-title">추천 시간</h1>' +
-              '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 캘린더 일정과 직접 남긴 표시를 함께 보고, 부담이 적은 순서로 정리했어요.</p>' +
+              '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 캘린더 일정과 직접 남긴 표시를 함께 보고, 걸리는 게 적은 순서로 정리했어요.</p>' +
               renderResponseLine() +
             '</div>' +
             renderSortToggle() +
@@ -1140,7 +1140,7 @@
   function renderSortToggle() {
     return (
       '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
-        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">부담 적은 순</button>' +
+        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">걸리는 게 적은 순</button>' +
         '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
       '</div>'
     );
@@ -1208,54 +1208,65 @@
   }
 
   // Privacy display rule:
-  // Calendar busy is public scheduling information, so attendee names may appear with "못 옴".
+  // Calendar busy is public scheduling information, so attendee names may appear with "일정이 있어요".
   // BUT privately entered constraints (hard or soft) and inferred preferences are aggregate-only:
   // never show a person's name, or a count, beside private information anywhere (audit 012-1).
-  // 팝업 아바타 상태 범례 — 지금 화면에 실제로 나타난 상태만 (없는 건 안 씀)
-  function popoverStateHint(slot) {
-    var hasAway = slot.busyConflicts.some(function (i) { return !i.private; });
-    var hasPending = activePeople().some(function (p) {
-      return p.responded === false && !slot.busyConflicts.some(function (i) { return i.person.id === p.id && !i.private; });
-    });
-    var hasVideo = slot.conditional.length > 0;
-    var parts = [];
-    if (hasPending) { parts.push("? 아직 응답 전"); }
-    if (hasAway) { parts.push("× 못 옴"); }
-    if (hasVideo) { parts.push("카메라 화상"); }
-    if (parts.length === 0) { return ""; }
-    return '<span class="popover-hint">' + parts.join(" · ") + '</span>';
-  }
-
-  function renderSlotPopover(slot) {
-    return (
-      '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
-      '<span class="popover-avatar-stack">' + renderSlotAvatarStack(slot) + '</span>' +
-      popoverStateHint(slot) +
-      (hasPrivateBurden(slot) ? '<span class="popover-note">비공개로 피하고 싶다는 표시가 있어요</span>' : '') +
-      (hasPrivateHardConflict(slot) ? '<span class="popover-note">비공개 사정으로 어려운 사람이 있어요</span>' : '')
-    );
-  }
-
-  function renderSlotAvatarStack(slot) {
-    return activePeople().map(function (person) {
+  // 팝업은 기호·배지를 해독하지 않아도 읽히도록 평문 문장으로만 구성한다 (019 평문화).
+  // 정상 참석자는 아바타만, 예외(미응답/공개 일정 충돌/화상)는 이름 + 문장으로 각자 한 줄.
+  function slotPeopleBreakdown(slot) {
+    var normal = [];
+    var exceptions = [];
+    activePeople().forEach(function (person) {
       var away = slot.busyConflicts.some(function (item) {
         return item.person.id === person.id && !item.private;
       });
       var video = !away && slot.conditional.some(function (item) {
         return item.person.id === person.id;
       });
-      var unresponded = person.responded === false;
-      var statusLabel = away ? "못 옴" : video ? "화상 참여" : "참석 가능";
-      if (unresponded && !away) {
-        statusLabel = "아직 응답 전 — 캘린더 기준";
+      var unresponded = !away && person.responded === false;
+      if (away) {
+        exceptions.push({ person: person, text: person.name + " — 일정이 있어요" });
+      } else if (unresponded) {
+        exceptions.push({ person: person, text: person.name + " — 아직 응답 전이라 캘린더 기준이에요" });
+      } else if (video) {
+        exceptions.push({ person: person, text: person.name + " — 화상으로 들어와요" });
+      } else {
+        normal.push(person);
       }
+    });
+    return { normal: normal, exceptions: exceptions };
+  }
+
+  function renderSlotPopover(slot) {
+    var breakdown = slotPeopleBreakdown(slot);
+    var allAvailable = breakdown.exceptions.length === 0;
+    return (
+      '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
+      '<span class="popover-avatar-stack">' + renderSlotAvailableAvatars(breakdown.normal) + '</span>' +
+      (allAvailable ? '<span class="popover-all-line">' + breakdown.normal.length + '명 모두 올 수 있어요</span>' : '') +
+      (breakdown.exceptions.length ? '<span class="popover-exceptions">' + renderSlotExceptions(breakdown.exceptions) + '</span>' : '') +
+      (hasPrivateBurden(slot) ? '<span class="popover-note">비공개로 피하고 싶다는 표시가 있어요</span>' : '') +
+      (hasPrivateHardConflict(slot) ? '<span class="popover-note">비공개 사정으로 어려운 사람이 있어요</span>' : '')
+    );
+  }
+
+  function renderSlotAvailableAvatars(people) {
+    return people.map(function (person) {
       return (
-        '<span class="slot-avatar ' + (effectiveAttendance(person) === "required" ? "is-required" : "is-optional") + (away ? " is-away" : "") + (video ? " is-video" : "") + (unresponded && !away ? " is-unresponded" : "") + '" title="' + person.name + '"' + avatarVars(person) + '>' +
+        '<span class="slot-avatar ' + (effectiveAttendance(person) === "required" ? "is-required" : "is-optional") + '" title="' + person.name + '"' + avatarVars(person) + '>' +
           '<span aria-hidden="true">' + initials(person.name) + '</span>' +
-          (away ? '<span class="avatar-badge is-away" aria-hidden="true">×</span>' : '') +
-          (unresponded && !away ? '<span class="avatar-badge is-pending" aria-hidden="true">?</span>' : '') +
-          (video ? '<span class="avatar-badge is-video" aria-hidden="true"></span>' : '') +
-          '<span class="sr-only">' + person.name + " " + statusLabel + '</span>' +
+          '<span class="sr-only">' + person.name + " 참석 가능" + '</span>' +
+        '</span>'
+      );
+    }).join("");
+  }
+
+  function renderSlotExceptions(exceptions) {
+    return exceptions.map(function (item) {
+      return (
+        '<span class="popover-exception">' +
+          '<span class="popover-exception-avatar" aria-hidden="true"' + avatarVars(item.person) + '>' + initials(item.person.name) + '</span>' +
+          '<span>' + item.text + '</span>' +
         '</span>'
       );
     }).join("");

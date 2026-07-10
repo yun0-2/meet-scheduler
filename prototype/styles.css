@@ -1158,8 +1158,8 @@ button {
   scale: 0.98;
   transform-origin: top center;
   pointer-events: none;
-  width: 286px;
-  max-width: min(286px, 82vw);
+  width: 260px;
+  max-width: min(260px, 82vw);
   gap: var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-8);
@@ -1208,56 +1208,44 @@ button {
   color: var(--avatar-text, var(--gray-700));
 }
 
-/* 못 옴/미응답은 identity색을 덮어써 회색으로 (상태가 정체성보다 우선) */
-/* 못 오는 사람은 확실히 '빠진' 느낌으로 페이드 (배경과 대비 낮게) */
-/* 못 옴: 투명도로 겹친 아바타가 비치던 문제 → 불투명 채움 + 점선 테두리 */
-.slot-avatar.is-away {
-  background: var(--surface) !important;
-  color: var(--gray-400) !important;
-  border: 1.5px dashed var(--gray-300);
+/* 전원 가능 안내 한 줄 — 예외가 없을 때만 아바타 줄 아래 붙는다 */
+.popover-all-line {
+  display: block;
+  margin-top: var(--space-1);
+  padding-left: var(--space-2);
+  color: var(--gray-600);
+  font-size: var(--text-12);
+  line-height: 1.4;
 }
 
-.avatar-badge {
-  position: absolute;
-  right: -3px;
-  bottom: -3px;
+/* 예외(미응답/공개 일정 충돌/화상)는 기호·배지 대신 이름 + 문장 한 줄씩 (019 평문화) */
+.popover-exceptions {
   display: grid;
-  width: 14px;
-  height: 14px;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.popover-exception {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--gray-700);
+  font-size: var(--text-12);
+  line-height: 1.4;
+}
+
+.popover-exception-avatar {
+  display: grid;
+  flex: none;
+  width: 20px;
+  height: 20px;
   place-items: center;
-  border: 2px solid var(--surface);
   border-radius: 50%;
-  font-size: 10px;
+  background: var(--avatar, var(--gray-200));
+  color: var(--avatar-text, var(--gray-700));
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
-}
-
-.avatar-badge.is-away {
-  background: var(--gray-300);
-  color: var(--gray-600);
-}
-
-.avatar-badge.is-video {
-  background: var(--accent);
-  color: white;
-}
-
-.avatar-badge.is-video::before {
-  content: "";
-  width: 7px;
-  height: 5px;
-  border: 1.5px solid currentColor;
-  border-radius: 2px;
-}
-
-.avatar-badge.is-video::after {
-  content: "";
-  position: absolute;
-  right: 1px;
-  width: 4px;
-  height: 4px;
-  background: currentColor;
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .popover-note {
@@ -1267,15 +1255,6 @@ button {
   padding-top: var(--space-2);
   font-size: var(--text-12);
   line-height: 1.45;
-}
-
-/* 아바타 상태 범례 — 지금 뜬 상태만 설명 */
-.popover-hint {
-  display: block;
-  margin-top: var(--space-1);
-  color: var(--gray-500);
-  font-size: 11px;
-  line-height: 1.4;
 }
 
 
@@ -1672,18 +1651,6 @@ button {
   margin-left: var(--space-2);
   color: var(--gray-500);
   font-size: var(--text-12);
-}
-
-/* 무응답 = 정체성 파스텔 유지(올 수도 있으니) + '?' 뱃지가 '미확인' 신호 (구글 캘린더 문법) */
-.slot-avatar.is-unresponded {
-  opacity: 0.9;
-}
-
-.avatar-badge.is-pending {
-  background: var(--gray-200);
-  color: var(--gray-700);
-  font-size: 9px;
-  font-weight: 700;
 }
 
 /* 숫자 tabular: 시간·인원수·순위 등 숫자가 든 요소는 자릿수 고정폭으로 정렬 */
