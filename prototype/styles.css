@@ -426,15 +426,17 @@ button {
 
 .participant-strip {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-1);
   margin: var(--space-4) 0 var(--space-6);
 }
 
 .participant-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-3);
-  align-items: start;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  align-items: center;
+  padding: var(--space-1) 0;
 }
 
 .participant-main {
@@ -450,7 +452,7 @@ button {
 
 .reason-box {
   grid-column: 2;
-  margin: calc(var(--space-2) * -1) 0 0;
+  margin: var(--space-1) 0 0;
   border-radius: var(--radius-8);
   background: var(--gray-100);
   color: var(--gray-600);
