@@ -27,15 +27,19 @@
     scenarioOverlayOpen: false,
     scenarioFocusReturn: null,
     toastVisible: false,
-    toastFading: false
+    toastFading: false,
+    toastText: "피하고 싶은 시간을 보냈어요",
+    composePosted: false,
+    composeAdded: {},
+    attendanceOverride: {}
   };
 
   // 시나리오 카드 카피 — 상황 설명은 제품 화면(#app) 밖, 이 데모 레이어에서만.
   var scenarioContent = {
     entry: {
       eyebrow: "1/4 · 주최자",
-      body: "당신은 회의를 잡아야 하는 주최자예요. 팀 채널에 조율 카드를 올렸어요.",
-      mission: "'시간 정하기'를 눌러 시작해보세요."
+      body: "당신은 회의를 잡아야 하는 주최자예요.",
+      mission: "참석자를 추가하고 필수·선택을 정해 카드를 올려보세요."
     },
     input: {
       eyebrow: "2/4 · 참석자",
@@ -109,15 +113,40 @@
     });
   }
 
-  function requiredPeople() {
+  // 작성 단계에서 아무도 추가하지 않았으면(폴백) 캐스트 전원이 참여자다.
+  // 일부만 추가했으면 추가된 사람 + 주최자만 이후 모든 화면의 참여자 집합이다.
+  function composeHasSelection() {
+    return Object.keys(state.composeAdded).some(function (id) {
+      return state.composeAdded[id];
+    });
+  }
+
+  function activePeople() {
+    if (!composeHasSelection()) {
+      return data.people;
+    }
     return data.people.filter(function (person) {
-      return person.attendance === "required";
+      return person.isOrganizer || Boolean(state.composeAdded[person.id]);
+    });
+  }
+
+  // 필수/선택 판정의 단일 창구 — 작성 단계에서 override가 없으면 cast 기본값 그대로.
+  function effectiveAttendance(person) {
+    if (Object.prototype.hasOwnProperty.call(state.attendanceOverride, person.id)) {
+      return state.attendanceOverride[person.id];
+    }
+    return person.attendance;
+  }
+
+  function requiredPeople() {
+    return activePeople().filter(function (person) {
+      return effectiveAttendance(person) === "required";
     });
   }
 
   function optionalPeople() {
-    return data.people.filter(function (person) {
-      return person.attendance === "optional";
+    return activePeople().filter(function (person) {
+      return effectiveAttendance(person) === "optional";
     });
   }
 
@@ -231,7 +260,7 @@
     var conditional = [];
     var busyConflicts = [];
 
-    data.people.forEach(function (person) {
+    activePeople().forEach(function (person) {
       var busy = personHasBusy(person, day, start);
       var hard = privateHardStatus(person, start);
 
@@ -242,7 +271,7 @@
           private: Boolean(hard && hard.visibility === "private")
         };
         busyConflicts.push(conflict);
-        if (person.attendance === "required") {
+        if (effectiveAttendance(person) === "required") {
           requiredUnavailable.push(conflict);
         } else {
           optionalUnavailable.push(conflict);
@@ -309,7 +338,7 @@
       allHardAvailable: busyConflicts.length === 0,
       requiredAvailable: requiredPeople().length - requiredUnavailable.length,
       optionalAvailable: optionalPeople().length - optionalUnavailable.length,
-      totalAvailable: data.people.length - busyConflicts.length
+      totalAvailable: activePeople().length - busyConflicts.length
     };
   }
 
@@ -463,7 +492,7 @@
   }
 
   function primaryCardCopy(slot) {
-    if (slot.totalAvailable === data.people.length && slot.start < 16) {
+    if (slot.totalAvailable === activePeople().length && slot.start < 16) {
       return "6명이 낮에 다 올 수 있는 시간이에요.";
     }
     return "필수 참석자가 모두 가능한 시간 중 부담이 가장 낮아요.";
@@ -558,10 +587,10 @@
     if (isUnavailableSlot(slot)) {
       return 0;
     }
-    if (slot.totalAvailable >= data.people.length) {
+    if (slot.totalAvailable >= activePeople().length) {
       return 3;
     }
-    if (slot.totalAvailable >= data.people.length - 1) {
+    if (slot.totalAvailable >= activePeople().length - 1) {
       return 2;
     }
     return 1;
@@ -587,11 +616,24 @@
     return Boolean(state.optionalSoftSlots[slotKey]);
   }
 
+  // 이야기 배선 고정 인물(하늘/세영)이 작성 단계에서 빠졌을 수 있으니
+  // activePeople 중 필수/선택 첫 번째(주최자 제외)로 폴백한다.
   function inputPersonForRoute() {
+    var active = activePeople();
     if (state.route === "input-optional") {
-      return getPerson("seyoung");
+      var seyoung = getPerson("seyoung");
+      if (active.indexOf(seyoung) !== -1) {
+        return seyoung;
+      }
+      return optionalPeople()[0] || active[0];
     }
-    return getPerson("haneul");
+    var haneul = getPerson("haneul");
+    if (active.indexOf(haneul) !== -1) {
+      return haneul;
+    }
+    return requiredPeople().filter(function (person) {
+      return !person.isOrganizer;
+    })[0] || active[0];
   }
 
   function softIsOn(slotKey) {
@@ -668,13 +710,20 @@
     var jiwoo = getPerson("jiwoo");
     var inputPerson = isInputOptional ? getPerson("seyoung") : getPerson("haneul");
     var steps = [
-      { num: 1, hash: "entry", person: jiwoo, label: "요청 · 주최자", active: route === "entry" },
-      { num: 2, hash: isInputOptional ? "input-optional" : "input", person: inputPerson, label: "입력 · 참석자", active: route === "input" || isInputOptional },
-      { num: 3, hash: "compare", person: jiwoo, label: "추천 · 주최자", active: route === "compare" },
-      { num: 4, hash: "confirm", person: jiwoo, label: "확정 · 주최자", active: route === "confirm" }
+      { num: 1, hash: "entry", person: jiwoo, label: "요청", active: route === "entry" },
+      { num: 2, hash: isInputOptional ? "input-optional" : "input", person: inputPerson, label: "입력", active: route === "input" || isInputOptional },
+      { num: 3, hash: "compare", person: jiwoo, label: "추천", active: route === "compare" },
+      { num: 4, hash: "confirm", person: jiwoo, label: "확정", active: route === "confirm" }
     ];
 
-    var buttonsHtml = steps.map(function (step) {
+    // "주최자 → 참석자 → 주최자" 왕복 구조를 3구간으로 시각 그룹핑한다.
+    var groups = [
+      { role: "주최자", steps: [steps[0]] },
+      { role: "참석자", steps: [steps[1]] },
+      { role: "주최자", steps: [steps[2], steps[3]] }
+    ];
+
+    function renderStepButton(step) {
       return (
         '<button type="button" class="demo-nav-btn" data-route="' + step.hash + '" aria-label="' + step.num + '단계, ' + step.label + '"' + (step.active ? ' aria-current="page"' : '') + '>' +
           '<span class="demo-nav-num" aria-hidden="true">' + step.num + '</span>' +
@@ -682,7 +731,16 @@
           '<span class="demo-nav-label" aria-hidden="true">' + step.label + '</span>' +
         '</button>'
       );
-    }).join("");
+    }
+
+    var buttonsHtml = groups.map(function (group) {
+      return (
+        '<div class="demo-nav-group" role="group" aria-label="' + group.role + ' 단계">' +
+          '<span class="demo-nav-role-label" aria-hidden="true">' + group.role + '</span>' +
+          group.steps.map(renderStepButton).join("") +
+        '</div>'
+      );
+    }).join('<span class="demo-nav-divider" aria-hidden="true"></span>');
 
     var subToggleHtml = "";
     if (route === "input" || isInputOptional) {
@@ -807,35 +865,121 @@
                 '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
                 '<div>' +
                   '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">오전 10:04</span></div>' +
-                  '<div class="schedule-card">' +
-                    '<p class="card-kicker">회의 시간 정하기</p>' +
-                    '<h2>' + data.meeting.title + '</h2>' +
-                    '<div class="meeting-facts">' +
-                      '<span class="fact-pill">1시간</span>' +
-                      '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
-                      '<span class="fact-pill">참석자 6명</span>' +
-                    '</div>' +
-                    '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
-                    '<button class="btn" data-action="go-input">시간 정하기</button>' +
-                  '</div>' +
+                  (state.composePosted ? renderPostedCard() : renderComposeCard(jiwoo)) +
                 '</div>' +
               '</article>' +
             '</div>' +
           '</section>' +
         '</div>' +
-      '</section>';
+      '</section>' +
+      renderToast();
+  }
+
+  // 나머지 5명(주최자 제외) — 작성 단계 "참석자 추가" 후보 목록
+  function composeCandidates() {
+    return data.people.filter(function (person) {
+      return !person.isOrganizer;
+    });
+  }
+
+  function isComposeAdded(person) {
+    return Boolean(state.composeAdded[person.id]);
+  }
+
+  function renderComposeCard(jiwoo) {
+    var candidates = composeCandidates();
+    var addedCount = candidates.filter(isComposeAdded).length;
+    var rowsHtml = renderOrganizerRow(jiwoo) + candidates.map(function (person) {
+      return isComposeAdded(person) ? renderAddedRow(person) : renderCandidateRow(person);
+    }).join("");
+    return (
+      '<div class="schedule-card compose-card">' +
+        '<p class="card-kicker">회의 시간 정하기</p>' +
+        '<h2>' + data.meeting.title + '</h2>' +
+        '<div class="meeting-facts">' +
+          '<span class="fact-pill">1시간</span>' +
+          '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
+        '</div>' +
+        '<p class="compose-section-label">참석자 추가</p>' +
+        '<div class="compose-list">' + rowsHtml + '</div>' +
+        '<button class="btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>카드 올리기</button>' +
+      '</div>'
+    );
+  }
+
+  function renderOrganizerRow(jiwoo) {
+    return (
+      '<div class="compose-row is-organizer">' +
+        '<span class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</span>' +
+        '<div class="compose-row-main">' +
+          '<span class="compose-row-name">' + jiwoo.name + '</span>' +
+          '<span class="compose-row-role">' + jiwoo.role + '</span>' +
+        '</div>' +
+        '<span class="tag tag-required">필수</span>' +
+      '</div>'
+    );
+  }
+
+  function renderCandidateRow(person) {
+    return (
+      '<div class="compose-row">' +
+        '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
+        '<div class="compose-row-main">' +
+          '<span class="compose-row-name">' + person.name + '</span>' +
+          '<span class="compose-row-role">' + person.role + '</span>' +
+        '</div>' +
+        '<button type="button" class="btn btn-secondary btn-small compose-add-btn" data-action="compose-add" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자로 추가">+ 추가</button>' +
+      '</div>'
+    );
+  }
+
+  function renderAddedRow(person) {
+    var attendance = effectiveAttendance(person);
+    return (
+      '<div class="compose-row is-added">' +
+        '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
+        '<div class="compose-row-main">' +
+          '<span class="compose-row-name">' + person.name + '</span>' +
+          '<span class="compose-row-reason">' + person.attendanceReason + '</span>' +
+        '</div>' +
+        '<div class="compose-row-controls">' +
+          '<div class="compose-segmented" role="group" aria-label="' + person.name + ' 참석 구분">' +
+            '<button type="button" class="' + (attendance === "required" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "required") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="required">필수</button>' +
+            '<button type="button" class="' + (attendance === "optional" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "optional") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="optional">선택</button>' +
+          '</div>' +
+          '<button type="button" class="compose-remove-btn" data-action="compose-remove" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자에서 제거">×</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderPostedCard() {
+    return (
+      '<div class="schedule-card">' +
+        '<p class="card-kicker">회의 시간 정하기</p>' +
+        '<h2>' + data.meeting.title + '</h2>' +
+        '<div class="meeting-facts">' +
+          '<span class="fact-pill">1시간</span>' +
+          '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
+          '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
+        '</div>' +
+        '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
+        '<button class="btn" data-action="go-input">시간 정하기</button>' +
+      '</div>'
+    );
   }
 
   function renderParticipantRows() {
-    return data.people.map(function (person) {
+    return activePeople().map(function (person) {
       var isOpen = state.openReasonId === person.id;
+      var attendance = effectiveAttendance(person);
       return (
         '<div class="participant-row">' +
-          '<button class="avatar-button ' + (person.attendance === "required" ? "is-required" : "is-optional") + '" data-action="toggle-reason" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석 이유 보기" aria-expanded="' + String(isOpen) + '"' + avatarVars(person) + '>' + initials(person.name) + '</button>' +
+          '<button class="avatar-button ' + (attendance === "required" ? "is-required" : "is-optional") + '" data-action="toggle-reason" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석 이유 보기" aria-expanded="' + String(isOpen) + '"' + avatarVars(person) + '>' + initials(person.name) + '</button>' +
           '<div>' +
             '<div class="participant-main">' +
               '<span class="participant-name">' + person.name + '</span>' +
-              '<span class="tag ' + (person.attendance === "required" ? "tag-required" : "tag-optional") + '">' + (person.attendance === "required" ? "필수" : "선택") + '</span>' +
+              '<span class="tag ' + (attendance === "required" ? "tag-required" : "tag-optional") + '">' + (attendance === "required" ? "필수" : "선택") + '</span>' +
               '<span class="helper-copy">' + person.role + '</span>' +
             '</div>' +
           '</div>' +
@@ -847,7 +991,7 @@
 
   function renderInput() {
     var person = inputPersonForRoute();
-    var optional = person.attendance === "optional";
+    var optional = effectiveAttendance(person) === "optional";
     var optedOut = Boolean(state.inputOptOutByPerson[person.id]);
     app.innerHTML =
       '<section class="screen screen-mobile">' +
@@ -856,7 +1000,7 @@
             '<div class="phone-status"><span>Slack 링크</span><span>' + person.name + '</span></div>' +
             '<div class="phone-body">' +
               '<section class="context-card compact">' +
-                '<p class="eyebrow">Q3 프로젝트 킥오프 · ' + (person.attendance === "required" ? "필수" : "선택") + '</p>' +
+                '<p class="eyebrow">Q3 프로젝트 킥오프 · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
                 '<h1>다음 주 킥오프, 피하고 싶은 시간이 있나요?</h1>' +
                 (optional ? '<p class="input-guidance">선택 참석이에요 — 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
               '</section>' +
@@ -969,7 +1113,7 @@
   // 미응답은 비공개 제약이 아니라 진행 상태라서 이름을 보여도 된다 (자기 사례 000-6).
   // 미응답자의 시간 정보는 캘린더로만 아는 것 — 팝업에서 점선(미확정 문법)으로 표시.
   function unrespondedPeople() {
-    return data.people.filter(function (person) {
+    return activePeople().filter(function (person) {
       return person.responded === false;
     });
   }
@@ -977,9 +1121,9 @@
   function renderResponseLine() {
     var waiting = unrespondedPeople();
     if (waiting.length === 0) {
-      return '<p class="response-line">6명 모두 응답했어요</p>';
+      return '<p class="response-line">' + activePeople().length + '명 모두 응답했어요</p>';
     }
-    var respondedCount = data.people.length - waiting.length;
+    var respondedCount = activePeople().length - waiting.length;
     var waitingNames = waiting.map(function (person) {
       return person.name + "님";
     }).join(", ");
@@ -1070,7 +1214,7 @@
   // 팝업 아바타 상태 범례 — 지금 화면에 실제로 나타난 상태만 (없는 건 안 씀)
   function popoverStateHint(slot) {
     var hasAway = slot.busyConflicts.some(function (i) { return !i.private; });
-    var hasPending = data.people.some(function (p) {
+    var hasPending = activePeople().some(function (p) {
       return p.responded === false && !slot.busyConflicts.some(function (i) { return i.person.id === p.id && !i.private; });
     });
     var hasVideo = slot.conditional.length > 0;
@@ -1093,7 +1237,7 @@
   }
 
   function renderSlotAvatarStack(slot) {
-    return data.people.map(function (person) {
+    return activePeople().map(function (person) {
       var away = slot.busyConflicts.some(function (item) {
         return item.person.id === person.id && !item.private;
       });
@@ -1106,7 +1250,7 @@
         statusLabel = "아직 응답 전 — 캘린더 기준";
       }
       return (
-        '<span class="slot-avatar ' + (person.attendance === "required" ? "is-required" : "is-optional") + (away ? " is-away" : "") + (video ? " is-video" : "") + (unresponded && !away ? " is-unresponded" : "") + '" title="' + person.name + '"' + avatarVars(person) + '>' +
+        '<span class="slot-avatar ' + (effectiveAttendance(person) === "required" ? "is-required" : "is-optional") + (away ? " is-away" : "") + (video ? " is-video" : "") + (unresponded && !away ? " is-unresponded" : "") + '" title="' + person.name + '"' + avatarVars(person) + '>' +
           '<span aria-hidden="true">' + initials(person.name) + '</span>' +
           (away ? '<span class="avatar-badge is-away" aria-hidden="true">×</span>' : '') +
           (unresponded && !away ? '<span class="avatar-badge is-pending" aria-hidden="true">?</span>' : '') +
@@ -1205,7 +1349,8 @@
       // 비공개 하드 제약이 있는 슬롯은 사람별 상태를 그리지 않는다 — 이름 결합 금지
       return '<p class="privacy-note">이 시간은 비공개 사정 때문에 확정하기 어려워요. 다른 시간을 골라주세요.</p>';
     }
-    return data.people.map(function (person) {
+    return activePeople().map(function (person) {
+      var attendance = effectiveAttendance(person);
       var hardConflict = slot.busyConflicts.find(function (item) {
         return item.person.id === person.id;
       });
@@ -1215,13 +1360,13 @@
       var canAttend = !hardConflict;
       // 미응답자는 초록 '참석'으로 단정하지 않는다 — 캘린더 기준 추정임을 배지에도 반영 (F-004)
       var pending = person.responded === false && canAttend;
-      var badge = pending ? "참석 예정" : canAttend ? "참석" : (person.attendance === "optional" ? "결과 공유" : "다른 시간 필요");
-      var badgeClass = pending ? "is-pending" : (!canAttend && person.attendance === "optional" ? "replace" : "");
-      var detail = person.attendance === "required" ? "필수" : "선택";
+      var badge = pending ? "참석 예정" : canAttend ? "참석" : (attendance === "optional" ? "결과 공유" : "다른 시간 필요");
+      var badgeClass = pending ? "is-pending" : (!canAttend && attendance === "optional" ? "replace" : "");
+      var detail = attendance === "required" ? "필수" : "선택";
       if (pending) {
         detail += " · 응답 전이라 캘린더 기준이에요";
       }
-      if (!canAttend && person.attendance === "optional") {
+      if (!canAttend && attendance === "optional") {
         detail = "정해지면 결과를 공유해요";
       }
       if (condition && canAttend) {
@@ -1230,7 +1375,7 @@
       return (
         '<div class="status-row">' +
           '<div class="status-person">' +
-            '<span class="person-dot ' + (person.attendance === "required" ? "is-required" : "is-optional") + '" aria-hidden="true"' + avatarVars(person) + '><span>' + initials(person.name) + '</span></span>' +
+            '<span class="person-dot ' + (attendance === "required" ? "is-required" : "is-optional") + '" aria-hidden="true"' + avatarVars(person) + '><span>' + initials(person.name) + '</span></span>' +
             '<div><div class="status-name">' + person.name + '</div><div class="status-detail">' + detail + '</div></div>' +
           '</div>' +
           '<span class="status-badge ' + badgeClass + '">' + badge + '</span>' +
@@ -1345,7 +1490,7 @@
     }
     return (
       '<div class="submit-toast-layer" aria-live="polite">' +
-        '<div class="submit-toast' + (state.toastFading ? " is-fading" : "") + '">피하고 싶은 시간을 보냈어요</div>' +
+        '<div class="submit-toast' + (state.toastFading ? " is-fading" : "") + '">' + state.toastText + '</div>' +
       '</div>'
     );
   }
@@ -1376,6 +1521,7 @@
       if (submittedFromInput) {
         state.toastVisible = true;
         state.toastFading = false;
+        state.toastText = "피하고 싶은 시간을 보냈어요";
         scheduleToastDismiss();
       }
       setRoute("compare");
@@ -1383,6 +1529,34 @@
     if (action === "toggle-reason") {
       var personId = target.getAttribute("data-person-id");
       state.openReasonId = state.openReasonId === personId ? null : personId;
+      render();
+    }
+    if (action === "compose-add") {
+      var addId = target.getAttribute("data-person-id");
+      state.composeAdded[addId] = true;
+      render();
+    }
+    if (action === "compose-remove") {
+      var removeId = target.getAttribute("data-person-id");
+      delete state.composeAdded[removeId];
+      delete state.attendanceOverride[removeId];
+      render();
+    }
+    if (action === "compose-attendance") {
+      var attendanceId = target.getAttribute("data-person-id");
+      var attendanceValue = target.getAttribute("data-value");
+      state.attendanceOverride[attendanceId] = attendanceValue;
+      render();
+    }
+    if (action === "post-compose") {
+      if (target.disabled) {
+        return;
+      }
+      state.composePosted = true;
+      state.toastVisible = true;
+      state.toastFading = false;
+      state.toastText = "조율 카드를 올렸어요";
+      scheduleToastDismiss();
       render();
     }
     if (action === "toggle-soft") {
