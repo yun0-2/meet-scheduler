@@ -583,7 +583,7 @@ button {
   min-height: 38px;
   place-items: center;
   border: 1px solid var(--border);
-  border-radius: var(--radius-12);
+  border-radius: 0;
   background: var(--surface);
   color: var(--gray-700);
   cursor: pointer;
@@ -813,11 +813,11 @@ button {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--amber-line);
-  box-shadow: 0 0 0 2px var(--amber-1);
+  background: var(--amber-strong);
+  border: 1px solid var(--amber-line);
   transform: translate(-50%, -50%);
 }
 
@@ -851,7 +851,8 @@ button {
   min-height: 58px;
   overflow: visible;
   border: 1px solid var(--border);
-  border-radius: var(--radius-12);
+  /* 격자 셀은 각지게 — 카드/버튼(라운드)과 다른 '시간 표면' 레지스터 */
+  border-radius: 0;
   background: var(--surface);
   color: var(--gray-800);
   cursor: pointer;
@@ -896,17 +897,19 @@ button {
   box-shadow: none;
 }
 
-/* 피하고 싶단 표시 점: 연한 링은 배경에 묻혀 안 보였음 → 키우고 흰 링으로 대비 */
+/* 감사 016-3: 격자 표면 부담 신호(앰버 점) — 파랑 여유 히트맵/회색 불가 칸과
+   혼동 없게 앰버 계열로만 표시한다. 인원수·이름은 절대 담지 않는다(k-익명). */
 .slot-cell.has-private-burden:not(.is-unavailable)::after {
   content: "";
   position: absolute;
   top: 6px;
   right: 6px;
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--amber-line);
-  box-shadow: 0 0 0 2px var(--surface);
+  background: var(--amber-strong);
+  border: 1px solid var(--amber-line);
+  z-index: 1;
 }
 
 .slot-cell.is-active {
@@ -1495,7 +1498,6 @@ button {
 
   .slot-cell {
     min-height: 46px;
-    border-radius: var(--radius-8);
   }
 
   .slot-cell .slot-label,

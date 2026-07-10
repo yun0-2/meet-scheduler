@@ -472,6 +472,10 @@
 
   function primaryCardDetail(slot) {
     if (hasPrivateBurden(slot)) {
+      // 과제 단서 "점심 직후 기피"는 사유(시간대)까지 밝힌다 — 누가·몇 명인지는 계속 숨긴다
+      if (data.researchDefaults.postLunchDip.hours.indexOf(slot.start) >= 0) {
+        return "점심 직후라 피하고 싶다는 표시가 있어요. 그래도 오후 중 가장 이른 시작이라 부담이 가장 적어요.";
+      }
       return "피하고 싶은 표시가 조금 있어요. 그래도 가장 무난한 시간이에요.";
     }
     return "캘린더 충돌과 피하고 싶은 표시를 같이 보니 가장 무난한 시간이에요.";
@@ -493,7 +497,8 @@
 
   function stressCardCopy(slot) {
     if (slot.conditional.length > 0) {
-      return "다 되긴 하는데 금요일 늦은 오후예요. 한 명은 끝나고 바로 다음 일정이 있어요.";
+      // 비공개 제약은 인원수도 안 센다 (k-익명 원칙, 감사 016-4)
+      return "다 되긴 하는데 금요일 늦은 오후예요. 끝나고 바로 다음 일정이 걸린다는 표시도 있어요.";
     }
     if (hasPrivateBurden(slot)) {
       return "다 되긴 하는데 피하고 싶은 표시가 있어요.";
@@ -974,6 +979,7 @@
       '<div class="legend" role="group" aria-label="격자 범례">' +
         '<span class="legend-item"><span class="legend-swatch is-unavailable" aria-hidden="true"></span>안 돼요</span>' +
         '<span class="legend-item"><span class="legend-ramp" aria-hidden="true"><span class="is-low"></span><span class="is-mid"></span><span class="is-high"></span></span>여유</span>' +
+        '<span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>부담 표시 있음</span>' +
       '</div>'
     );
   }
@@ -993,9 +999,10 @@
         var active = state.activeSlotId === slot.id;
         var open = state.openSlotId === slot.id;
         var unavailable = isUnavailableSlot(slot);
-        // 격자엔 부담 점을 안 찍는다 — 글 없이 즉시 이해가 안 돼서(Simplicity).
-        // '피하고 싶음'은 추천 카드 이유 문장과 팝업에서만 노출한다.
-        var privateBurden = false;
+        // 감사 016-3: 격자 표면에도 부담 신호를 올린다 — 호버/팝업 뒤에만 숨기면
+        // When2meet류 여유 히트맵과 첫인상이 같아져 이 도구의 차별점(소프트·비공개
+        // 부담 반영)이 안 보인다. 인원수·이름은 여전히 절대 노출하지 않는다(k-익명).
+        var privateBurden = !unavailable && burdenCount(slot) > 0;
         html +=
           '<button class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
           'data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
@@ -1016,8 +1023,8 @@
       parts.push(slot.totalAvailable + "명 참석 가능");
       parts.push("여유 " + availabilityLevel(slot) + "단계");
     }
-    if (hasPrivateBurden(slot)) {
-      parts.push("피하고 싶단 표시 있음");
+    if (burdenCount(slot) > 0) {
+      parts.push("부담 표시 있음");
     }
     if (recommended) {
       parts.push("추천");
