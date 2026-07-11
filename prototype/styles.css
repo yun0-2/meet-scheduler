@@ -2646,3 +2646,22 @@ button {
   color: var(--gray-400);
   font-size: var(--text-12);
 }
+
+/* 확정 화면: 단일 컬럼 + 뒤로 */
+.confirm-single {
+  max-width: 640px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--space-3);
+  background: transparent;
+  color: var(--gray-500);
+  font-size: var(--text-14);
+  cursor: pointer;
+  padding: 4px 8px 4px 0;
+}
+
+.back-link:hover {
+  color: var(--gray-800);
+}

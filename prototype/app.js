@@ -69,19 +69,14 @@
     },
     guest: {
       input: {
-        eyebrow: "1/2 · 참석자",
-        body: "동료가 보낸 조율 카드를 받았어요. 캘린더가 모르는 사정이 있죠.",
-        mission: "피하고 싶은 시간을 칠하고 제출해보세요."
+        eyebrow: "참석자",
+        body: "봇이 DM으로 물어봐요. 캘린더가 모르는 사정이 있죠.",
+        mission: "카드에서 응답해보세요. 피하고 싶은 시간을 칠해도 되고, 언제든 괜찮다고 해도 돼요."
       },
       "input-optional": {
-        eyebrow: "1/2 · 선택 참석자",
+        eyebrow: "선택 참석자",
         body: "선택 참석자에게는 다른 선택지가 하나 더 있어요.",
         mission: "'참석 어려움'도 눌러보세요."
-      },
-      compare: {
-        eyebrow: "2/2 · 참석자",
-        body: "방금 남긴 표시가 추천에 반영됐어요. 이 화면은 주최자에게 보이는 화면이에요.",
-        mission: "1순위의 이유에서 내 표시를 확인해보세요."
       }
     }
   };
@@ -968,7 +963,7 @@
         '<p class="scenario-body">회의 시간을 정하는 두 입장을 각각 체험할 수 있어요.</p>' +
         '<div class="course-buttons">' +
           '<button type="button" class="course-btn" data-action="choose-course" data-course="host">주최자로 체험하기<span class="course-sub">요청 만들기 → 추천 → 확정</span></button>' +
-          '<button type="button" class="course-btn" data-action="choose-course" data-course="guest">참석자로 체험하기<span class="course-sub">피하고 싶은 시간 남기기 → 반영 확인</span></button>' +
+          '<button type="button" class="course-btn" data-action="choose-course" data-course="guest">참석자로 체험하기<span class="course-sub">DM 받고 응답 보내기</span></button>' +
         '</div>' +
       '</div>');
   }
@@ -1293,6 +1288,10 @@
       renderInputDm(person, optional);
       return;
     }
+    if (state.inputStage === "done") {
+      renderInputDone(person);
+      return;
+    }
     app.innerHTML =
       '<section class="screen screen-mobile">' +
         '<div class="mobile-stage">' +
@@ -1311,7 +1310,39 @@
                 '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
               '</section>' +
               '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
-              '<button class="btn btn-full" data-action="go-compare">제출</button>' +
+              '<button class="btn btn-full" data-action="submit-response">제출</button>' +
+              '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+  }
+
+  function renderInputDone(person) {
+    app.innerHTML =
+      '<section class="screen screen-mobile">' +
+        '<div class="mobile-stage">' +
+          '<div class="phone-frame" role="region" aria-label="봇 DM">' +
+            '<header class="dm-header">' +
+              '<span class="dm-back" aria-hidden="true">‹</span>' +
+              '<span class="avatar app-avatar dm-header-avatar" aria-hidden="true">회</span>' +
+              '<span class="dm-header-name">회의 조율</span>' +
+              '<span class="app-badge">앱</span>' +
+              '<span class="dm-header-me">' + person.name + '</span>' +
+            '</header>' +
+            '<div class="phone-body dm-body">' +
+              '<article class="message dm-message">' +
+                '<div class="avatar app-avatar" aria-hidden="true">회</div>' +
+                '<div>' +
+                  '<div class="message-meta"><span class="message-author">회의 조율</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
+                  '<p class="bot-intro-text">응답을 받았어요. 고마워요!</p>' +
+                  '<div class="schedule-card dm-card">' +
+                    '<h2>' + meetingTitle() + '</h2>' +
+                    '<p class="helper-copy">' + state.replyBy + '까지 모인 응답으로 주최자가 시간을 정해요. 확정되면 여기로 알려드릴게요.</p>' +
+                    '<button type="button" class="btn btn-secondary btn-full" data-action="dm-edit-response">응답 고치기</button>' +
+                  '</div>' +
+                '</div>' +
+              '</article>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -1666,26 +1697,17 @@
     var slot = slotById(state.selectedSlotId);
     app.innerHTML =
       '<section class="screen">' +
-        '<div class="screen-inner">' +
+        '<div class="screen-inner confirm-single">' +
+          '<button type="button" class="back-link" data-action="go-compare">‹ 추천으로</button>' +
           '<p class="eyebrow">확정 전 확인</p>' +
           '<h1 class="screen-title">이 시간으로 정할까요?</h1>' +
-          '<div class="confirm-layout">' +
-            '<section class="confirm-panel">' +
-              '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>' + durationLabel() + ' · ' + meetingTitle() + '</span><button class="btn-ghost-dark" data-action="go-compare">다른 시간 보기</button></div>' +
-              '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
-              '<p class="confirm-section-label">확정 전 확인 · 주최자에게만 보여요</p>' +
-              '<ul class="summary-list">' + renderSummary(slot) + '</ul>' +
-              '<p class="privacy-note">비공개 정보는 노출하지 않아요</p>' +
-              '<div class="button-row">' +
-                '<button class="btn" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "이 시간으로 확정하기") + '</button>' +
-              '</div>' +
-              '<div class="posted-message ' + (state.posted ? "is-visible" : "") + '" role="status">슬랙 채널에 확정 메시지를 올렸어요. 참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</div>' +
-            '</section>' +
-            '<aside class="slack-preview">' +
-              '<h2>#' + state.channelName + ' 채널의 조율 카드에 올라가요</h2>' +
-              renderSlackPreview(slot) +
-            '</aside>' +
-          '</div>' +
+          '<section class="confirm-panel">' +
+            '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>' + durationLabel() + ' · ' + meetingTitle() + '</span></div>' +
+            '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
+            '<div class="button-row">' +
+              '<button class="btn btn-full" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "확정하고 #" + state.channelName + " 채널에 알리기") + '</button>' +
+            '</div>' +
+          '</section>' +
         '</div>' +
       '</section>';
   }
@@ -1957,18 +1979,18 @@
     if (action === "go-entry") {
       setRoute("entry");
     }
-    if (action === "dm-open-grid") {
+    if (action === "dm-open-grid" || action === "dm-edit-response") {
       state.inputStage = "grid";
       render();
       return;
     }
-    if (action === "dm-all-ok") {
-      // 표시 없이 응답 — 잠정안 동의로 제출
+    if (action === "dm-all-ok" || action === "submit-response") {
+      state.inputStage = "done";
       state.toastVisible = true;
       state.toastFading = false;
       state.toastText = "응답을 보냈어요";
       scheduleToastDismiss();
-      setRoute("compare");
+      render();
       return;
     }
     if (action === "dm-decline") {
@@ -2123,7 +2145,14 @@
     }
     if (action === "post-confirm") {
       state.posted = true;
-      render();
+      // 확정은 채널 카드의 업데이트다 — 작성을 건너뛴 자유 탐색에서도 카드가 존재해야 한다
+      state.composePosted = true;
+      state.toastVisible = true;
+      state.toastFading = false;
+      state.toastText = "#" + state.channelName + " 채널에 확정 카드를 올렸어요";
+      scheduleToastDismiss();
+      setRoute("entry");
+      return;
     }
   });
 
