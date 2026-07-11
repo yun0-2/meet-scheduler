@@ -24,6 +24,8 @@
     composeModalOpen: false,
     inputStage: "dm",
     declineNote: false,
+    myMarksOpen: false,
+    jiwooSoftSlots: {},
     tentativeSlotId: null,
     scenarioSeen: {},
     scenarioLastRoute: null,
@@ -324,6 +326,10 @@
     var key = slotId(day, start);
     var found = [];
 
+    if (person.id === "jiwoo" && state.jiwooSoftSlots && state.jiwooSoftSlots[key]) {
+      found.push({ type: "soft", visibility: "private", label: "피하고 싶은 시간", source: "본인 입력" });
+      return found;
+    }
     if (person.id === "haneul" && Object.prototype.hasOwnProperty.call(state.selectedSoftSlots, key)) {
       if (state.selectedSoftSlots[key]) {
         found.push({
@@ -753,6 +759,9 @@
   }
 
   function softSelectedForInput(person, slotKey) {
+    if (person.id === "jiwoo") {
+      return Boolean(state.jiwooSoftSlots && state.jiwooSoftSlots[slotKey]);
+    }
     if (person.id === "haneul") {
       return softSelectedByDefault(slotKey);
     }
@@ -780,10 +789,21 @@
   }
 
   function softIsOn(slotKey) {
+    if (state.myMarksOpen) {
+      return softSelectedForInput(getPerson("jiwoo"), slotKey);
+    }
     return softSelectedForInput(inputPersonForRoute(), slotKey);
   }
 
   function setSoft(slotKey, value, el) {
+    // '내 캘린더 표시' 모달에서는 대상이 주최자 본인이다
+    if (state.myMarksOpen) {
+      state.jiwooSoftSlots[slotKey] = value;
+      if (el && el.classList) {
+        el.classList.toggle("is-soft", value);
+      }
+      return;
+    }
     var person = inputPersonForRoute();
     if (state.inputOptOutByPerson[person.id]) {
       return;
@@ -1049,6 +1069,7 @@
         '</div>' +
       '</section>' +
       (state.composeModalOpen ? renderComposeModal(jiwoo) : '') +
+      (state.myMarksOpen ? renderMyMarksModal(jiwoo) : '') +
       renderToast();
   }
 
@@ -1062,6 +1083,7 @@
           '<p class="bot-intro-text">회의 시간을 정할 때 불러주세요. 캘린더를 보고 잠정 시간을 제안하고, 참석자들의 사정을 모아드려요.</p>' +
           '<div class="bot-intro-actions">' +
             '<button type="button" class="slack-btn slack-btn-primary" data-action="open-compose">회의 개최</button>' +
+            '<button type="button" class="slack-btn" data-action="open-my-marks">내 캘린더 표시</button>' +
           '</div>' +
         '</div>' +
       '</article>'
@@ -1069,6 +1091,25 @@
   }
 
   // 슬랙 네이티브 모달 문법 — 앱의 작성 폼은 dialog 안에서 열린다
+  // 상시 '내 캘린더 표시' — 회의 단위가 아니라 개인 레이어. 모든 조율 계산에 반영된다.
+  function renderMyMarksModal(jiwoo) {
+    return (
+      '<div class="slack-modal-overlay" data-action="close-my-marks-backdrop">' +
+        '<div class="slack-modal" role="dialog" aria-modal="true" aria-label="내 캘린더 표시">' +
+          '<header class="slack-modal-head">' +
+            '<h2>내 캘린더 표시</h2>' +
+            '<button type="button" class="slack-modal-close" data-action="close-my-marks" aria-label="닫기">✕</button>' +
+          '</header>' +
+          '<div class="slack-modal-body">' +
+            '<p class="helper-copy">피하고 싶은 시간을 표시해두면 앞으로의 모든 회의 조율에 반영돼요. 누가 표시했는지는 보이지 않아요.</p>' +
+            '<div class="mini-week-grid" aria-label="내 표시 격자">' + renderMiniGrid(jiwoo, false) + '</div>' +
+            '<button class="btn btn-full" data-action="close-my-marks">저장</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   function renderComposeModal(jiwoo) {
     return (
       '<div class="slack-modal-overlay" data-action="close-compose-backdrop">' +
@@ -1252,6 +1293,7 @@
         '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
         renderResponseStatusLine() +
         '<button class="btn" data-action="' + (state.posted ? 'go-confirm' : 'go-compare') + '">' + (state.posted ? '확정 내용 보기' : '추천 보기') + '</button>' +
+        (state.posted ? '<button type="button" class="btn btn-secondary dm-ok-btn" data-action="propose-change">시간 변경 제안</button>' : '') +
       '</div>'
     );
   }
@@ -2052,11 +2094,34 @@
       state.attendanceOverride[attendanceId] = attendanceValue;
       render();
     }
+    if (action === "close-my-marks-backdrop") {
+      if (event.target === target) {
+        state.myMarksOpen = false;
+        render();
+      }
+      return;
+    }
     if (action === "close-compose-backdrop") {
       if (event.target === target) {
         state.composeModalOpen = false;
         render();
       }
+      return;
+    }
+    if (action === "open-my-marks") {
+      state.myMarksOpen = true;
+      render();
+      return;
+    }
+    if (action === "close-my-marks") {
+      state.myMarksOpen = false;
+      render();
+      return;
+    }
+    if (action === "propose-change") {
+      // 재조율 = 같은 흐름의 재사용 — 확정 상태를 풀고 추천으로
+      state.posted = false;
+      setRoute("compare");
       return;
     }
     if (action === "open-compose") {
@@ -2095,6 +2160,12 @@
         return;
       }
       var miniSlotId = target.getAttribute("data-slot-id");
+      if (state.myMarksOpen) {
+        // '내 캘린더 표시' 모달 — 대상은 주최자 본인, 표시는 이후 모든 조율 계산에 반영
+        state.jiwooSoftSlots[miniSlotId] = !state.jiwooSoftSlots[miniSlotId];
+        render();
+        return;
+      }
       var inputPerson = inputPersonForRoute();
       if (state.inputOptOutByPerson[inputPerson.id]) {
         return;
