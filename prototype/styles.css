@@ -2560,3 +2560,8 @@ button {
 .slack-modal-body .card-kicker {
   display: none;
 }
+
+.tentative-line.is-confirmed {
+  background: var(--green-soft);
+  color: var(--green-text);
+}

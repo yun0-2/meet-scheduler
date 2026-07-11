@@ -36,7 +36,7 @@
     meetingTitle: null,
     meetingContext: "",
     channelName: "pm-admin-dashboard",
-    replyBy: "내일",
+    replyBy: "내일 18시",
     durationHours: 1,
     composeQuery: "",
     composeSuggestOpen: false,
@@ -136,7 +136,7 @@
     }
     lines.push("");
     lines.push("우선 " + tentativeLabel() + "(잠정)으로 잡아두려 해요.");
-    lines.push("어려우시면 " + state.replyBy + "까지 카드에서 표시해주세요 — 그 뒤에 확정할게요.");
+    lines.push("어려우시면 " + state.replyBy + "까지 카드에서 표시해주세요. 그 뒤에 확정할게요.");
     return lines.join("\n");
   }
 
@@ -1093,7 +1093,7 @@
     return (
       '<div class="meeting-banner">' +
         '<button type="button" class="meeting-banner-head" data-action="toggle-banner" aria-expanded="' + String(state.bannerOpen) + '">' +
-          '<span class="banner-title">예정 회의 · ' + meetingTitle() + '</span>' +
+          '<span class="banner-title">' + (state.posted ? '확정 회의' : '예정 회의') + ' · ' + meetingTitle() + '</span>' +
           '<span class="banner-meta">응답 ' + responded + '/' + people.length + '</span>' +
           '<span class="banner-chevron" aria-hidden="true">' + (state.bannerOpen ? '∧' : '∨') + '</span>' +
         '</button>' + body +
@@ -1143,7 +1143,7 @@
 
   function renderComposeCard(jiwoo) {
     var addedCount = composeCandidates().filter(isComposeAdded).length;
-    var addedRows = renderOrganizerRow(jiwoo) + composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
+    var addedRows = composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
     return (
       '<div class="schedule-card compose-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
@@ -1167,12 +1167,12 @@
           '</label>' +
           '<label class="fact-select-wrap">응답 기한 ' +
             '<select id="compose-replyby" class="fact-select" aria-label="응답 기한">' +
-              ["오늘", "내일", "모레"].map(function (opt) {
+              ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
                 return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
               }).join("") +
             '</select>' +
           '</label>' +
-          '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
+          '<span class="fact-pill">회의는 다음 주 중</span>' +
         '</div>' +
         '<p class="compose-section-label">참석자</p>' +
         '<div class="compose-search-wrap">' +
@@ -1236,13 +1236,15 @@
         '<h2>' + meetingTitle() + '</h2>' +
         '<div class="meeting-facts">' +
           '<span class="fact-pill">' + durationLabel() + '</span>' +
-          '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
+          '<span class="fact-pill">다음 주 중</span>' +
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
-        '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요 — 그 뒤 확정해요</span></div>' +
+        (state.posted
+          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>참석자 모두에게 알림을 보냈어요</span></div>'
+          : '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
         '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
         renderResponseStatusLine() +
-        '<button class="btn" data-action="go-compare">추천 보기</button>' +
+        '<button class="btn" data-action="' + (state.posted ? 'go-confirm' : 'go-compare') + '">' + (state.posted ? '확정 내용 보기' : '추천 보기') + '</button>' +
       '</div>'
     );
   }
@@ -1279,13 +1281,13 @@
       '<section class="screen screen-mobile">' +
         '<div class="mobile-stage">' +
           '<div class="phone-frame" role="region" aria-label="참석자 입력 화면">' +
-            '<div class="phone-status"><span>Slack 링크</span><span>' + person.name + '</span></div>' +
+            '<div class="phone-status"><span>회의 조율 (DM)</span><span>' + person.name + '</span></div>' +
             '<div class="phone-body">' +
               '<section class="context-card compact">' +
                 '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
-                '<p class="input-tentative">잠정 ' + tentativeLabel() + ' — 어려우면 표시해주세요</p>' +
+                '<p class="input-tentative">잠정 ' + tentativeLabel() + ' · 어려우면 표시해주세요</p>' +
                 '<h1>다음 주 킥오프, 피하고 싶은 시간이 있나요?</h1>' +
-                (optional ? '<p class="input-guidance">선택 참석이에요 — 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
+                (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
               '</section>' +
               '<section class="soft-editor">' +
                 (optional ? renderOptOutControl(person, optedOut) : '') +
@@ -1416,7 +1418,7 @@
     }).join(", ");
     return (
       '<p class="response-line">' +
-        respondedCount + '명 응답 · ' + waitingNames + ' 답 기다리는 중 — 캘린더 기준으로 먼저 계산했어요 ' +
+        respondedCount + '명 응답 · ' + waitingNames + ' 답 기다리는 중 · 캘린더 기준으로 먼저 계산했어요 ' +
         (state.reminderSent
           ? '<span class="remind-done">다시 알렸어요</span>'
           : '<button class="remind-btn" data-action="send-reminder">다시 알려주기</button>') +
@@ -1619,7 +1621,7 @@
             '<section class="confirm-panel">' +
               '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>' + durationLabel() + ' · ' + meetingTitle() + '</span><button class="btn-ghost-dark" data-action="go-compare">다른 시간 보기</button></div>' +
               '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
-              '<p class="confirm-section-label">확정 전 확인 — 주최자에게만 보여요</p>' +
+              '<p class="confirm-section-label">확정 전 확인 · 주최자에게만 보여요</p>' +
               '<ul class="summary-list">' + renderSummary(slot) + '</ul>' +
               '<p class="privacy-note">비공개 정보는 노출하지 않아요</p>' +
               '<div class="button-row">' +
@@ -1872,6 +1874,10 @@
   }
 
   app.addEventListener("click", function (event) {
+    // 검색창은 재클릭(이미 포커스 상태)에도 제안이 열려야 한다 (focusin은 이때 안 옴)
+    if (event.target && event.target.id === "compose-search") {
+      openComposeSuggest();
+    }
     // 검색 오버레이 바깥 클릭이면 닫는다 (오버레이 안 행 클릭은 wrap 안이라 유지)
     if (state.composeSuggestOpen) {
       var inWrap = event.target.closest ? event.target.closest(".compose-search-wrap") : null;
@@ -1897,6 +1903,10 @@
     }
     if (action === "go-entry") {
       setRoute("entry");
+    }
+    if (action === "go-confirm") {
+      setRoute("confirm");
+      return;
     }
     if (action === "go-compare") {
       var submittedFromInput = state.route === "input" || state.route === "input-optional";
@@ -2115,7 +2125,7 @@
   });
 
   app.addEventListener("focusin", function (event) {
-    // 검색창에 포커스가 오면 제안 오버레이를 연다 (전체 재렌더 없이 클래스만 토글 — 포커스 보존)
+    // 검색창에 포커스가 오면 제안 오버레이를 연다 (전체 재렌더 없이 클래스만 토글, 포커스 보존)
     if (event.target && event.target.id === "compose-search") {
       openComposeSuggest();
       return;
