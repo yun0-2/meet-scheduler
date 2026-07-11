@@ -25,7 +25,9 @@
     inputStage: "dm",
     declineNote: false,
     myMarksOpen: false,
-    meetingWindow: "다음 주",
+    windowStart: 20,
+    windowEnd: 24,
+    windowAnchor: null,
     respondedReveal: false,
     jiwooSoftSlots: {},
     tentativeSlotId: null,
@@ -130,7 +132,7 @@
     if (mentions) {
       lines.push(mentions);
     }
-    lines.push("안녕하세요, " + state.meetingWindow + " 중에 " + meetingTitle() + " " + durationLabel() + " 싱크를 잡으려고 해요.");
+    lines.push("안녕하세요, " + windowLabel() + " 중에 " + meetingTitle() + " " + durationLabel() + " 싱크를 잡으려고 해요.");
     if (context) {
       lines.push("");
       lines.push(context);
@@ -155,6 +157,11 @@
       '</div>'
     );
   }
+
+  // 회의 시기 — 주최자가 월 캘린더에서 고른 날짜 범위가 곧 후보 요일이자 응답 기한.
+  // 엔진은 요일 기준으로 돌고, 범위는 "어떤 요일이 후보인가"와 날짜 라벨만 정한다.
+  var DOW_ORDER = ["월", "화", "수", "목", "금"];
+  var TODAY_DOM = 11; // 2026-07-11(토). 이 날 이후 평일만 선택 가능
 
   var slotHours = buildSlotHours();
   var dayIndex = data.meeting.days.reduce(function (map, day, index) {
@@ -261,18 +268,65 @@
     return displayTime(tentativeSlot());
   }
 
-  // 회의 시기 — 선택한 주가 격자 날짜·잠정/확정 시간·문안에 실제로 흐른다
-  var meetingWindows = {
-    "이번 주": { range: "7/13~17", dates: { "월": "7/13", "화": "7/14", "수": "7/15", "목": "7/16", "금": "7/17" } },
-    "다음 주": { range: "7/20~24", dates: { "월": "7/20", "화": "7/21", "수": "7/22", "목": "7/23", "금": "7/24" } }
-  };
+  // 2026년 7월: 7/1=수요일. 평일이면 요일 문자를, 주말이면 null.
+  function julyDow(dom) {
+    var idx = (dom - 1 + 2) % 7; // 0=월 … 6=일
+    return idx <= 4 ? DOW_ORDER[idx] : null;
+  }
 
-  function windowInfo() {
-    return meetingWindows[state.meetingWindow] || meetingWindows["다음 주"];
+  // 그 날짜가 속한 주의 월요일 날짜(월 안, 음수면 지난달)
+  function weekMondayDom(dom) {
+    return dom - ((dom - 1 + 2) % 7);
+  }
+
+  function isSelectableDom(dom) {
+    return dom >= 1 && dom <= 31 && dom > TODAY_DOM && julyDow(dom) !== null;
+  }
+
+  // 선택 범위가 실제로 후보로 삼는 요일들 (범위는 한 주 안이라 월~금의 연속 부분집합)
+  function activeDays() {
+    var out = [];
+    for (var dom = state.windowStart; dom <= state.windowEnd; dom += 1) {
+      var dow = julyDow(dom);
+      if (dow) {
+        out.push(dow);
+      }
+    }
+    return out.length ? out : DOW_ORDER.slice();
   }
 
   function dayDate(day) {
-    return windowInfo().dates[day] || "";
+    for (var dom = state.windowStart; dom <= state.windowEnd; dom += 1) {
+      if (julyDow(dom) === day) {
+        return "7/" + dom;
+      }
+    }
+    return "";
+  }
+
+  // 문안·필·버튼에 쓰는 범위 라벨. 하루면 "7/22", 여러 날이면 "7/20~24"
+  function windowLabel() {
+    if (state.windowStart === state.windowEnd) {
+      return "7/" + state.windowStart;
+    }
+    return "7/" + state.windowStart + "~" + state.windowEnd;
+  }
+
+  // 캘린더 클릭: 시작일 찍고(anchor) → 같은 주 안에서 종료일 찍으면 범위 확정
+  function pickWindowDate(dom) {
+    if (isNaN(dom)) {
+      return;
+    }
+    if (state.windowAnchor === null) {
+      state.windowAnchor = dom;
+    } else {
+      state.windowStart = Math.min(state.windowAnchor, dom);
+      state.windowEnd = Math.max(state.windowAnchor, dom);
+      state.windowAnchor = null;
+      // 후보 요일이 바뀌었으니 추천을 다시 계산해 현재 선택을 갱신
+      state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
+    }
+    render();
   }
 
   function meetingDuration() {
@@ -511,7 +565,7 @@
 
   function scoreAllSlots() {
     var slots = [];
-    data.meeting.days.forEach(function (day) {
+    activeDays().forEach(function (day) {
       slotHours.forEach(function (start) {
         slots.push(scoreSlot(day, start));
       });
@@ -1131,7 +1185,7 @@
           '</header>' +
           '<div class="slack-modal-body">' +
             '<p class="helper-copy">피하고 싶은 시간을 표시해두면 앞으로의 모든 회의 조율에 반영돼요. 누가 표시했는지는 보이지 않아요.</p>' +
-            '<div class="mini-week-grid" aria-label="내 표시 격자">' + renderMiniGrid(jiwoo, false) + '</div>' +
+            '<div class="mini-week-grid" style="--day-cols: ' + activeDays().length + '" aria-label="내 표시 격자">' + renderMiniGrid(jiwoo, false) + '</div>' +
             '<button class="btn btn-full" data-action="close-my-marks">저장</button>' +
           '</div>' +
         '</div>' +
@@ -1218,6 +1272,52 @@
     return items.map(renderCandidateRow).join("");
   }
 
+  // 월 캘린더 범위 피커 — 시작일 찍고 같은 주 안에서 종료일 찍기. 주말·오늘 이전·다른 주는 비활성.
+  function renderWindowCalendar() {
+    var weekdayHead = ["월", "화", "수", "목", "금", "토", "일"];
+    var head = weekdayHead.map(function (w) {
+      return '<span class="wcal-dow">' + w + '</span>';
+    }).join("");
+
+    // 7/1은 수요일 → 월요일 시작 격자에서 앞 2칸은 빈칸
+    var cells = '<span class="wcal-pad"></span><span class="wcal-pad"></span>';
+    var anchorWeek = state.windowAnchor === null ? null : weekMondayDom(state.windowAnchor);
+    for (var dom = 1; dom <= 31; dom += 1) {
+      var dow = julyDow(dom);
+      var isWeekend = dow === null;
+      var selectable = isSelectableDom(dom);
+      // 시작일을 이미 찍었으면(anchor 있음) 같은 주 평일만 활성 — 한 주로 캡
+      if (anchorWeek !== null && selectable && weekMondayDom(dom) !== anchorWeek) {
+        selectable = false;
+      }
+      var inRange = state.windowAnchor === null && dom >= state.windowStart && dom <= state.windowEnd && !isWeekend;
+      var isEnd = inRange && (dom === state.windowStart || dom === state.windowEnd);
+      var isAnchor = state.windowAnchor === dom;
+      var cls = ["wcal-day"];
+      if (isWeekend) cls.push("is-weekend");
+      if (!selectable && !isAnchor) cls.push("is-disabled");
+      if (inRange) cls.push("is-range");
+      if (isEnd) cls.push("is-edge");
+      if (isAnchor) cls.push("is-anchor");
+      if (dom === TODAY_DOM) cls.push("is-today");
+      var attrs = selectable || isAnchor
+        ? ' data-action="window-pick" data-dom="' + dom + '"'
+        : ' disabled';
+      cells += '<button type="button" class="' + cls.join(" ") + '"' + attrs + '>' + dom + '</button>';
+    }
+
+    return (
+      '<div class="wcal">' +
+        '<div class="wcal-title">2026년 7월</div>' +
+        '<div class="wcal-grid wcal-grid--head">' + head + '</div>' +
+        '<div class="wcal-grid">' + cells + '</div>' +
+        (state.windowAnchor !== null
+          ? '<p class="wcal-note">시작일을 골랐어요. 같은 주 안에서 마지막 날을 누르면 범위가 정해져요.</p>'
+          : '<p class="wcal-note">데모에서는 한 주 범위까지 골라요. 고른 날짜만 후보로 열려요.</p>') +
+      '</div>'
+    );
+  }
+
   function renderComposeCard(jiwoo) {
     var addedCount = composeCandidates().filter(isComposeAdded).length;
     var addedRows = composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
@@ -1226,14 +1326,9 @@
       '<div class="schedule-card compose-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
         '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
+        '<p class="compose-section-label">회의 시기 <span class="compose-window-hint">' + windowLabel() + ' · 후보로 열어둘 날짜를 골라요</span></p>' +
+        renderWindowCalendar() +
         '<div class="meeting-facts">' +
-          '<label class="fact-select-wrap">회의 시기 ' +
-            '<select id="compose-window" class="fact-select" aria-label="회의 시기">' +
-              Object.keys(meetingWindows).map(function (opt) {
-                return '<option value="' + opt + '"' + (state.meetingWindow === opt ? " selected" : "") + '>' + opt + ' (' + meetingWindows[opt].range + ')</option>';
-              }).join("") +
-            '</select>' +
-          '</label>' +
           '<label class="fact-select-wrap">소요 시간 ' +
             '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
               [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
@@ -1320,7 +1415,7 @@
         '<h2>' + meetingTitle() + '</h2>' +
         '<div class="meeting-facts">' +
           '<span class="fact-pill">' + durationLabel() + '</span>' +
-          '<span class="fact-pill">' + state.meetingWindow + ' 중</span>' +
+          '<span class="fact-pill">' + windowLabel() + ' 중</span>' +
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
         (state.posted
@@ -1411,7 +1506,7 @@
             (state.inputStage === "done"
               ? '<p class="helper-copy">응답을 보냈어요.</p>'
               : '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
-                '<button type="button" class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">' + state.meetingWindow + ' 언제든 괜찮아요</button>' +
+                '<button type="button" class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">' + windowLabel() + ' 언제든 괜찮아요</button>' +
                 '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
                 (state.declineNote ? '<p class="opt-out-message">주최자에게 전달했어요. 시간 사정이라면 피하고 싶은 시간으로 알려줘도 좋아요</p>' : '')) +
           '</div>' +
@@ -1450,7 +1545,7 @@
             (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             renderInputLegend() +
-            '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
+            '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
             '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
             '<button class="btn btn-full" data-action="submit-response">제출</button>' +
             '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
@@ -1470,8 +1565,9 @@
   }
 
   function renderMiniGrid(person, optedOut) {
+    var days = activeDays();
     var html = '<div class="mini-head"></div>';
-    data.meeting.days.forEach(function (day) {
+    days.forEach(function (day) {
       html += '<div class="mini-head">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
     });
 
@@ -1487,7 +1583,7 @@
         lunchInserted = true;
       }
       html += '<div class="mini-time">' + hour + '</div>';
-      data.meeting.days.forEach(function (day) {
+      days.forEach(function (day) {
         var id = slotId(day, hour);
         // 내 캘린더의 일정 — 본인 화면이라 비공개 하드(예: 학원)도 제목 노출 OK
         var hardInfo = participantHardForInput(person, day, hour);
@@ -1546,7 +1642,7 @@
                 '<h2>주간 격자</h2>' +
                 renderLegend() +
               '</header>' +
-              '<div class="schedule-grid">' + renderScheduleGrid(featured) + '</div>' +
+              '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
               renderActiveSlotDetail() +
             '</section>' +
             '<aside>' +
@@ -1607,8 +1703,9 @@
   function renderScheduleGrid(featured) {
     // 격자 표면 뱃지는 '보낸 잠정안' 하나만 — 순위는 카드의 몫
     var tentativeId = state.tentativeSlotId || featured.recommended.id;
+    var days = activeDays();
     var html = '<div class="grid-corner">시간</div>';
-    data.meeting.days.forEach(function (day) {
+    days.forEach(function (day) {
       html += '<div class="grid-day">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
     });
 
@@ -1620,7 +1717,7 @@
           '<div class="grid-lunch-band" role="note" aria-label="' + lunchStart + '시 점심시간, 후보에서 제외">점심시간</div>';
       }
       html += '<div class="grid-time">' + String(hour).padStart(2, "0") + ':00</div>';
-      data.meeting.days.forEach(function (day) {
+      days.forEach(function (day) {
         var slot = slotById(slotId(day, hour));
         var selected = state.selectedSlotId === slot.id;
         var recommended = slot.id === featured.recommended.id;
@@ -1939,11 +2036,6 @@
 
   app.addEventListener("change", function (event) {
     var sel = event.target;
-    if (sel && sel.id === "compose-window") {
-      state.meetingWindow = sel.value;
-      render();
-      return;
-    }
     if (sel && sel.id === "compose-replyby") {
       state.replyBy = sel.value;
       return;
@@ -2180,6 +2272,10 @@
     if (action === "close-compose") {
       state.composeModalOpen = false;
       render();
+      return;
+    }
+    if (action === "window-pick") {
+      pickWindowDate(parseInt(target.getAttribute("data-dom"), 10));
       return;
     }
     if (action === "post-compose") {
