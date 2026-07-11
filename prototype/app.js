@@ -21,6 +21,7 @@
     dragStartId: null,
     dragLastPaintedId: null,
     suppressNextSoftToggle: false,
+    composeModalOpen: false,
     scenarioSeen: {},
     scenarioLastRoute: null,
     scenarioOverlayOpen: false,
@@ -50,7 +51,7 @@
       entry: {
         eyebrow: "1/3 · 주최자",
         body: "당신은 회의를 잡아야 하는 주최자예요.",
-        mission: "회의 정보를 확인하고 참석자를 추가해 채널에 보내보세요."
+        mission: "'회의 개최'를 눌러 정보를 채우고 채널에 보내보세요."
       },
       compare: {
         eyebrow: "2/3 · 주최자",
@@ -1027,18 +1028,52 @@
             '<header class="channel-header"><h1>' + (state.composePosted ? '# ' + state.channelName : '회의 조율') + '</h1></header>' +
             (state.composePosted ? renderMeetingBanner() : '') +
             '<div class="message-thread">' +
-              '<article class="message">' +
-                '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
-                '<div>' +
-                  '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">오전 10:04</span></div>' +
-                  (state.composePosted ? (renderPostedMessageText() + renderPostedCard()) : renderComposeCard(jiwoo)) +
-                '</div>' +
-              '</article>' +
+              (state.composePosted
+                ? '<article class="message">' +
+                    '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
+                    '<div>' +
+                      '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">오전 10:04</span></div>' +
+                      renderPostedMessageText() + renderPostedCard() +
+                    '</div>' +
+                  '</article>'
+                : renderBotIntroMessage()) +
             '</div>' +
           '</section>' +
         '</div>' +
       '</section>' +
+      (state.composeModalOpen ? renderComposeModal(jiwoo) : '') +
       renderToast();
+  }
+
+  // 봇 채널의 앱 메시지 — 여기의 버튼이 진입점이다 (슬랙 앱 관례)
+  function renderBotIntroMessage() {
+    return (
+      '<article class="message">' +
+        '<div class="avatar app-avatar" aria-hidden="true">회</div>' +
+        '<div>' +
+          '<div class="message-meta"><span class="message-author">회의 조율</span><span class="app-badge">앱</span><span class="message-time">오전 10:03</span></div>' +
+          '<p class="bot-intro-text">회의 시간을 정할 때 불러주세요. 캘린더를 보고 잠정 시간을 제안하고, 참석자들의 사정을 모아드려요.</p>' +
+          '<div class="bot-intro-actions">' +
+            '<button type="button" class="slack-btn slack-btn-primary" data-action="open-compose">회의 개최</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  // 슬랙 네이티브 모달 문법 — 앱의 작성 폼은 dialog 안에서 열린다
+  function renderComposeModal(jiwoo) {
+    return (
+      '<div class="slack-modal-overlay" data-action="close-compose-backdrop">' +
+        '<div class="slack-modal" role="dialog" aria-modal="true" aria-label="회의 시간 정하기">' +
+          '<header class="slack-modal-head">' +
+            '<h2>회의 시간 정하기</h2>' +
+            '<button type="button" class="slack-modal-close" data-action="close-compose" aria-label="닫기">✕</button>' +
+          '</header>' +
+          '<div class="slack-modal-body">' + renderComposeCard(jiwoo) + '</div>' +
+        '</div>' +
+      '</div>'
+    );
   }
 
   // 채널 상단 배너 — 예정 회의가 있으면 공지처럼 떠 있고, 펼치면 응답 현황
@@ -1913,11 +1948,29 @@
       state.attendanceOverride[attendanceId] = attendanceValue;
       render();
     }
+    if (action === "close-compose-backdrop") {
+      if (event.target === target) {
+        state.composeModalOpen = false;
+        render();
+      }
+      return;
+    }
+    if (action === "open-compose") {
+      state.composeModalOpen = true;
+      render();
+      return;
+    }
+    if (action === "close-compose") {
+      state.composeModalOpen = false;
+      render();
+      return;
+    }
     if (action === "post-compose") {
       if (target.disabled) {
         return;
       }
       state.composePosted = true;
+      state.composeModalOpen = false;
       state.toastVisible = true;
       state.toastFading = false;
       state.toastText = "채널에 보냈어요";
@@ -2075,7 +2128,16 @@
     updateActiveSlotDetail();
   });
 
-  // 제안 수락 — value가 비어 있을 때 Tab/→ (keydown 캡처, 기본 포커스 이동 막음)
+  if (document.addEventListener) {
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && state.composeModalOpen) {
+        state.composeModalOpen = false;
+        render();
+      }
+    });
+  }
+
+  // 제안 수락 — value가 비어 있을 때 → 키만 (Tab은 표준 역할 유지 — 021 조사)
   app.addEventListener("keydown", function (event) {
     var field = event.target;
     if (!field || event.key !== "ArrowRight" || field.value) {
