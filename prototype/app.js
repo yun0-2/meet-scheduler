@@ -932,7 +932,6 @@
       renderScenarioCard(state.route, false);
     }
     lockBackgroundScroll(state.composeModalOpen || state.myMarksOpen || state.inputStage === "grid");
-    autosizeComposeTextareas();
   }
 
   // 모달 열림 동안 배경 페이지 스크롤 잠금 (이중 스크롤의 세 번째 원인 제거)
@@ -943,41 +942,11 @@
     document.body.style.overflow = locked ? "hidden" : "";
   }
 
-  // textarea를 내용(빈 상태면 placeholder) 높이에 맞춰 성장 — 내부 스크롤을 없앤다
-  function autosizeTextarea(el) {
-    if (!el) {
-      return;
-    }
-    var probe = null;
-    if (!el.value && el.placeholder) {
-      probe = el.value;
-      el.value = el.placeholder.replace(/&#10;/g, "\n");
-    }
-    el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
-    if (probe !== null) {
-      el.value = probe;
-    }
-  }
-
-  function autosizeComposeTextareas() {
-    if (typeof document === "undefined" || !document.getElementById) {
-      return;
-    }
-    // 레이아웃 이후에 측정해야 폭이 확정돼 placeholder 줄바꿈 높이가 올바르다
-    var run = function () {
-      try {
-        autosizeTextarea(document.getElementById("compose-context"));
-        autosizeTextarea(document.getElementById("compose-message"));
-      } catch (lookupError) {
-        // 테스트 하네스 등 #app만 아는 최소 DOM 목업에서는 조용히 건너뛴다.
-      }
-    };
-    if (typeof window !== "undefined" && window.requestAnimationFrame) {
-      window.requestAnimationFrame(run);
-    } else {
-      run();
-    }
+  // 여러 줄 텍스트가 기본 상태(제안 문안)에서 스크롤 없이 다 보이도록 rows를 미리 맞춘다.
+  // JS 높이 측정은 레이아웃 타이밍·폭에 취약해, 줄 수 계산으로 대체.
+  function textareaRows(text, min) {
+    var lines = String(text || "").split("\n").length + 1;
+    return Math.max(min, lines);
   }
 
   // 데모 전용 플로팅 네비게이터 — 제품 화면(#app) 바깥의 리모컨.
@@ -1412,7 +1381,7 @@
         '<div class="compose-row-icon">' +
           '<span class="compose-icon" aria-hidden="true">' + ICONS.lines + '</span>' +
           '<div class="compose-row-body">' +
-            '<textarea class="compose-context-input" id="compose-context" rows="4" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
+            '<textarea class="compose-context-input" id="compose-context" rows="' + textareaRows(state.meetingContext || suggestedDescription(), 4) + '" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
             (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
           '</div>' +
         '</div>' +
@@ -1439,7 +1408,7 @@
           '<div class="compose-row-icon">' +
             '<span class="compose-icon" aria-hidden="true">' + ICONS.bubble + '</span>' +
             '<div class="compose-row-body">' +
-              '<textarea class="compose-message-input" id="compose-message" rows="5" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
+              '<textarea class="compose-message-input" id="compose-message" rows="' + textareaRows(state.composeMessage || suggestedMessage(), 4) + '" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
               (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
             '</div>' +
           '</div>' +
@@ -2146,7 +2115,6 @@
     }
     if (field.id === "compose-context") {
       state.meetingContext = field.value;
-      autosizeTextarea(field);
       syncComposeMessagePlaceholder();
       return;
     }
@@ -2156,7 +2124,6 @@
     if (field.id === "compose-message") {
       // 직접 타이핑 = 자기 글. placeholder(제안 문안)는 브라우저가 알아서 숨긴다.
       state.composeMessage = field.value;
-      autosizeTextarea(field);
       return;
     }
     if (field.id === "compose-search") {

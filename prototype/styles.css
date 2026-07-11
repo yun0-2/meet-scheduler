@@ -2988,10 +2988,10 @@ button {
 }
 
 /* ===== 스크롤 단일화 (2026-07-11) ===== */
-/* textarea 자동 성장 — 내부 스크롤 제거로 이중 스크롤 해소 */
+/* textarea: rows가 제안 문안에 맞춰져 기본 상태는 스크롤 없음. 많이 입력하면 그때만 스크롤 */
 .compose-context-input,
 .compose-message-input {
-  overflow-y: hidden;
+  overflow-y: auto;
   resize: none;
 }
 /* 헤더는 고정, 본문만 스크롤 */
