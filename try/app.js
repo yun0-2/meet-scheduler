@@ -1565,7 +1565,6 @@
             '<div class="message-thread">' +
               '<p class="dm-day-divider">오늘</p>' +
               renderDmInviteMessage(person, optional) +
-              (state.inputStage === "done" ? renderDmDoneMessage(person) : '') +
             '</div>' +
           '</section>' +
         '</div>' +
@@ -1589,31 +1588,18 @@
             '</div>' +
             '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
             (state.inputStage === "done"
-              ? '<p class="helper-copy">응답을 보냈어요.</p>'
+              ? '<div class="dm-answered">' +
+                  '<p class="dm-answered-text">응답을 보냈어요. ' + state.replyBy + '까지 모인 응답으로 주최자가 시간을 정하고, 확정되면 여기로 알려드려요.</p>' +
+                  '<button type="button" class="btn btn-secondary btn-full" data-action="dm-edit-response">응답 고치기</button>' +
+                '</div>'
               : state.declined
-                ? '<div class="dm-declined">' +
-                    '<p class="dm-declined-text">참석 어려움으로 답했어요. 기한 전까지 언제든 바꿀 수 있어요.</p>' +
+                ? '<div class="dm-answered">' +
+                    '<p class="dm-answered-text">참석 어려움으로 답했어요. 기한 전까지 언제든 바꿀 수 있어요.</p>' +
                     '<button type="button" class="btn btn-secondary btn-full" data-action="dm-undecline">역시 참석할게요</button>' +
                   '</div>'
                 : '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
                   '<button type="button" class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">' + windowLabel() + ' 언제든 괜찮아요</button>' +
                   '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>') +
-          '</div>' +
-        '</div>' +
-      '</article>'
-    );
-  }
-
-  function renderDmDoneMessage(person) {
-    return (
-      '<article class="message">' +
-        '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
-        '<div>' +
-          '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
-          '<p class="bot-intro-text">응답을 받았어요. 고마워요!</p>' +
-          '<div class="schedule-card dm-card">' +
-            '<p class="helper-copy">' + state.replyBy + '까지 모인 응답으로 주최자가 시간을 정해요. 확정되면 여기로 알려드릴게요.</p>' +
-            '<button type="button" class="btn btn-secondary btn-full" data-action="dm-edit-response">응답 고치기</button>' +
           '</div>' +
         '</div>' +
       '</article>'

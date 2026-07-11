@@ -3064,12 +3064,12 @@ body.is-embed .mobile-stage {
 }
 
 /* 참석 어려움 응답 — 가역적(되돌리기 가능) 상태 표시 */
-.dm-declined {
+.dm-answered {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
-.dm-declined-text {
+.dm-answered-text {
   margin: 0;
   font-size: var(--text-13);
   color: var(--grey-600, #6B7684);
