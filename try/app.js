@@ -931,6 +931,45 @@
       state.scenarioLastRoute = state.route;
       renderScenarioCard(state.route, false);
     }
+    lockBackgroundScroll(state.composeModalOpen || state.myMarksOpen || state.inputStage === "grid");
+    autosizeComposeTextareas();
+  }
+
+  // 모달 열림 동안 배경 페이지 스크롤 잠금 (이중 스크롤의 세 번째 원인 제거)
+  function lockBackgroundScroll(locked) {
+    if (typeof document === "undefined" || !document.body) {
+      return;
+    }
+    document.body.style.overflow = locked ? "hidden" : "";
+  }
+
+  // textarea를 내용(빈 상태면 placeholder) 높이에 맞춰 성장 — 내부 스크롤을 없앤다
+  function autosizeTextarea(el) {
+    if (!el) {
+      return;
+    }
+    var probe = null;
+    if (!el.value && el.placeholder) {
+      probe = el.value;
+      el.value = el.placeholder.replace(/&#10;/g, "\n");
+    }
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+    if (probe !== null) {
+      el.value = probe;
+    }
+  }
+
+  function autosizeComposeTextareas() {
+    if (typeof document === "undefined" || !document.getElementById) {
+      return;
+    }
+    try {
+      autosizeTextarea(document.getElementById("compose-context"));
+      autosizeTextarea(document.getElementById("compose-message"));
+    } catch (lookupError) {
+      // 테스트 하네스 등 #app만 아는 최소 DOM 목업에서는 조용히 건너뛴다.
+    }
   }
 
   // 데모 전용 플로팅 네비게이터 — 제품 화면(#app) 바깥의 리모컨.
@@ -2099,6 +2138,7 @@
     }
     if (field.id === "compose-context") {
       state.meetingContext = field.value;
+      autosizeTextarea(field);
       syncComposeMessagePlaceholder();
       return;
     }
@@ -2108,6 +2148,7 @@
     if (field.id === "compose-message") {
       // 직접 타이핑 = 자기 글. placeholder(제안 문안)는 브라우저가 알아서 숨긴다.
       state.composeMessage = field.value;
+      autosizeTextarea(field);
       return;
     }
     if (field.id === "compose-search") {

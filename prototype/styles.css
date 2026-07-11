@@ -2459,15 +2459,18 @@ button {
   inset: 0;
   z-index: 45;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 48px 16px;
+  padding: 32px 16px;
   background: rgba(29, 28, 29, 0.5);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .slack-modal {
   width: min(560px, 100%);
+  max-height: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
   background: var(--surface);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
@@ -2501,8 +2504,9 @@ button {
 }
 
 .slack-modal-body {
-  padding: 8px 20px 20px;
-  max-height: calc(100dvh - 160px);
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px 20px 0;
   overflow-y: auto;
 }
 
@@ -2981,4 +2985,25 @@ button {
   width: auto;
   padding-left: 20px;
   padding-right: 20px;
+}
+
+/* ===== 스크롤 단일화 (2026-07-11) ===== */
+/* textarea 자동 성장 — 내부 스크롤 제거로 이중 스크롤 해소 */
+.compose-context-input,
+.compose-message-input {
+  overflow-y: hidden;
+  resize: none;
+}
+/* 헤더는 고정, 본문만 스크롤 */
+.slack-modal-head {
+  flex: 0 0 auto;
+}
+/* 보내기 버튼 하단 고정 — 스크롤을 노출하면서 주 액션은 항상 보이게 */
+.compose-footer {
+  position: sticky;
+  bottom: 0;
+  margin: 0 -20px;
+  padding: var(--space-4) 20px calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  background: var(--surface, #fff);
+  border-top: 1px solid var(--border, #e2e8f0);
 }
