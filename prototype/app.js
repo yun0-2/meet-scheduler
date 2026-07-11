@@ -1139,17 +1139,18 @@
   }
 
   function renderAddedRow(person) {
-    // 구글 문법: 기본은 무표기(필수 취급), '선택'만 예외로 표시한다
     var attendance = effectiveAttendance(person);
-    var optional = attendance === "optional";
     return (
       '<div class="compose-row is-added">' +
         personIdentityBlock(person, attendance) +
         '<div class="compose-row-controls">' +
-          '<button type="button" class="compose-optional-toggle' + (optional ? " is-on" : "") + '" aria-pressed="' + String(optional) + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="' + (optional ? "required" : "optional") + '">' + (optional ? "필수로 표시" : "선택으로 표시") + '</button>' +
+          '<div class="compose-segmented" role="group" aria-label="' + person.name + ' 참석 구분">' +
+            '<button type="button" class="' + (attendance === "required" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "required") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="required">필수</button>' +
+            '<button type="button" class="' + (attendance === "optional" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "optional") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="optional">선택</button>' +
+          '</div>' +
           '<button type="button" class="compose-remove-btn" data-action="compose-remove" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자에서 제거">×</button>' +
         '</div>' +
-        (optional ? '<span class="compose-row-caption">지난 회의 기준 추천 — 바꿀 수 있어요</span>' : '') +
+        '<span class="compose-row-caption">지난 회의 기준 추천 — 바꿀 수 있어요</span>' +
       '</div>'
     );
   }
