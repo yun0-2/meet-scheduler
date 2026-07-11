@@ -22,6 +22,9 @@
     dragLastPaintedId: null,
     suppressNextSoftToggle: false,
     composeModalOpen: false,
+    inputStage: "dm",
+    declineNote: false,
+    tentativeSlotId: null,
     scenarioSeen: {},
     scenarioLastRoute: null,
     scenarioOverlayOpen: false,
@@ -245,6 +248,10 @@
 
   // 잠정 제안 — 캘린더 기준 1순위. 침묵=동의, 응답=보정, 기한=확정 트리거.
   function tentativeSlot() {
+    // 보낸 잠정안은 동결 — 응답이 들어와 지금의 1순위가 달라져도 '보낸 것'은 그대로다
+    if (state.tentativeSlotId) {
+      return slotById(state.tentativeSlotId);
+    }
     return currentFeatured().recommended;
   }
 
@@ -1277,6 +1284,10 @@
     var person = inputPersonForRoute();
     var optional = effectiveAttendance(person) === "optional";
     var optedOut = Boolean(state.inputOptOutByPerson[person.id]);
+    if (state.inputStage === "dm") {
+      renderInputDm(person, optional);
+      return;
+    }
     app.innerHTML =
       '<section class="screen screen-mobile">' +
         '<div class="mobile-stage">' +
@@ -1296,6 +1307,38 @@
               '</section>' +
               '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
               '<button class="btn btn-full" data-action="go-compare">제출</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+  }
+
+  function renderInputDm(person, optional) {
+    app.innerHTML =
+      '<section class="screen screen-mobile">' +
+        '<div class="mobile-stage">' +
+          '<div class="phone-frame" role="region" aria-label="봇 DM">' +
+            '<div class="phone-status"><span>회의 조율 (DM)</span><span>' + person.name + '</span></div>' +
+            '<div class="phone-body dm-body">' +
+              '<article class="message dm-message">' +
+                '<div class="avatar app-avatar" aria-hidden="true">회</div>' +
+                '<div>' +
+                  '<div class="message-meta"><span class="message-author">회의 조율</span><span class="app-badge">앱</span></div>' +
+                  '<p class="bot-intro-text">' + getPerson("jiwoo").name + '님이 회의에 초대했어요.</p>' +
+                  '<div class="schedule-card dm-card">' +
+                    '<h2>' + meetingTitle() + '</h2>' +
+                    '<div class="meeting-facts">' +
+                      '<span class="fact-pill">' + durationLabel() + '</span>' +
+                      '<span class="fact-pill">' + (effectiveAttendance(person) === "required" ? "필수 참석" : "선택 참석") + '</span>' +
+                    '</div>' +
+                    '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
+                    '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
+                    '<button class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">다 괜찮아요</button>' +
+                    '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
+                    (state.declineNote ? '<p class="opt-out-message">주최자에게 전달했어요. 시간 사정이라면 피하고 싶은 시간으로 알려줘도 좋아요</p>' : '') +
+                  '</div>' +
+                '</div>' +
+              '</article>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -1446,11 +1489,8 @@
   }
 
   function renderScheduleGrid(featured) {
-    // 후보 순위(카드와 동일 계산)를 격자 표면에 1:1로 연결
-    var rankBySlot = {};
-    recommendedCards().forEach(function (card) {
-      rankBySlot[card.slot.id] = card.recommendedRank;
-    });
+    // 격자 표면 뱃지는 '보낸 잠정안' 하나만 — 순위는 카드의 몫
+    var tentativeId = state.tentativeSlotId || featured.recommended.id;
     var html = '<div class="grid-corner">시간</div>';
     data.meeting.days.forEach(function (day) {
       html += '<div class="grid-day">' + day + '</div>';
@@ -1477,11 +1517,11 @@
         // 세모는 본인이 직접 남긴 표시(privateSoft)만 — 추론·통념까지 그리면
         // 후보마다 전부 표시가 붙는 부조리가 된다. 약한 신호는 카드 문장의 몫.
         var privateBurden = !unavailable && slot.privateSoft.length > 0;
-        var rankLabel = !unavailable ? rankBySlot[slot.id] : null;
+        var rankLabel = slot.id === tentativeId ? "잠정" : null;
         html +=
           '<button class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
           'data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
-            (rankLabel ? '<span class="rank-tag' + (rankLabel === "1순위" ? " is-first" : "") + '">' + rankLabel + '</span>' : '') +
+            (rankLabel ? '<span class="rank-tag is-first">' + rankLabel + '</span>' : '') +
             '<span class="slot-popover" role="dialog" aria-label="' + displayTime(slot) + ' 상세">' + renderSlotPopover(slot) + '</span>' +
           '</button>';
       });
@@ -1551,7 +1591,7 @@
       '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
       '<span class="popover-avatar-stack">' + avatars + '</span>' +
       (slot.privateSoft.length > 0 ? '<span class="popover-note">피하고 싶다는 표시가 있어요</span>' : '') +
-      (hasPrivateHardConflict(slot) ? '<span class="popover-note">사정이 있어 어려운 사람이 있어요</span>' : '')
+      ''
     );
   }
 
@@ -1904,6 +1944,25 @@
     if (action === "go-entry") {
       setRoute("entry");
     }
+    if (action === "dm-open-grid") {
+      state.inputStage = "grid";
+      render();
+      return;
+    }
+    if (action === "dm-all-ok") {
+      // 표시 없이 응답 — 잠정안 동의로 제출
+      state.toastVisible = true;
+      state.toastFading = false;
+      state.toastText = "응답을 보냈어요";
+      scheduleToastDismiss();
+      setRoute("compare");
+      return;
+    }
+    if (action === "dm-decline") {
+      state.declineNote = true;
+      render();
+      return;
+    }
     if (action === "go-confirm") {
       setRoute("confirm");
       return;
@@ -1981,6 +2040,7 @@
       }
       state.composePosted = true;
       state.composeModalOpen = false;
+      state.tentativeSlotId = currentFeatured().recommended.id;
       state.toastVisible = true;
       state.toastFading = false;
       state.toastText = "채널에 보냈어요";

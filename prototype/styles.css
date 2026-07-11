@@ -2565,3 +2565,42 @@ button {
   background: var(--green-soft);
   color: var(--green-text);
 }
+
+/* 팝업 아바타 상태 — 회귀 복구 (패치 중 유실됐던 규칙) */
+.slot-avatar.is-away {
+  background: var(--surface) !important;
+  color: var(--gray-400) !important;
+  border: 1.5px dashed var(--gray-300);
+}
+
+.slot-avatar.is-unresponded {
+  opacity: 0.55;
+}
+
+/* 참석자 DM 진입 화면 */
+.dm-body {
+  padding-top: var(--space-4);
+}
+
+.dm-card {
+  margin-top: var(--space-2);
+}
+
+.dm-card h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-18);
+}
+
+.dm-ok-btn {
+  margin-top: var(--space-2);
+}
+
+.dm-decline-link {
+  display: block;
+  margin: var(--space-3) auto 0;
+  background: transparent;
+  color: var(--gray-500);
+  font-size: var(--text-13);
+  text-decoration: underline;
+  cursor: pointer;
+}
