@@ -2702,3 +2702,9 @@ button {
   font-weight: 700;
   padding: 2px 6px;
 }
+
+.dm-back-btn {
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 6px 2px 0;
+}

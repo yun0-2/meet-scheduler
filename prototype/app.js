@@ -26,6 +26,8 @@
     declineNote: false,
     myMarksOpen: false,
     composeDetailsOpen: false,
+    meetingWindow: "다음 주",
+    respondedReveal: false,
     composeTextsOpen: false,
     jiwooSoftSlots: {},
     tentativeSlotId: null,
@@ -130,15 +132,13 @@
     if (mentions) {
       lines.push(mentions);
     }
-    lines.push("안녕하세요, " + meetingTitle() + " 관련해서");
-    lines.push("아래 안건으로 " + durationLabel() + " 정도 싱크를 맞추면 좋을 것 같습니다.");
+    lines.push("안녕하세요, " + state.meetingWindow + " 중에 " + meetingTitle() + " " + durationLabel() + " 싱크를 잡으려고 해요.");
     if (context) {
       lines.push("");
       lines.push(context);
     }
     lines.push("");
-    lines.push("우선 " + tentativeLabel() + "(잠정)으로 잡아두려 해요.");
-    lines.push("어려우시면 " + state.replyBy + "까지 카드에서 표시해주세요. 그 뒤에 확정할게요.");
+    lines.push("시간은 아래 카드에서 확인하고, 어려우면 표시해주세요.");
     return lines.join("\n");
   }
 
@@ -970,6 +970,21 @@
     }
   }
 
+  // 게시 직후 시간 점프 카드 — 채널에서 보낸 걸 확인한 뒤 추천으로
+  function showPostedScenario() {
+    var layer = getScenarioLayer();
+    if (!layer) {
+      return;
+    }
+    openScenarioOverlay(layer,
+      '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="채널에 올라갔어요">' +
+        '<p class="scenario-eyebrow">주최자</p>' +
+        '<p class="scenario-body">채널에 올라갔어요. 응답은 ' + state.replyBy + '까지 모여요.</p>' +
+        '<p class="scenario-mission">기한이 지났다고 치고, 카드의 \'추천 보기\'를 눌러보세요.</p>' +
+        '<button type="button" class="scenario-start-btn" data-action="scenario-close">확인</button>' +
+      '</div>');
+  }
+
   function renderCourseChooser(forceOpen) {
     if (!forceOpen && state.scenarioSeen["course-chooser"]) {
       return;
@@ -1130,7 +1145,7 @@
   function renderMeetingBanner() {
     var people = activePeople();
     var waiting = unrespondedPeople();
-    var responded = people.length - waiting.length;
+    var responded = (!state.respondedReveal && !state.posted) ? 0 : people.length - waiting.length;
     var body = "";
     if (state.bannerOpen) {
       body =
@@ -1198,9 +1213,8 @@
     return (
       '<div class="schedule-card compose-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
-        '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
         '<button type="button" class="compose-summary-row" data-action="toggle-compose-details" aria-expanded="' + String(state.composeDetailsOpen) + '">' +
-          '<span>#' + state.channelName + ' · ' + durationLabel() + ' · 응답 ' + state.replyBy + '까지 · 다음 주 중</span>' +
+          '<span>#' + state.channelName + ' · ' + durationLabel() + ' · 응답 ' + state.replyBy + '까지 · ' + state.meetingWindow + ' 중</span>' +
           '<span class="banner-chevron" aria-hidden="true">' + (state.composeDetailsOpen ? '∧' : '∨') + '</span>' +
         '</button>' +
         (state.composeDetailsOpen ? '<div class="compose-details">' +
@@ -1225,9 +1239,16 @@
                 }).join("") +
               '</select>' +
             '</label>' +
-            '<span class="fact-pill">회의는 다음 주 중</span>' +
+            '<label class="fact-select-wrap">회의 시기 ' +
+              '<select id="compose-window" class="fact-select" aria-label="회의 시기">' +
+                ["이번 주", "다음 주"].map(function (opt) {
+                  return '<option value="' + opt + '"' + (state.meetingWindow === opt ? " selected" : "") + '>' + opt + ' 중</option>';
+                }).join("") +
+              '</select>' +
+            '</label>' +
           '</div>' +
         '</div>' : '') +
+        '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
         '<p class="compose-section-label">참석자</p>' +
         '<div class="compose-search-wrap">' +
           '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="이름으로 추가" aria-label="참석자 검색" autocomplete="off" />' +
@@ -1316,6 +1337,10 @@
   // 주최자가 채널 카드에서 보는 응답 현황
   function renderResponseStatusLine() {
     var people = activePeople();
+    if (!state.respondedReveal && !state.posted) {
+      // 방금 보냈다 — 아직 아무도 안 답한 게 정직한 상태
+      return '<p class="response-status-line">응답 0/' + people.length + ' · ' + state.replyBy + '까지 받아요</p>';
+    }
     var waiting = unrespondedPeople();
     var responded = people.length - waiting.length;
     var text = "응답 " + responded + "/" + people.length;
@@ -1353,7 +1378,13 @@
       '<section class="screen screen-mobile">' +
         '<div class="mobile-stage">' +
           '<div class="phone-frame" role="region" aria-label="참석자 입력 화면">' +
-            '<div class="phone-status"><span>WhenWorks (DM)</span><span>' + person.name + '</span></div>' +
+            '<header class="dm-header">' +
+              '<button type="button" class="dm-back dm-back-btn" data-action="grid-back-dm" aria-label="DM으로 돌아가기">‹</button>' +
+              '<span class="avatar app-avatar dm-header-avatar" aria-hidden="true">W</span>' +
+              '<span class="dm-header-name">WhenWorks</span>' +
+              '<span class="app-badge">앱</span>' +
+              '<span class="dm-header-me">' + person.name + '</span>' +
+            '</header>' +
             '<div class="phone-body">' +
               '<section class="context-card compact">' +
                 '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
@@ -1508,6 +1539,7 @@
   }
 
   function renderCompare() {
+    state.respondedReveal = true;
     var featured = currentFeatured();
     if (!state.activeSlotId) {
       state.activeSlotId = featured.recommended.id;
@@ -1923,6 +1955,11 @@
 
   app.addEventListener("change", function (event) {
     var sel = event.target;
+    if (sel && sel.id === "compose-window") {
+      state.meetingWindow = sel.value;
+      render();
+      return;
+    }
     if (sel && sel.id === "compose-replyby") {
       state.replyBy = sel.value;
       return;
@@ -2035,6 +2072,11 @@
     }
     if (action === "go-entry") {
       setRoute("entry");
+    }
+    if (action === "grid-back-dm") {
+      state.inputStage = "dm";
+      render();
+      return;
     }
     if (action === "dm-open-grid" || action === "dm-edit-response") {
       state.inputStage = "grid";
@@ -2166,14 +2208,18 @@
       state.composePosted = true;
       state.composeModalOpen = false;
       state.tentativeSlotId = currentFeatured().recommended.id;
+      state.respondedReveal = false;
       state.toastVisible = true;
       state.toastFading = false;
       state.toastText = "채널에 보냈어요";
       scheduleToastDismiss();
-      if (window.location.hash !== "#compare") {
-        setRoute("compare");
-        return;
+      if (window.location.hash === "#entry") {
+        render();
+      } else {
+        setRoute("entry");
       }
+      showPostedScenario();
+      return;
       render();
     }
     if (action === "toggle-soft") {
