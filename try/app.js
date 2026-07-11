@@ -29,7 +29,7 @@
     suppressNextSoftToggle: false,
     composeModalOpen: false,
     inputStage: "dm",
-    declineNote: false,
+    declined: false,
     myMarksOpen: false,
     windowStart: 20,
     windowEnd: 24,
@@ -1570,10 +1570,14 @@
             '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
             (state.inputStage === "done"
               ? '<p class="helper-copy">응답을 보냈어요.</p>'
-              : '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
-                '<button type="button" class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">' + windowLabel() + ' 언제든 괜찮아요</button>' +
-                '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
-                (state.declineNote ? '<p class="opt-out-message">주최자에게 전달했어요. 시간 사정이라면 피하고 싶은 시간으로 알려줘도 좋아요</p>' : '')) +
+              : state.declined
+                ? '<div class="dm-declined">' +
+                    '<p class="dm-declined-text">참석 어려움으로 답했어요. 기한 전까지 언제든 바꿀 수 있어요.</p>' +
+                    '<button type="button" class="btn btn-secondary btn-full" data-action="dm-undecline">역시 참석할게요</button>' +
+                  '</div>'
+                : '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
+                  '<button type="button" class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">' + windowLabel() + ' 언제든 괜찮아요</button>' +
+                  '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>') +
           '</div>' +
         '</div>' +
       '</article>'
@@ -2249,7 +2253,14 @@
       return;
     }
     if (action === "dm-decline") {
-      state.declineNote = true;
+      // 거절도 하나의 응답 — 기한 전까지 되돌릴 수 있다 (구글 캘린더 RSVP처럼 가역적)
+      state.declined = true;
+      state.inputStage = "dm";
+      render();
+      return;
+    }
+    if (action === "dm-undecline") {
+      state.declined = false;
       render();
       return;
     }

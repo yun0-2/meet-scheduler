@@ -2527,7 +2527,6 @@ body.is-embed .screen-mobile {
 
 /* 봇 소개 메시지 */
 .app-avatar {
-  border-radius: var(--radius-8);
   background: var(--accent);
   color: white;
   font-weight: 800;
@@ -3053,4 +3052,17 @@ body.is-embed .screen-mobile {
   font-size: 11px;
   color: var(--gray-500, #64748b);
   padding-left: 2px;
+}
+
+/* 참석 어려움 응답 — 가역적(되돌리기 가능) 상태 표시 */
+.dm-declined {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.dm-declined-text {
+  margin: 0;
+  font-size: var(--text-13);
+  color: var(--grey-600, #6B7684);
+  line-height: 1.5;
 }
