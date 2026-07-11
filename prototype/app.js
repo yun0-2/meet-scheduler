@@ -102,14 +102,27 @@
     seyoung: "지난 킥오프 결과 공유"
   };
 
-  // 채널에 곁들여 보낼 메시지 제안 — 입력값(제목·맥락)에서 생성. 유령 글자(placeholder)로만 노출.
+  // 채널에 곁들여 보낼 메시지 제안 — 입력값(멘션·제목·소요시간·안건)에서 생성.
+  // 실제 슬랙에서 쓰는 공지 형식(멘션 → 인사·맥락 → Agenda → 요청)을 따른다.
   function suggestedMessage() {
     var context = state.meetingContext.trim();
-    return (
-      "『" + meetingTitle() + "』 시간을 잡으려고 해요. ' + durationLabel() + '이면 돼요." +
-      (context ? " 안건: " + context + "." : "") +
-      " 다음 주 안에 정하려고 하니, 어려운 시간이 있으면 카드에서 알려주세요."
-    );
+    var mentions = composeCandidates().filter(isComposeAdded).map(function (person) {
+      return "@" + person.name;
+    }).join(" ");
+    var lines = [];
+    if (mentions) {
+      lines.push(mentions);
+    }
+    lines.push("안녕하세요, " + meetingTitle() + " 관련해서");
+    lines.push("아래 안건으로 " + durationLabel() + " 정도 싱크를 맞추면 좋을 것 같습니다.");
+    if (context) {
+      lines.push("");
+      lines.push("Agenda");
+      lines.push("• " + context);
+    }
+    lines.push("");
+    lines.push("가능하신 시간을 카드에서 한번 표시해주세요.");
+    return lines.join("\n");
   }
 
   // 사람 행 공용 문법 — 아바타 / [이름 + 필수·선택 태그] / 직책(회색).
@@ -1097,9 +1110,9 @@
         '</div>' +
         '<div class="compose-list">' + addedRows + '</div>' +
         '<p class="compose-section-label">채널에 보낼 메시지 <span class="compose-section-caption">비워두면 제안 문안이 그대로 나가요</span></p>' +
-        '<textarea class="compose-message-input" id="compose-message" rows="3" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()) + '">' + escapeText(state.composeMessage) + '</textarea>' +
+        '<textarea class="compose-message-input" id="compose-message" rows="7" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
         '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>' +
-        '<button class="btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
+        '<button class="btn btn-full compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
       '</div>'
     );
   }
@@ -2010,7 +2023,7 @@
   // 제안 문안 수락 — value가 비어 있을 때 Tab 키로 (keydown 캡처, 기본 포커스 이동 막음)
   app.addEventListener("keydown", function (event) {
     var field = event.target;
-    if (field && field.id === "compose-message" && event.key === "Tab" && !field.value) {
+    if (field && field.id === "compose-message" && (event.key === "Tab" || event.key === "ArrowRight") && !field.value) {
       event.preventDefault();
       acceptSuggestedMessage();
     }
