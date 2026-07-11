@@ -16,8 +16,10 @@
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
 
   --radius-6: 6px;
@@ -3006,4 +3008,12 @@ button {
   padding: var(--space-4) 20px calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   background: var(--surface, #fff);
   border-top: 1px solid var(--border, #e2e8f0);
+}
+
+/* 엔트리 봇 홈 버튼 행 — gap 누락 수정 */
+.bot-intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
 }

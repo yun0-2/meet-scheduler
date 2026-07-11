@@ -31,7 +31,7 @@
   --radius-16: 16px;
 
   --prose-width: 700px;
-  --media-width: 960px;
+  --media-width: 860px;
 
   --gray-50: #f9fafb;
   --gray-100: #f2f4f6;
@@ -1086,4 +1086,38 @@ h3 {
   .demo-embed {
     display: none;
   }
+}
+
+/* ── 정렬 통일 ──
+   프로즈(제목·본문·인용)를 중앙정렬(margin auto) 대신 콘텐츠 컬럼 좌측 기준으로
+   맞춰, 표·스펙트럼·격자 같은 미디어와 왼쪽 라인을 하나로 합친다.
+   기존 프로즈 요소에 걸린 좌우 auto 마진을 좌측 정렬로 되돌리는 오버라이드. */
+.hero h1,
+.hero__copy,
+.section h1,
+.section h2,
+.article-lead,
+.article-body,
+.article-subhead,
+.problem-summary,
+.research-lead,
+.quote-list,
+.trace-list,
+.table-note {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.method-quote,
+.probe-list {
+  max-width: var(--prose-width);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.hero .eyebrow,
+.section__head .eyebrow,
+.hero__button,
+.hero__note {
+  margin-left: 0;
 }

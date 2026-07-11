@@ -9,15 +9,15 @@
       name="description"
       content="WhenWorks 케이스의 리서치 부록입니다. 다섯 조직 표본의 전체 표, 환경 비교, 가설 채점, 진행 방법을 담았어요."
     >
-    <link rel="stylesheet" href="../case.css?v=7601cb4">
+    <link rel="stylesheet" href="../case.css?v=d85f89d">
     <style>
       .appendix-toc {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: 0;
+        margin-right: 0;
       }
       .appendix-toc a {
         font-size: 13px;
@@ -30,6 +30,9 @@
       }
       .appendix-toc a:hover {
         background: #E5E8EB;
+      }
+      #appendix-title {
+        max-width: 700px;
       }
     </style>
   </head>
@@ -54,7 +57,7 @@
             <h1 id="appendix-title">다섯 조직을 어떻게 보고, 무엇을 확인했는지의 전체 기록이에요.</h1>
           </div>
           <p class="article-lead">
-            아티클 본문에 요약으로 실은 표들의 전체 판이에요. 실명과 사명은 싣지 않고 업종·직무·분량까지만 적어요. 전언으로 들은 내용은 전언으로 표기하고, 인터뷰 전문은 게시하지 않아요.
+            아티클 본문에 요약으로 실은 표들의 전체 판이에요. 실명과 사명은 싣지 않고 업종·직무·분량까지만 적어요. 전언으로 들은 내용은 전언으로 표기하고 인터뷰 전문은 게시하지 않아요.
           </p>
 
           <nav class="appendix-toc" aria-label="부록 목차">
@@ -67,78 +70,82 @@
 
           <h3 class="article-subhead" id="sample">1. 표본 전체</h3>
           <p class="article-body">
-            직접 인터뷰 4명과 재직자 전언 1건이에요. 한 분은 세 조직을 옮겨 다니며 겪은 분이라, 합치면 조직 경험 7개를 볼 수 있었어요. 핵심 가설 검증에는 참여자 1~3의 세 조직을 썼고, 참여자 4와 전언은 타깃의 경계를 긋는 데 썼어요.
+            직접 인터뷰 4명과 재직자 전언 1건이에요. 한 분은 세 조직을 옮겨 다니며 겪은 분이라, 합치면 조직 경험 7개가 나왔어요. 핵심 가설 검증에는 본선 세 조직을 썼고 나머지와 전언은 타깃의 경계를 긋는 데 썼어요.
           </p>
           <div class="table-scroll">
             <table class="sample-table">
               <caption class="sr-only">인터뷰 표본 전체</caption>
               <thead>
                 <tr>
-                  <th scope="col">참여자</th>
-                  <th scope="col">직무</th>
                   <th scope="col">조직</th>
+                  <th scope="col">직무</th>
                   <th scope="col">근무 형태</th>
                   <th scope="col">협업 범위</th>
                   <th scope="col">캘린더 문화</th>
-                  <th scope="col">형식</th>
                   <th scope="col">표본에서의 역할</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>1</td>
+                  <td>엔터 중견</td>
                   <td>프로덕트 디자이너</td>
-                  <td>엔터 대기업</td>
                   <td>자율출퇴근, 코어타임 11~15시, 재택 있음</td>
                   <td>사내 협업 중심</td>
                   <td>공식 일정만 기록</td>
-                  <td>인터뷰 14분</td>
                   <td>본선 검증</td>
                 </tr>
                 <tr>
-                  <td>2</td>
-                  <td>데이터·BI 담당</td>
                   <td>테크</td>
+                  <td>데이터·BI 담당</td>
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td>해외팀 협업, 오전 7시·9시 미팅 존재</td>
                   <td>공식 일정만, 캘린더 겹쳐보기 활용</td>
-                  <td>인터뷰 12분</td>
                   <td>본선 검증</td>
                 </tr>
                 <tr>
-                  <td>3</td>
-                  <td>B2B 마케터</td>
                   <td>전통 대기업</td>
+                  <td>B2B 마케터</td>
                   <td>자율출퇴근, 7~10시 출근</td>
                   <td>전 권역(미주·남미·유럽·아시아) 시차 협업</td>
                   <td>공식 일정만, 연차 미표시</td>
-                  <td>인터뷰 23분</td>
                   <td>본선 검증</td>
                 </tr>
                 <tr>
-                  <td>4</td>
-                  <td>금융 대기업 현직, 엔터·커머스 전직</td>
-                  <td>같은 사람의 세 조직 비교</td>
+                  <td>금융 대기업</td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td>사내 협업 중심</td>
-                  <td>기록 문화 부재부터 전면 공유까지 경험</td>
-                  <td>인터뷰 37분</td>
-                  <td>경계 조건·스펙트럼 확장</td>
+                  <td>기록 문화 부재</td>
+                  <td>경계 조건</td>
                 </tr>
                 <tr>
-                  <td>5</td>
-                  <td>캘린더 문화가 강한 테크 조직 재직 경험자</td>
-                  <td>테크</td>
+                  <td>엔터 대기업</td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
+                  <td>소그룹만 기록</td>
+                  <td>경계 조건</td>
+                </tr>
+                <tr>
+                  <td>커머스</td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td>개인 일정까지 기록</td>
-                  <td>지인 경유 전언</td>
+                  <td>스펙트럼 확장</td>
+                </tr>
+                <tr>
+                  <td>테크 (전언)</td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
+                  <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
+                  <td>개인 일정까지 기록</td>
                   <td>반례 확인용</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p class="table-note">묻지 않았거나 답에 없던 칸은 비워 뒀어요. 같은 사람이 조직만 바꿔 겪은 참여자 4의 비교는, 도구가 아니라 문화가 변수라는 판단의 근거가 됐어요.</p>
+          <p class="table-note">묻지 않았거나 답에 없던 칸은 비워 뒀어요. 금융 대기업·엔터 대기업·커머스 세 칸은 한 사람이 옮겨 다니며 겪은 조직이에요.</p>
 
           <h3 class="article-subhead" id="environment">2. 환경 비교: 조율을 결정하는 변수들</h3>
           <p class="article-body">
@@ -159,7 +166,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>엔터 대기업 (참여자 1)</td>
+                  <td>엔터 중견</td>
                   <td>슬랙</td>
                   <td>구글, 회의실 연동</td>
                   <td>공식 일정만</td>
@@ -167,7 +174,7 @@
                   <td>제일 바쁜 사람의 시간이 지배</td>
                 </tr>
                 <tr>
-                  <td>테크 (참여자 2)</td>
+                  <td>테크</td>
                   <td>슬랙</td>
                   <td>구글, 겹쳐보기 활용</td>
                   <td>공식 일정만</td>
@@ -175,7 +182,7 @@
                   <td>역제안이 자유로움</td>
                 </tr>
                 <tr>
-                  <td>전통 대기업 (참여자 3)</td>
+                  <td>전통 대기업</td>
                   <td>팀즈</td>
                   <td>아웃룩, 팀즈 연동</td>
                   <td>공식 일정만, 연차 미표시</td>
@@ -183,7 +190,7 @@
                   <td>우선순위 결정권이 위에 있음</td>
                 </tr>
                 <tr>
-                  <td>금융 대기업 (참여자 4 현직)</td>
+                  <td>금융 대기업</td>
                   <td>자체 메신저, 협업툴 파일럿</td>
                   <td>없음(실물 다이어리)</td>
                   <td>기록 문화 부재</td>
@@ -191,7 +198,7 @@
                   <td>조율 행위 자체가 없음</td>
                 </tr>
                 <tr>
-                  <td>엔터 대기업 (참여자 4 전직)</td>
+                  <td>엔터 대기업</td>
                   <td>카톡에서 팀즈로 전환</td>
                   <td>쓰는 사람만</td>
                   <td>소그룹만 기록</td>
@@ -199,7 +206,7 @@
                   <td>위계 소집에 반박 불가</td>
                 </tr>
                 <tr>
-                  <td>커머스 (참여자 4 전전직)</td>
+                  <td>커머스</td>
                   <td>슬랙</td>
                   <td>구글, 전면 공유</td>
                   <td>개인 일정까지</td>

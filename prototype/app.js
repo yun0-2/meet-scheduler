@@ -27,7 +27,6 @@
     myMarksOpen: false,
     windowStart: 20,
     windowEnd: 24,
-    windowAnchor: null,
     windowPickerOpen: false,
     respondedReveal: false,
     jiwooSoftSlots: {},
@@ -327,16 +326,12 @@
     if (isNaN(dom)) {
       return;
     }
-    if (state.windowAnchor === null) {
-      state.windowAnchor = dom;
-    } else {
-      state.windowStart = Math.min(state.windowAnchor, dom);
-      state.windowEnd = Math.max(state.windowAnchor, dom);
-      state.windowAnchor = null;
-      // 범위가 정해졌으니 팝오버를 닫고, 바뀐 후보 요일로 추천을 다시 계산
-      state.windowPickerOpen = false;
-      state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
-    }
+    // 한 번 클릭 = 그 날짜가 속한 주(월~금) 전체를 후보로. 격자가 주 단위라 정합.
+    var mon = weekMondayDom(dom);
+    state.windowStart = mon;
+    state.windowEnd = mon + 4;
+    state.windowPickerOpen = false;
+    state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
     render();
   }
 
@@ -1299,7 +1294,7 @@
     return items.map(renderCandidateRow).join("");
   }
 
-  // 월 캘린더 범위 피커 — 시작일 찍고 같은 주 안에서 종료일 찍기. 주말·오늘 이전·다른 주는 비활성.
+  // 월 캘린더 주 피커 — 날짜 하나를 누르면 그 주(월~금) 전체가 후보. 주말·오늘 이전은 비활성.
   function renderWindowCalendar() {
     var weekdayHead = ["월", "화", "수", "목", "금", "토", "일"];
     var head = weekdayHead.map(function (w) {
@@ -1308,26 +1303,19 @@
 
     // 7/1은 수요일 → 월요일 시작 격자에서 앞 2칸은 빈칸
     var cells = '<span class="wcal-pad"></span><span class="wcal-pad"></span>';
-    var anchorWeek = state.windowAnchor === null ? null : weekMondayDom(state.windowAnchor);
     for (var dom = 1; dom <= 31; dom += 1) {
       var dow = julyDow(dom);
       var isWeekend = dow === null;
       var selectable = isSelectableDom(dom);
-      // 시작일을 이미 찍었으면(anchor 있음) 같은 주 평일만 활성 — 한 주로 캡
-      if (anchorWeek !== null && selectable && weekMondayDom(dom) !== anchorWeek) {
-        selectable = false;
-      }
-      var inRange = state.windowAnchor === null && dom >= state.windowStart && dom <= state.windowEnd && !isWeekend;
-      var isEnd = inRange && (dom === state.windowStart || dom === state.windowEnd);
-      var isAnchor = state.windowAnchor === dom;
+      var inRange = dom >= state.windowStart && dom <= state.windowEnd && !isWeekend;
+      var isEdge = inRange && (dow === "월" || dow === "금" || dom === state.windowStart || dom === state.windowEnd);
       var cls = ["wcal-day"];
       if (isWeekend) cls.push("is-weekend");
-      if (!selectable && !isAnchor) cls.push("is-disabled");
+      if (!selectable) cls.push("is-disabled");
       if (inRange) cls.push("is-range");
-      if (isEnd) cls.push("is-edge");
-      if (isAnchor) cls.push("is-anchor");
+      if (isEdge) cls.push("is-edge");
       if (dom === TODAY_DOM) cls.push("is-today");
-      var attrs = selectable || isAnchor
+      var attrs = selectable
         ? ' data-action="window-pick" data-dom="' + dom + '"'
         : ' disabled';
       cells += '<button type="button" class="' + cls.join(" ") + '"' + attrs + '>' + dom + '</button>';
@@ -1338,9 +1326,7 @@
         '<div class="wcal-title">2026년 7월</div>' +
         '<div class="wcal-grid wcal-grid--head">' + head + '</div>' +
         '<div class="wcal-grid">' + cells + '</div>' +
-        (state.windowAnchor !== null
-          ? '<p class="wcal-note">시작일을 골랐어요. 같은 주 안에서 마지막 날을 누르면 범위가 정해져요.</p>'
-          : '<p class="wcal-note">데모에서는 한 주 범위까지 골라요. 고른 날짜만 후보로 열려요.</p>') +
+        '<p class="wcal-note">날짜를 누르면 그 주(월~금)가 후보로 열려요.</p>' +
       '</div>'
     );
   }
@@ -2183,6 +2169,14 @@
         closeComposeSuggest();
       }
     }
+    // 회의 시기 캘린더 팝오버 바깥 클릭이면 닫는다
+    if (state.windowPickerOpen) {
+      var inPicker = event.target.closest ? event.target.closest(".wcal-anchor") : null;
+      if (!inPicker) {
+        state.windowPickerOpen = false;
+        render();
+      }
+    }
     var target = event.target.closest("[data-action]");
     if (!target) {
       if (state.openSlotId) {
@@ -2329,7 +2323,6 @@
     }
     if (action === "toggle-window-picker") {
       state.windowPickerOpen = !state.windowPickerOpen;
-      state.windowAnchor = null;
       render();
       return;
     }
