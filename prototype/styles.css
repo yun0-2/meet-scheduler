@@ -2665,3 +2665,40 @@ button {
 .back-link:hover {
   color: var(--gray-800);
 }
+
+/* 작성 모달 접기 — 확인 최소형 (스마트 기본값이 있으니 펼침은 선택) */
+.compose-summary-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-8);
+  background: var(--gray-50);
+  color: var(--gray-700);
+  font-size: var(--text-13);
+  font-weight: 600;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.compose-summary-row:hover {
+  background: var(--gray-100);
+}
+
+.compose-details {
+  padding: 2px 0 var(--space-2);
+}
+
+.compose-auto-chip {
+  margin-left: 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+}
