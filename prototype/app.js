@@ -930,6 +930,27 @@
       renderScenarioCard(state.route, false);
     }
     lockBackgroundScroll(state.composeModalOpen || state.myMarksOpen || state.inputStage === "grid");
+    postEmbedHeight();
+  }
+
+  // 임베드(?embed): 렌더 후 실제 콘텐츠 높이를 부모(아티클)에 알려
+  // iframe이 그 높이에 맞춰지도록 한다. 레이아웃·이미지 반영 뒤 측정하려고 rAF로 미룬다.
+  function postEmbedHeight() {
+    if (!isEmbedMode || typeof window === "undefined" || window.parent === window) {
+      return;
+    }
+    var send = function () {
+      var h = Math.max(
+        document.body ? document.body.scrollHeight : 0,
+        document.documentElement ? document.documentElement.scrollHeight : 0
+      );
+      window.parent.postMessage({ type: "ww-embed-height", route: state.route, height: h }, "*");
+    };
+    if (window.requestAnimationFrame) {
+      window.requestAnimationFrame(function () { window.requestAnimationFrame(send); });
+    } else {
+      send();
+    }
   }
 
   // 모달 열림 동안 배경 페이지 스크롤 잠금 (이중 스크롤의 세 번째 원인 제거)
@@ -1650,6 +1671,21 @@
           '<div class="mini-time mini-time-lunch" aria-hidden="true">' + lunchStart + '</div>' +
           '<div class="mini-lunch-band" role="note" aria-label="' + lunchStart + '시 점심시간, 후보에서 제외">점심시간</div>';
         lunchInserted = true;
+      }
+      // 행 전체가 같은 이유로 막혀 있으면(예: 17시 이후 불가) 셀마다 반복하지 않고
+      // 점심시간과 같은 밴드 하나로 접는다 — 한 사실은 한 번만 말한다.
+      var rowHards = days.map(function (day) {
+        return participantHardForInput(person, day, hour);
+      });
+      var firstLabel = rowHards[0] ? (rowHards[0].title || rowHards[0].label || "") : "";
+      var uniformRow = firstLabel && rowHards.every(function (info) {
+        return info && (info.title || info.label || "") === firstLabel;
+      });
+      if (uniformRow) {
+        html +=
+          '<div class="mini-time mini-time-lunch" aria-hidden="true">' + hour + '</div>' +
+          '<div class="mini-lunch-band" role="note" aria-label="' + hour + '시, ' + escapeText(firstLabel) + '">' + escapeText(firstLabel) + '</div>';
+        return;
       }
       html += '<div class="mini-time">' + hour + '</div>';
       days.forEach(function (day) {
@@ -2747,6 +2783,11 @@
   }
 
   window.addEventListener("hashchange", render);
+  if (isEmbedMode) {
+    // 부모 폭 변화로 iframe이 리사이즈되면 콘텐츠 높이도 바뀌니 다시 알린다.
+    window.addEventListener("resize", postEmbedHeight);
+    window.addEventListener("load", postEmbedHeight);
+  }
   if (String(window.location.search || "").indexOf("debug") !== -1) {
     window.PROTOTYPE_DEBUG = {
       featuredSlots: currentFeatured,

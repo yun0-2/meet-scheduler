@@ -574,13 +574,21 @@ h3 {
   margin-top: var(--space-8);
 }
 
+/* 장면 임베드는 프로즈 컬럼 밖으로 넓게(추천 화면 2단 유지 → 세로 급감).
+   페이지 중앙 기준 좌우 대칭 확장. 헤딩·리드는 좁은 컬럼 그대로 둔다. */
 .stage {
-  max-width: var(--media-width);
-  margin: 0;
+  width: min(1160px, calc(100vw - var(--space-8)));
+  max-width: none;
+  margin-left: calc((100% - min(1160px, calc(100vw - var(--space-8)))) / 2);
+  margin-right: 0;
 }
 
 .stage__embed {
   position: relative;
+}
+
+.stage figcaption {
+  max-width: var(--prose-width);
 }
 
 .stage__frame {

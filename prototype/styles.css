@@ -1762,6 +1762,15 @@ body.is-embed .screen-mobile {
   padding-bottom: var(--space-6);
 }
 
+/* 임베드에서는 화면을 뷰포트 높이로 채우지 않는다 — 콘텐츠 높이만큼만 잡아
+   부모(아티클)가 iframe 높이를 딱 맞출 수 있게 한다(세로 스크롤 제거). */
+body.is-embed .app-shell,
+body.is-embed .screen,
+body.is-embed .messenger-shell,
+body.is-embed .mobile-stage {
+  min-height: 0;
+}
+
 #demo-nav {
   position: fixed;
   bottom: 16px;
