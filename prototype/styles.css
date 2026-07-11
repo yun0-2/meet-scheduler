@@ -2750,7 +2750,7 @@ body.is-embed .screen-mobile {
 .wcal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 0;
 }
 .wcal-grid--head {
   margin-bottom: 4px;
@@ -2789,17 +2789,32 @@ body.is-embed .screen-mobile {
 .wcal-day.is-today {
   box-shadow: inset 0 0 0 1.5px var(--accent, #46516d);
 }
-.wcal-day.is-range {
+/* 선택된 주 = 균일한 연결 밴드 (경계 없음). 양끝만 둥글게 */
+.wcal-day.is-range,
+.wcal-day.is-hover-week {
   background: var(--accent-soft, #eef1f6);
   color: var(--accent-strong, #303a55);
+  font-weight: 600;
   border-radius: 0;
 }
-.wcal-day.is-edge,
-.wcal-day.is-anchor {
-  background: var(--accent, #46516d);
-  color: #fff;
-  font-weight: 600;
-  border-radius: 8px;
+.wcal-day.is-range-start,
+.wcal-day.is-hover-start {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.wcal-day.is-range-end,
+.wcal-day.is-hover-end {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+/* 호버 미리보기는 선택보다 옅게 */
+.wcal-day.is-hover-week:not(.is-range) {
+  background: var(--gray-100, #f1f5f9);
+  color: var(--gray-700, #334155);
+}
+/* 개별 셀 호버 배경 제거 — 주 단위 하이라이트만 남긴다 */
+.wcal-day:hover:not(.is-disabled):not(.is-weekend) {
+  background: transparent;
 }
 .wcal-note {
   font-size: 12px;
@@ -3022,4 +3037,20 @@ body.is-embed .screen-mobile {
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-3);
+}
+
+
+/* 칩 위 마이크로 라벨 */
+.compose-chip-row {
+  align-items: flex-start;
+}
+.compose-chip-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.compose-chip-label {
+  font-size: 11px;
+  color: var(--gray-500, #64748b);
+  padding-left: 2px;
 }

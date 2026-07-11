@@ -118,9 +118,6 @@
   // 회의 설명(인비 본문) 제안 — 인비 관례: 목적(왜·무엇을 얻는지) + Agenda(준비 가능하게)
   function suggestedDescription() {
     return [
-      "목적: " + meetingTitle() + "의 방향을 정하고 다음 액션을 나눠요.",
-      "",
-      "Agenda",
       "• 진행 현황 공유",
       "• 결정할 것 확인",
       "• 다음 액션·담당 정리"
@@ -1323,15 +1320,20 @@
       var isWeekend = dow === null;
       var selectable = isSelectableDom(dom);
       var inRange = dom >= state.windowStart && dom <= state.windowEnd && !isWeekend;
-      var isEdge = inRange && (dow === "월" || dow === "금" || dom === state.windowStart || dom === state.windowEnd);
       var cls = ["wcal-day"];
       if (isWeekend) cls.push("is-weekend");
       if (!selectable) cls.push("is-disabled");
-      if (inRange) cls.push("is-range");
-      if (isEdge) cls.push("is-edge");
+      if (inRange) {
+        cls.push("is-range");
+        // 밴드의 양끝만 둥글게 — 월(또는 시작일) 왼쪽, 금(또는 종료일) 오른쪽
+        if (dow === "월" || dom === state.windowStart) cls.push("is-range-start");
+        if (dow === "금" || dom === state.windowEnd) cls.push("is-range-end");
+      }
       if (dom === TODAY_DOM) cls.push("is-today");
+      // 선택 가능한 평일엔 그 주 월요일을 데이터로 — 호버 시 주 전체 하이라이트에 사용
+      var weekAttr = selectable ? ' data-week="' + weekMondayDom(dom) + '"' : '';
       var attrs = selectable
-        ? ' data-action="window-pick" data-dom="' + dom + '"'
+        ? ' data-action="window-pick" data-dom="' + dom + '"' + weekAttr
         : ' disabled';
       cells += '<button type="button" class="' + cls.join(" ") + '"' + attrs + '>' + dom + '</button>';
     }
@@ -1340,7 +1342,7 @@
       '<div class="wcal">' +
         '<div class="wcal-title">2026년 7월</div>' +
         '<div class="wcal-grid wcal-grid--head">' + head + '</div>' +
-        '<div class="wcal-grid">' + cells + '</div>' +
+        '<div class="wcal-grid" data-wcal-grid="1">' + cells + '</div>' +
         '<p class="wcal-note">날짜를 누르면 그 주(월~금)가 후보로 열려요.</p>' +
       '</div>'
     );
@@ -1361,28 +1363,37 @@
         '<div class="compose-row-icon">' +
           '<span class="compose-icon" aria-hidden="true">' + ICONS.clock + '</span>' +
           '<div class="compose-chip-row">' +
-            '<div class="wcal-anchor">' +
-              '<button type="button" class="compose-chip" data-action="toggle-window-picker" aria-expanded="' + state.windowPickerOpen + '" aria-label="회의 시기">' +
-                windowLabel() + ' 중 <span class="compose-chip-caret" aria-hidden="true">▾</span>' +
-              '</button>' +
-              (state.windowPickerOpen ? '<div class="wcal-popover">' + renderWindowCalendar() + '</div>' : '') +
+            '<div class="compose-chip-field">' +
+              '<span class="compose-chip-label">회의 시기</span>' +
+              '<div class="wcal-anchor">' +
+                '<button type="button" class="compose-chip" data-action="toggle-window-picker" aria-expanded="' + state.windowPickerOpen + '" aria-label="회의 시기">' +
+                  windowLabel() + ' <span class="compose-chip-caret" aria-hidden="true">▾</span>' +
+                '</button>' +
+                (state.windowPickerOpen ? '<div class="wcal-popover">' + renderWindowCalendar() + '</div>' : '') +
             '</div>' +
-            '<span class="compose-chip-wrap"><select id="compose-duration" class="compose-chip compose-chip-select" aria-label="소요 시간">' +
-              [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
-                return '<option value="' + opt[0] + '"' + (meetingDuration() === opt[0] ? " selected" : "") + '>' + opt[1] + '</option>';
-              }).join("") +
-            '</select></span>' +
-            '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
-              ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
-                return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>응답 ' + opt + '까지</option>';
-              }).join("") +
-            '</select></span>' +
+            '</div>' +
+            '<div class="compose-chip-field">' +
+              '<span class="compose-chip-label">소요 시간</span>' +
+              '<span class="compose-chip-wrap"><select id="compose-duration" class="compose-chip compose-chip-select" aria-label="소요 시간">' +
+                [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
+                  return '<option value="' + opt[0] + '"' + (meetingDuration() === opt[0] ? " selected" : "") + '>' + opt[1] + '</option>';
+                }).join("") +
+              '</select></span>' +
+            '</div>' +
+            '<div class="compose-chip-field">' +
+              '<span class="compose-chip-label">응답 기한</span>' +
+              '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
+                ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
+                  return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
+                }).join("") +
+              '</select></span>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +
           '<span class="compose-icon" aria-hidden="true">' + ICONS.lines + '</span>' +
           '<div class="compose-row-body">' +
-            '<textarea class="compose-context-input" id="compose-context" rows="' + textareaRows(state.meetingContext || suggestedDescription(), 4) + '" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
+            '<textarea class="compose-context-input" id="compose-context" rows="' + Math.max(3, (state.meetingContext || suggestedDescription()).split("\n").length) + '" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
             (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
           '</div>' +
         '</div>' +
@@ -2504,12 +2515,52 @@
   window.addEventListener("pointercancel", endSoftDrag);
 
   app.addEventListener("mouseover", function (event) {
+    // 회의 시기 캘린더: 평일에 호버하면 그 주(월~금)를 통째로 미리보기 하이라이트
+    var wcalDay = event.target.closest ? event.target.closest(".wcal-day[data-week]") : null;
+    if (wcalDay) {
+      var grid = wcalDay.closest("[data-wcal-grid]");
+      if (grid) {
+        var week = wcalDay.getAttribute("data-week");
+        var days = grid.querySelectorAll(".wcal-day[data-week]");
+        var inWeek = [];
+        for (var i = 0; i < days.length; i += 1) {
+          var on = days[i].getAttribute("data-week") === week;
+          days[i].classList.toggle("is-hover-week", on);
+          days[i].classList.remove("is-hover-start", "is-hover-end");
+          if (on) inWeek.push(days[i]);
+        }
+        if (inWeek.length) {
+          inWeek[0].classList.add("is-hover-start");
+          inWeek[inWeek.length - 1].classList.add("is-hover-end");
+        }
+      }
+      return;
+    }
     var cell = event.target.closest ? event.target.closest(".slot-cell") : null;
     if (!cell) {
       return;
     }
     state.activeSlotId = cell.getAttribute("data-slot-id");
     updateActiveSlotDetail();
+  });
+
+  app.addEventListener("mouseout", function (event) {
+    // 캘린더 밖으로 나가면 주 호버 하이라이트 해제
+    var wcalDay = event.target.closest ? event.target.closest(".wcal-day[data-week]") : null;
+    if (!wcalDay) {
+      return;
+    }
+    var related = event.relatedTarget && event.relatedTarget.closest ? event.relatedTarget.closest(".wcal-day[data-week]") : null;
+    if (related) {
+      return;
+    }
+    var grid = wcalDay.closest("[data-wcal-grid]");
+    if (grid) {
+      var days = grid.querySelectorAll(".wcal-day.is-hover-week");
+      for (var i = 0; i < days.length; i += 1) {
+        days[i].classList.remove("is-hover-week", "is-hover-start", "is-hover-end");
+      }
+    }
   });
 
   app.addEventListener("focusin", function (event) {
