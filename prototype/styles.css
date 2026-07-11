@@ -2604,3 +2604,45 @@ button {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* 슬랙 모바일 DM 무대 — 데스크톱 채널 모사와 같은 충실도로 */
+.dm-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.dm-back {
+  color: var(--gray-500);
+  font-size: 22px;
+  line-height: 1;
+  margin-right: 2px;
+}
+
+.dm-header-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+
+.dm-header-name {
+  font-weight: 700;
+  font-size: var(--text-14);
+}
+
+.dm-header-me {
+  margin-left: auto;
+  color: var(--gray-400);
+  font-size: var(--text-12);
+}
+
+.dm-day-divider {
+  margin: 4px 0 12px;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: var(--text-12);
+}

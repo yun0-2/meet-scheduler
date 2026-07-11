@@ -247,6 +247,11 @@
   }
 
   // 잠정 제안 — 캘린더 기준 1순위. 침묵=동의, 응답=보정, 기한=확정 트리거.
+  // 확정이 보낸 잠정안과 다르면, '괜찮다'고 답한 동의는 이월되지 않는다 — 재확인 입구가 필요
+  function confirmedDiffersFromTentative() {
+    return Boolean(state.tentativeSlotId && state.selectedSlotId && state.tentativeSlotId !== state.selectedSlotId);
+  }
+
   function tentativeSlot() {
     // 보낸 잠정안은 동결 — 응답이 들어와 지금의 1순위가 달라져도 '보낸 것'은 그대로다
     if (state.tentativeSlotId) {
@@ -1247,7 +1252,7 @@
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
         (state.posted
-          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>참석자 모두에게 알림을 보냈어요</span></div>'
+          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '잠정과 다른 시간이에요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
           : '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
         '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
         renderResponseStatusLine() +
@@ -1318,12 +1323,19 @@
       '<section class="screen screen-mobile">' +
         '<div class="mobile-stage">' +
           '<div class="phone-frame" role="region" aria-label="봇 DM">' +
-            '<div class="phone-status"><span>회의 조율 (DM)</span><span>' + person.name + '</span></div>' +
+            '<header class="dm-header">' +
+              '<span class="dm-back" aria-hidden="true">‹</span>' +
+              '<span class="avatar app-avatar dm-header-avatar" aria-hidden="true">회</span>' +
+              '<span class="dm-header-name">회의 조율</span>' +
+              '<span class="app-badge">앱</span>' +
+              '<span class="dm-header-me">' + person.name + '</span>' +
+            '</header>' +
             '<div class="phone-body dm-body">' +
+              '<p class="dm-day-divider">오늘</p>' +
               '<article class="message dm-message">' +
                 '<div class="avatar app-avatar" aria-hidden="true">회</div>' +
                 '<div>' +
-                  '<div class="message-meta"><span class="message-author">회의 조율</span><span class="app-badge">앱</span></div>' +
+                  '<div class="message-meta"><span class="message-author">회의 조율</span><span class="app-badge">앱</span><span class="message-time">오전 10:12</span></div>' +
                   '<p class="bot-intro-text">' + getPerson("jiwoo").name + '님이 회의에 초대했어요.</p>' +
                   '<div class="schedule-card dm-card">' +
                     '<h2>' + meetingTitle() + '</h2>' +
@@ -1333,7 +1345,7 @@
                     '</div>' +
                     '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
                     '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
-                    '<button class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">다 괜찮아요</button>' +
+                    '<button class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">다음 주 언제든 괜찮아요</button>' +
                     '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
                     (state.declineNote ? '<p class="opt-out-message">주최자에게 전달했어요. 시간 사정이라면 피하고 싶은 시간으로 알려줘도 좋아요</p>' : '') +
                   '</div>' +
@@ -1752,7 +1764,8 @@
         '<div>' +
           '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">방금</span></div>' +
           '<strong>' + meetingTitle() + ' 시간이 정해졌어요</strong>' +
-          '<p>' + displayTime(slot) + ' · 1시간</p>' +
+          '<p>' + displayTime(slot) + ' · ' + durationLabel() + '</p>' +
+          (confirmedDiffersFromTentative() ? '<p class="helper-copy">처음 안내한 잠정 시간과 달라졌어요. 이 시간이 어려우면 카드에서 알려주세요.</p>' : '') +
           '<p class="helper-copy">참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</p>' +
         '</div>' +
       '</div>'
