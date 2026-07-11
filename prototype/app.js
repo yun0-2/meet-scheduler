@@ -1138,15 +1138,13 @@
   }
 
   function renderCandidateRow(person) {
+    // 드롭다운 관례: 행 전체가 클릭 대상, 누르면 곧바로 추가된다
     var reason = suggestReason[person.id];
     return (
-      '<div class="compose-row">' +
+      '<button type="button" class="compose-row compose-suggest-row" data-action="compose-add" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자로 추가">' +
         personIdentityBlock(person, effectiveAttendance(person)) +
-        '<div class="compose-row-controls">' +
-          (reason ? '<span class="compose-evidence-chip">' + reason + '</span>' : '') +
-          '<button type="button" class="btn btn-secondary btn-small compose-add-btn" data-action="compose-add" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자로 추가">+ 추가</button>' +
-        '</div>' +
-      '</div>'
+        (reason ? '<span class="compose-evidence-chip">' + reason + '</span>' : '') +
+      '</button>'
     );
   }
 

@@ -2373,3 +2373,19 @@ button {
   resize: vertical;
   min-height: 96px;
 }
+
+/* 제안 행 전체 클릭 (드롭다운 관례) */
+.compose-suggest-row {
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.compose-suggest-row:hover {
+  background: var(--gray-50);
+}
+
+.compose-suggest-row .compose-evidence-chip {
+  margin-left: auto;
+}
