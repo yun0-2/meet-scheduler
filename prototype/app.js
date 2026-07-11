@@ -25,10 +25,8 @@
     inputStage: "dm",
     declineNote: false,
     myMarksOpen: false,
-    composeDetailsOpen: false,
     meetingWindow: "다음 주",
     respondedReveal: false,
-    composeTextsOpen: false,
     jiwooSoftSlots: {},
     tentativeSlotId: null,
     scenarioSeen: {},
@@ -195,7 +193,7 @@
   }
 
   function displayTime(slot) {
-    return slot.day + "요일 " + String(slot.start).padStart(2, "0") + ":00";
+    return dayDate(slot.day) + "(" + slot.day + ") " + String(slot.start).padStart(2, "0") + ":00";
   }
 
   function overlaps(event, start, end) {
@@ -261,6 +259,20 @@
 
   function tentativeLabel() {
     return displayTime(tentativeSlot());
+  }
+
+  // 회의 시기 — 선택한 주가 격자 날짜·잠정/확정 시간·문안에 실제로 흐른다
+  var meetingWindows = {
+    "이번 주": { range: "7/13~17", dates: { "월": "7/13", "화": "7/14", "수": "7/15", "목": "7/16", "금": "7/17" } },
+    "다음 주": { range: "7/20~24", dates: { "월": "7/20", "화": "7/21", "수": "7/22", "목": "7/23", "금": "7/24" } }
+  };
+
+  function windowInfo() {
+    return meetingWindows[state.meetingWindow] || meetingWindows["다음 주"];
+  }
+
+  function dayDate(day) {
+    return windowInfo().dates[day] || "";
   }
 
   function meetingDuration() {
@@ -1209,64 +1221,52 @@
   function renderComposeCard(jiwoo) {
     var addedCount = composeCandidates().filter(isComposeAdded).length;
     var addedRows = composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
-    // 확인 최소형: 제목·참석자·보내기만 기본 노출, 설정과 문안은 접힘 (스마트 기본값이 있으므로)
+    // 전 필드 펼침 — 접힘 대신 스크롤. 무엇이 설정되어 나가는지 한 화면에서 다 보인다.
     return (
       '<div class="schedule-card compose-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
-        '<button type="button" class="compose-summary-row" data-action="toggle-compose-details" aria-expanded="' + String(state.composeDetailsOpen) + '">' +
-          '<span>#' + state.channelName + ' · ' + durationLabel() + ' · 응답 ' + state.replyBy + '까지 · ' + state.meetingWindow + ' 중</span>' +
-          '<span class="banner-chevron" aria-hidden="true">' + (state.composeDetailsOpen ? '∧' : '∨') + '</span>' +
-        '</button>' +
-        (state.composeDetailsOpen ? '<div class="compose-details">' +
-          '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
-          '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
-            ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
-              return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
-            }).join("") +
-          '</select>' +
-          '<div class="meeting-facts">' +
-            '<label class="fact-select-wrap">소요 시간 ' +
-              '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
-                [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
-                  return '<option value="' + opt[0] + '"' + (meetingDuration() === opt[0] ? " selected" : "") + '>' + opt[1] + '</option>';
-                }).join("") +
-              '</select>' +
-            '</label>' +
-            '<label class="fact-select-wrap">응답 기한 ' +
-              '<select id="compose-replyby" class="fact-select" aria-label="응답 기한">' +
-                ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
-                  return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
-                }).join("") +
-              '</select>' +
-            '</label>' +
-            '<label class="fact-select-wrap">회의 시기 ' +
-              '<select id="compose-window" class="fact-select" aria-label="회의 시기">' +
-                ["이번 주", "다음 주"].map(function (opt) {
-                  return '<option value="' + opt + '"' + (state.meetingWindow === opt ? " selected" : "") + '>' + opt + ' 중</option>';
-                }).join("") +
-              '</select>' +
-            '</label>' +
-          '</div>' +
-        '</div>' : '') +
         '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
+        '<div class="meeting-facts">' +
+          '<label class="fact-select-wrap">회의 시기 ' +
+            '<select id="compose-window" class="fact-select" aria-label="회의 시기">' +
+              Object.keys(meetingWindows).map(function (opt) {
+                return '<option value="' + opt + '"' + (state.meetingWindow === opt ? " selected" : "") + '>' + opt + ' (' + meetingWindows[opt].range + ')</option>';
+              }).join("") +
+            '</select>' +
+          '</label>' +
+          '<label class="fact-select-wrap">소요 시간 ' +
+            '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
+              [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
+                return '<option value="' + opt[0] + '"' + (meetingDuration() === opt[0] ? " selected" : "") + '>' + opt[1] + '</option>';
+              }).join("") +
+            '</select>' +
+          '</label>' +
+          '<label class="fact-select-wrap">응답 기한 ' +
+            '<select id="compose-replyby" class="fact-select" aria-label="응답 기한">' +
+              ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
+                return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
+              }).join("") +
+            '</select>' +
+          '</label>' +
+        '</div>' +
+        '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
+        '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
+          ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
+            return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
+          }).join("") +
+        '</select>' +
         '<p class="compose-section-label">참석자</p>' +
         '<div class="compose-search-wrap">' +
           '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="이름으로 추가" aria-label="참석자 검색" autocomplete="off" />' +
           '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
         '</div>' +
         '<div class="compose-list">' + addedRows + '</div>' +
-        '<button type="button" class="compose-summary-row" data-action="toggle-compose-texts" aria-expanded="' + String(state.composeTextsOpen) + '">' +
-          '<span>설명과 보낼 메시지 <span class="compose-auto-chip">자동 작성됨</span></span>' +
-          '<span class="banner-chevron" aria-hidden="true">' + (state.composeTextsOpen ? '∧' : '∨') + '</span>' +
-        '</button>' +
-        (state.composeTextsOpen ? '<div class="compose-details">' +
-          '<p class="compose-section-label">설명</p>' +
-          '<textarea class="compose-context-input" id="compose-context" rows="5" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
-          (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
-          '<p class="compose-section-label">채널에 보낼 메시지</p>' +
-          '<textarea class="compose-message-input" id="compose-message" rows="7" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
-          (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
-        '</div>' : '') +
+        '<p class="compose-section-label">설명</p>' +
+        '<textarea class="compose-context-input" id="compose-context" rows="4" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
+        (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
+        '<p class="compose-section-label">채널에 보낼 메시지</p>' +
+        '<textarea class="compose-message-input" id="compose-message" rows="5" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
+        (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
         '<button class="btn btn-full compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
       '</div>'
     );
@@ -1320,7 +1320,7 @@
         '<h2>' + meetingTitle() + '</h2>' +
         '<div class="meeting-facts">' +
           '<span class="fact-pill">' + durationLabel() + '</span>' +
-          '<span class="fact-pill">다음 주 중</span>' +
+          '<span class="fact-pill">' + state.meetingWindow + ' 중</span>' +
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
         (state.posted
@@ -1366,114 +1366,98 @@
     var person = inputPersonForRoute();
     var optional = effectiveAttendance(person) === "optional";
     var optedOut = Boolean(state.inputOptOutByPerson[person.id]);
-    if (state.inputStage === "dm") {
-      renderInputDm(person, optional);
-      return;
-    }
-    if (state.inputStage === "done") {
-      renderInputDone(person);
-      return;
-    }
+    // 참석자도 같은 데스크톱 슬랙 무대 — DM 대화가 진입점, 격자는 슬랙 모달로 열린다
     app.innerHTML =
-      '<section class="screen screen-mobile">' +
-        '<div class="mobile-stage">' +
-          '<div class="phone-frame" role="region" aria-label="참석자 입력 화면">' +
-            '<header class="dm-header">' +
-              '<button type="button" class="dm-back dm-back-btn" data-action="grid-back-dm" aria-label="DM으로 돌아가기">‹</button>' +
-              '<span class="avatar app-avatar dm-header-avatar" aria-hidden="true">W</span>' +
-              '<span class="dm-header-name">WhenWorks</span>' +
-              '<span class="app-badge">앱</span>' +
-              '<span class="dm-header-me">' + person.name + '</span>' +
-            '</header>' +
-            '<div class="phone-body">' +
-              '<section class="context-card compact">' +
-                '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
-                '<p class="input-tentative">잠정 ' + tentativeLabel() + ' · 어려우면 표시해주세요</p>' +
-                '<h1>다음 주 킥오프, 피하고 싶은 시간이 있나요?</h1>' +
-                (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
-              '</section>' +
-              '<section class="soft-editor">' +
-                (optional ? renderOptOutControl(person, optedOut) : '') +
-                renderInputLegend() +
-                '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
-              '</section>' +
-              '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
-              '<button class="btn btn-full" data-action="submit-response">제출</button>' +
-              '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</section>';
-  }
-
-  function renderInputDone(person) {
-    app.innerHTML =
-      '<section class="screen screen-mobile">' +
-        '<div class="mobile-stage">' +
-          '<div class="phone-frame" role="region" aria-label="봇 DM">' +
-            '<header class="dm-header">' +
-              '<span class="dm-back" aria-hidden="true">‹</span>' +
-              '<span class="avatar app-avatar dm-header-avatar" aria-hidden="true">W</span>' +
-              '<span class="dm-header-name">WhenWorks</span>' +
-              '<span class="app-badge">앱</span>' +
-              '<span class="dm-header-me">' + person.name + '</span>' +
-            '</header>' +
-            '<div class="phone-body dm-body">' +
-              '<article class="message dm-message">' +
-                '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
-                '<div>' +
-                  '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
-                  '<p class="bot-intro-text">응답을 받았어요. 고마워요!</p>' +
-                  '<div class="schedule-card dm-card">' +
-                    '<h2>' + meetingTitle() + '</h2>' +
-                    '<p class="helper-copy">' + state.replyBy + '까지 모인 응답으로 주최자가 시간을 정해요. 확정되면 여기로 알려드릴게요.</p>' +
-                    '<button type="button" class="btn btn-secondary btn-full" data-action="dm-edit-response">응답 고치기</button>' +
-                  '</div>' +
-                '</div>' +
-              '</article>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</section>';
-  }
-
-  function renderInputDm(person, optional) {
-    app.innerHTML =
-      '<section class="screen screen-mobile">' +
-        '<div class="mobile-stage">' +
-          '<div class="phone-frame" role="region" aria-label="봇 DM">' +
-            '<header class="dm-header">' +
-              '<span class="dm-back" aria-hidden="true">‹</span>' +
-              '<span class="avatar app-avatar dm-header-avatar" aria-hidden="true">W</span>' +
-              '<span class="dm-header-name">WhenWorks</span>' +
-              '<span class="app-badge">앱</span>' +
-              '<span class="dm-header-me">' + person.name + '</span>' +
-            '</header>' +
-            '<div class="phone-body dm-body">' +
+      '<section class="screen">' +
+        '<div class="screen-inner messenger-shell">' +
+          '<aside class="workspace-rail" aria-label="워크스페이스">' +
+            '<p class="workspace-name">Product Lab</p>' +
+            '<ul class="channel-list">' +
+              ["공지", "pm-admin-dashboard", "제품실험", "데이터지원"].map(function (ch) {
+                return '<li># ' + ch + '</li>';
+              }).join("") +
+              '<li class="channel-section">다이렉트 메시지</li>' +
+              '<li class="channel-app active">WhenWorks</li>' +
+            '</ul>' +
+          '</aside>' +
+          '<section class="channel-panel" aria-label="봇 DM">' +
+            '<header class="channel-header"><h1>WhenWorks <span class="app-badge">앱</span></h1><span class="dm-header-me">' + person.name + '</span></header>' +
+            '<div class="message-thread">' +
               '<p class="dm-day-divider">오늘</p>' +
-              '<article class="message dm-message">' +
-                '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
-                '<div>' +
-                  '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">오전 10:12</span></div>' +
-                  '<p class="bot-intro-text">' + getPerson("jiwoo").name + '님이 회의에 초대했어요.</p>' +
-                  '<div class="schedule-card dm-card">' +
-                    '<h2>' + meetingTitle() + '</h2>' +
-                    '<div class="meeting-facts">' +
-                      '<span class="fact-pill">' + durationLabel() + '</span>' +
-                      '<span class="fact-pill">' + (effectiveAttendance(person) === "required" ? "필수 참석" : "선택 참석") + '</span>' +
-                    '</div>' +
-                    '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
-                    '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
-                    '<button class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">다음 주 언제든 괜찮아요</button>' +
-                    '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
-                    (state.declineNote ? '<p class="opt-out-message">주최자에게 전달했어요. 시간 사정이라면 피하고 싶은 시간으로 알려줘도 좋아요</p>' : '') +
-                  '</div>' +
-                '</div>' +
-              '</article>' +
+              renderDmInviteMessage(person, optional) +
+              (state.inputStage === "done" ? renderDmDoneMessage(person) : '') +
             '</div>' +
+          '</section>' +
+        '</div>' +
+      '</section>' +
+      (state.inputStage === "grid" ? renderInputGridModal(person, optional, optedOut) : '') +
+      renderToast();
+  }
+
+  function renderDmInviteMessage(person, optional) {
+    return (
+      '<article class="message">' +
+        '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
+        '<div>' +
+          '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">오전 10:12</span></div>' +
+          '<p class="bot-intro-text">' + getPerson("jiwoo").name + '님이 회의에 초대했어요.</p>' +
+          '<div class="schedule-card dm-card">' +
+            '<h2>' + meetingTitle() + '</h2>' +
+            '<div class="meeting-facts">' +
+              '<span class="fact-pill">' + durationLabel() + '</span>' +
+              '<span class="fact-pill">' + (effectiveAttendance(person) === "required" ? "필수 참석" : "선택 참석") + '</span>' +
+            '</div>' +
+            '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
+            (state.inputStage === "done"
+              ? '<p class="helper-copy">응답을 보냈어요.</p>'
+              : '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
+                '<button type="button" class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">' + state.meetingWindow + ' 언제든 괜찮아요</button>' +
+                '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
+                (state.declineNote ? '<p class="opt-out-message">주최자에게 전달했어요. 시간 사정이라면 피하고 싶은 시간으로 알려줘도 좋아요</p>' : '')) +
           '</div>' +
         '</div>' +
-      '</section>';
+      '</article>'
+    );
+  }
+
+  function renderDmDoneMessage(person) {
+    return (
+      '<article class="message">' +
+        '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
+        '<div>' +
+          '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
+          '<p class="bot-intro-text">응답을 받았어요. 고마워요!</p>' +
+          '<div class="schedule-card dm-card">' +
+            '<p class="helper-copy">' + state.replyBy + '까지 모인 응답으로 주최자가 시간을 정해요. 확정되면 여기로 알려드릴게요.</p>' +
+            '<button type="button" class="btn btn-secondary btn-full" data-action="dm-edit-response">응답 고치기</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function renderInputGridModal(person, optional, optedOut) {
+    return (
+      '<div class="slack-modal-overlay" data-action="close-grid-backdrop">' +
+        '<div class="slack-modal" role="dialog" aria-modal="true" aria-label="피하고 싶은 시간 표시">' +
+          '<header class="slack-modal-head">' +
+            '<h2>피하고 싶은 시간 표시</h2>' +
+            '<button type="button" class="slack-modal-close" data-action="grid-back-dm" aria-label="닫기">✕</button>' +
+          '</header>' +
+          '<div class="slack-modal-body">' +
+            '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
+            '<p class="input-tentative">잠정 ' + tentativeLabel() + ' · 어려우면 표시해주세요</p>' +
+            (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
+            (optional ? renderOptOutControl(person, optedOut) : '') +
+            renderInputLegend() +
+            '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
+            '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
+            '<button class="btn btn-full" data-action="submit-response">제출</button>' +
+            '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
   }
 
   function renderOptOutControl(person, optedOut) {
@@ -1488,7 +1472,7 @@
   function renderMiniGrid(person, optedOut) {
     var html = '<div class="mini-head"></div>';
     data.meeting.days.forEach(function (day) {
-      html += '<div class="mini-head">' + day + '</div>';
+      html += '<div class="mini-head">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
     });
 
     var lunchStart = data.meeting.workHours.lunch[0];
@@ -1625,7 +1609,7 @@
     var tentativeId = state.tentativeSlotId || featured.recommended.id;
     var html = '<div class="grid-corner">시간</div>';
     data.meeting.days.forEach(function (day) {
-      html += '<div class="grid-day">' + day + '</div>';
+      html += '<div class="grid-day">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
     });
 
     var lunchStart = data.meeting.workHours.lunch[0];
@@ -2073,6 +2057,13 @@
     if (action === "go-entry") {
       setRoute("entry");
     }
+    if (action === "close-grid-backdrop") {
+      if (event.target === target) {
+        state.inputStage = "dm";
+        render();
+      }
+      return;
+    }
     if (action === "grid-back-dm") {
       state.inputStage = "dm";
       render();
@@ -2163,16 +2154,6 @@
         state.composeModalOpen = false;
         render();
       }
-      return;
-    }
-    if (action === "toggle-compose-details") {
-      state.composeDetailsOpen = !state.composeDetailsOpen;
-      render();
-      return;
-    }
-    if (action === "toggle-compose-texts") {
-      state.composeTextsOpen = !state.composeTextsOpen;
-      render();
       return;
     }
     if (action === "open-my-marks") {
