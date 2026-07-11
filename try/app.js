@@ -1196,9 +1196,9 @@
   function renderComposeModal(jiwoo) {
     return (
       '<div class="slack-modal-overlay" data-action="close-compose-backdrop">' +
-        '<div class="slack-modal" role="dialog" aria-modal="true" aria-label="회의 시간 정하기">' +
+        '<div class="slack-modal" role="dialog" aria-modal="true" aria-label="회의 잡기">' +
           '<header class="slack-modal-head">' +
-            '<h2>회의 시간 정하기</h2>' +
+            '<h2>회의 잡기</h2>' +
             '<button type="button" class="slack-modal-close" data-action="close-compose" aria-label="닫기">✕</button>' +
           '</header>' +
           '<div class="slack-modal-body">' + renderComposeCard(jiwoo) + '</div>' +
@@ -1321,47 +1321,62 @@
   function renderComposeCard(jiwoo) {
     var addedCount = composeCandidates().filter(isComposeAdded).length;
     var addedRows = composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
-    // 전 필드 펼침 — 접힘 대신 스크롤. 무엇이 설정되어 나가는지 한 화면에서 다 보인다.
+    // 순서: 어디에(채널) → 언제(소요·기한·시기) → 무엇(제목·설명) → 누구(참석자) → 보낼 말 → 보내기.
+    // 각 필드는 .compose-field로 감싸 라벨-입력은 좁게, 필드 사이는 일정한 gap으로 벌린다.
     return (
       '<div class="schedule-card compose-card">' +
-        '<p class="card-kicker">회의 시간 정하기</p>' +
-        '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
-        '<p class="compose-section-label">회의 시기 <span class="compose-window-hint">' + windowLabel() + ' · 후보로 열어둘 날짜를 골라요</span></p>' +
-        renderWindowCalendar() +
-        '<div class="meeting-facts">' +
-          '<label class="fact-select-wrap">소요 시간 ' +
-            '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
-              [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
-                return '<option value="' + opt[0] + '"' + (meetingDuration() === opt[0] ? " selected" : "") + '>' + opt[1] + '</option>';
-              }).join("") +
-            '</select>' +
-          '</label>' +
-          '<label class="fact-select-wrap">응답 기한 ' +
-            '<select id="compose-replyby" class="fact-select" aria-label="응답 기한">' +
-              ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
-                return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
-              }).join("") +
-            '</select>' +
-          '</label>' +
+        '<div class="compose-field">' +
+          '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
+          '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
+            ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
+              return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
+            }).join("") +
+          '</select>' +
         '</div>' +
-        '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
-        '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
-          ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
-            return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
-          }).join("") +
-        '</select>' +
-        '<p class="compose-section-label">참석자</p>' +
-        '<div class="compose-search-wrap">' +
-          '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="이름으로 추가" aria-label="참석자 검색" autocomplete="off" />' +
-          '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
+        '<div class="compose-field">' +
+          '<div class="meeting-facts">' +
+            '<label class="fact-select-wrap">소요 시간 ' +
+              '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
+                [[0.5, "30분"], [1, "1시간"], [1.5, "90분"], [2, "2시간"]].map(function (opt) {
+                  return '<option value="' + opt[0] + '"' + (meetingDuration() === opt[0] ? " selected" : "") + '>' + opt[1] + '</option>';
+                }).join("") +
+              '</select>' +
+            '</label>' +
+            '<label class="fact-select-wrap">응답 기한 ' +
+              '<select id="compose-replyby" class="fact-select" aria-label="응답 기한">' +
+                ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
+                  return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
+                }).join("") +
+              '</select>' +
+            '</label>' +
+          '</div>' +
         '</div>' +
-        '<div class="compose-list">' + addedRows + '</div>' +
-        '<p class="compose-section-label">설명</p>' +
-        '<textarea class="compose-context-input" id="compose-context" rows="4" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
-        (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
-        '<p class="compose-section-label">채널에 보낼 메시지</p>' +
-        '<textarea class="compose-message-input" id="compose-message" rows="5" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
-        (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
+        '<div class="compose-field">' +
+          '<label class="compose-section-label">회의 시기 <span class="compose-window-hint">' + windowLabel() + ' · 후보로 열어둘 날짜를 골라요</span></label>' +
+          renderWindowCalendar() +
+        '</div>' +
+        '<div class="compose-field">' +
+          '<label class="compose-section-label" for="compose-title">회의 이름</label>' +
+          '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
+        '</div>' +
+        '<div class="compose-field">' +
+          '<label class="compose-section-label">설명</label>' +
+          '<textarea class="compose-context-input" id="compose-context" rows="4" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
+          (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
+        '</div>' +
+        '<div class="compose-field">' +
+          '<label class="compose-section-label">초대할 사람</label>' +
+          '<div class="compose-search-wrap">' +
+            '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="이름으로 추가" aria-label="참석자 검색" autocomplete="off" />' +
+            '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
+          '</div>' +
+          (addedRows ? '<div class="compose-list">' + addedRows + '</div>' : '') +
+        '</div>' +
+        '<div class="compose-field">' +
+          '<label class="compose-section-label">채널에 보낼 메시지</label>' +
+          '<textarea class="compose-message-input" id="compose-message" rows="5" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
+          (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
+        '</div>' +
         '<button class="btn btn-full compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
       '</div>'
     );

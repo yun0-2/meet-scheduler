@@ -2799,3 +2799,22 @@ button {
   margin: 10px 2px 0;
   line-height: 1.5;
 }
+
+/* ===== 작성 모달 간격 통일 (2026-07-11) — 필드 래퍼 + flex gap ===== */
+.compose-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.compose-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+/* 필드 안 요소의 개별 마진은 gap이 대신하므로 제거 (라벨-입력은 좁게, 필드 사이는 넓게) */
+.compose-field > * {
+  margin: 0;
+}
+.compose-card .compose-send-btn {
+  margin-top: var(--space-1);
+}
