@@ -34,7 +34,7 @@
     course: null,
     meetingTitle: null,
     meetingContext: "",
-    channelName: "q3-kickoff",
+    channelName: "pm-admin-dashboard",
     durationHours: 1,
     composeQuery: "",
     composeSuggestOpen: false,
@@ -139,14 +139,14 @@
 
   // 사람 행 공용 문법 — 아바타 / [이름 + 필수·선택 태그] / 직책(회색).
   // 작성·게시 카드가 같은 두 줄 구조를 쓰도록 한 함수로 뽑음.
-  function personIdentityBlock(person, attendance) {
+  function personIdentityBlock(person, attendance, hideTag) {
     var isRequired = attendance === "required";
     return (
       '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
       '<div class="compose-row-main">' +
         '<span class="compose-row-line">' +
           '<span class="compose-row-name">' + person.name + '</span>' +
-          (isRequired ? '' : '<span class="tag tag-optional">선택</span>') +
+          (isRequired || hideTag ? '' : '<span class="tag tag-optional">선택</span>') +
         '</span>' +
         '<span class="compose-row-role">' + person.role + '</span>' +
       '</div>'
@@ -1005,7 +1005,7 @@
           '<aside class="workspace-rail" aria-label="워크스페이스">' +
             '<p class="workspace-name">Product Lab</p>' +
             '<ul class="channel-list">' +
-              ["공지", "q3-kickoff", "제품실험", "데이터지원"].map(function (ch) {
+              ["공지", "pm-admin-dashboard", "제품실험", "데이터지원"].map(function (ch) {
                 var active = state.composePosted && ch === state.channelName;
                 return '<li class="' + (active ? "active" : "") + '"># ' + ch + '</li>';
               }).join("") +
@@ -1089,13 +1089,10 @@
 
   function renderComposeSuggestions() {
     var items = composeSuggestions();
-    var heading = state.composeQuery.trim()
-      ? ""
-      : '<p class="compose-suggest-label">' + meetingTitle() + ' 관련 일정에서 자주 함께한 동료</p>';
     if (items.length === 0) {
-      return heading + '<p class="compose-suggest-empty">일치하는 동료가 없어요</p>';
+      return '<p class="compose-suggest-empty">일치하는 동료가 없어요</p>';
     }
-    return heading + items.map(renderCandidateRow).join("");
+    return items.map(renderCandidateRow).join("");
   }
 
   function renderComposeCard(jiwoo) {
@@ -1106,12 +1103,12 @@
         '<p class="card-kicker">회의 시간 정하기</p>' +
         '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
         '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
-          ["q3-kickoff", "공지", "제품실험", "데이터지원"].map(function (ch) {
+          ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
             return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
           }).join("") +
         '</select>' +
         '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
-        '<p class="compose-section-label">설명 <span class="compose-section-caption">인비에 함께 나가요 — 비워두면 제안이 그대로</span></p>' +
+        '<p class="compose-section-label">설명</p>' +
         '<textarea class="compose-context-input" id="compose-context" rows="5" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
         (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
         '<div class="meeting-facts">' +
@@ -1130,7 +1127,7 @@
           '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
         '</div>' +
         '<div class="compose-list">' + addedRows + '</div>' +
-        '<p class="compose-section-label">채널에 보낼 메시지 <span class="compose-section-caption">비워두면 제안 문안이 그대로 나가요</span></p>' +
+        '<p class="compose-section-label">채널에 보낼 메시지</p>' +
         '<textarea class="compose-message-input" id="compose-message" rows="7" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
         (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
         '<button class="btn btn-full compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
@@ -1161,7 +1158,7 @@
     var attendance = effectiveAttendance(person);
     return (
       '<div class="compose-row is-added">' +
-        personIdentityBlock(person, attendance) +
+        personIdentityBlock(person, attendance, true) +
         '<div class="compose-row-controls">' +
           '<div class="compose-segmented" role="group" aria-label="' + person.name + ' 참석 구분">' +
             '<button type="button" class="' + (attendance === "required" ? "is-active" : "") + '" aria-pressed="' + String(attendance === "required") + '" data-action="compose-attendance" data-person-id="' + person.id + '" data-value="required">필수</button>' +

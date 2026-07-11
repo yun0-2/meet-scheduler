@@ -2416,3 +2416,10 @@ button {
   background: var(--workspace-hover);
   color: white;
 }
+
+/* 고스트(제안) 색 통일 — placeholder답게 연하게 */
+.compose-context-input::placeholder,
+.compose-title-input::placeholder,
+.compose-search-input::placeholder {
+  color: var(--gray-400);
+}
