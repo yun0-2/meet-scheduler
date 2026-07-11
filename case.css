@@ -682,6 +682,14 @@ h3 {
     width: 100%;
   }
 
+  /* 좁은 화면은 전폭 프로즈라 컬럼 정렬용 들여쓰기를 되돌린다 */
+  .hero .eyebrow,
+  .section__head .eyebrow,
+  .hero__button,
+  .hero__note {
+    margin-left: 0;
+  }
+
   .section__head--inline,
   .layer-grid,
   .decision-list,

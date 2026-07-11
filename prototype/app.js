@@ -28,6 +28,7 @@
     windowStart: 20,
     windowEnd: 24,
     windowAnchor: null,
+    windowPickerOpen: false,
     respondedReveal: false,
     jiwooSoftSlots: {},
     tentativeSlotId: null,
@@ -323,7 +324,8 @@
       state.windowStart = Math.min(state.windowAnchor, dom);
       state.windowEnd = Math.max(state.windowAnchor, dom);
       state.windowAnchor = null;
-      // 후보 요일이 바뀌었으니 추천을 다시 계산해 현재 선택을 갱신
+      // 범위가 정해졌으니 팝오버를 닫고, 바뀐 후보 요일로 추천을 다시 계산
+      state.windowPickerOpen = false;
       state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
     }
     render();
@@ -1345,8 +1347,14 @@
           '</div>' +
         '</div>' +
         '<div class="compose-field">' +
-          '<label class="compose-section-label">회의 시기 <span class="compose-window-hint">' + windowLabel() + ' · 후보로 열어둘 날짜를 골라요</span></label>' +
-          renderWindowCalendar() +
+          '<label class="compose-section-label">회의 시기</label>' +
+          '<div class="wcal-anchor">' +
+            '<button type="button" class="wcal-trigger" data-action="toggle-window-picker" aria-expanded="' + state.windowPickerOpen + '">' +
+              '<span>' + windowLabel() + ' 중 · 후보로 열어둘 날짜</span>' +
+              '<span class="wcal-trigger-caret" aria-hidden="true">▾</span>' +
+            '</button>' +
+            (state.windowPickerOpen ? '<div class="wcal-popover">' + renderWindowCalendar() + '</div>' : '') +
+          '</div>' +
         '</div>' +
         '<div class="compose-field">' +
           '<label class="compose-section-label" for="compose-title">회의 이름</label>' +
@@ -2290,6 +2298,12 @@
     }
     if (action === "close-compose") {
       state.composeModalOpen = false;
+      render();
+      return;
+    }
+    if (action === "toggle-window-picker") {
+      state.windowPickerOpen = !state.windowPickerOpen;
+      state.windowAnchor = null;
       render();
       return;
     }

@@ -2726,11 +2726,7 @@ button {
   margin-left: 6px;
 }
 .wcal {
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 16px;
-  background: var(--surface, #fff);
+  padding: 4px 2px 2px;
 }
 .wcal-title {
   text-align: center;
@@ -2832,4 +2828,47 @@ button {
   font-size: var(--text-13);
   font-weight: 700;
   color: var(--gray-700);
+}
+
+
+/* 회의 시기 — 요약 버튼 + 팝오버 캘린더 (인라인 → 팝오버) */
+.wcal-anchor {
+  position: relative;
+}
+.wcal-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-8, 8px);
+  background: var(--surface, #fff);
+  padding: 10px 12px;
+  font-size: var(--text-14, 14px);
+  color: var(--gray-900, #101827);
+  cursor: pointer;
+  font-family: inherit;
+}
+.wcal-trigger:hover {
+  border-color: var(--gray-300, #cbd5e1);
+}
+.wcal-trigger[aria-expanded="true"] {
+  border-color: var(--accent, #46516d);
+  box-shadow: 0 0 0 3px var(--accent-ring, rgba(70,81,109,.28));
+}
+.wcal-trigger-caret {
+  color: var(--gray-400, #94a3b8);
+  font-size: 12px;
+}
+.wcal-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  border: 1px solid var(--border-strong, #cbd5e1);
+  border-radius: 10px;
+  background: var(--surface, #fff);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.14);
+  padding: 12px;
 }
