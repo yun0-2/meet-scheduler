@@ -134,8 +134,18 @@ h3 {
   line-height: 1.4;
 }
 
+/* 프로즈 컬럼(700px)을 페이지 중앙에 두고, max-width가 없는 인라인 요소는 그 컬럼의 왼쪽 끝에 맞춘다 */
+.hero .eyebrow,
+.section__head .eyebrow,
+.hero__button,
+.hero__note {
+  margin-left: max(0px, calc((100% - var(--prose-width)) / 2));
+}
+
 .hero h1 {
   max-width: var(--prose-width);
+  margin-left: auto;
+  margin-right: auto;
   margin-top: var(--space-3);
   color: var(--gray-900);
   font-size: var(--text-44);
@@ -146,6 +156,8 @@ h3 {
 
 .hero__copy {
   max-width: var(--prose-width);
+  margin-left: auto;
+  margin-right: auto;
   margin-top: var(--space-4);
   color: var(--gray-600);
   font-size: var(--text-17);
@@ -201,6 +213,8 @@ h3 {
 
 .section h2 {
   max-width: var(--prose-width);
+  margin-left: auto;
+  margin-right: auto;
   color: var(--gray-900);
   font-size: var(--text-30);
   font-weight: 700;
@@ -252,6 +266,8 @@ h3 {
 
 .problem-summary {
   max-width: var(--prose-width);
+  margin-left: auto;
+  margin-right: auto;
   margin-top: var(--space-6);
   border-radius: var(--radius-16);
   background: var(--surface-muted);
@@ -514,6 +530,8 @@ h3 {
   max-width: var(--prose-width);
   display: grid;
   gap: var(--space-8);
+  margin-left: auto;
+  margin-right: auto;
   margin-top: var(--space-6);
 }
 
@@ -540,6 +558,8 @@ h3 {
 
 .research-lead {
   max-width: var(--prose-width);
+  margin-left: auto;
+  margin-right: auto;
   margin-top: var(--space-6);
   color: var(--gray-700);
   font-size: var(--text-17);
@@ -589,7 +609,7 @@ h3 {
   max-width: var(--prose-width);
   display: grid;
   gap: var(--space-2);
-  margin: var(--space-4) 0 0;
+  margin: var(--space-4) auto 0;
   padding: 0;
   list-style: none;
 }
@@ -719,7 +739,7 @@ h3 {
   font-size: var(--text-19);
   line-height: 1.7;
   color: var(--gray-700);
-  margin: 0 0 var(--space-8);
+  margin: 0 auto var(--space-8);
 }
 
 .article-body {
@@ -727,7 +747,7 @@ h3 {
   font-size: var(--text-17);
   line-height: 1.7;
   color: var(--gray-700);
-  margin: 0 0 var(--space-6);
+  margin: 0 auto var(--space-6);
 }
 
 .article-subhead {
@@ -736,7 +756,7 @@ h3 {
   line-height: 1.45;
   font-weight: 700;
   color: var(--gray-900);
-  margin: var(--space-12) 0 var(--space-4);
+  margin: var(--space-12) auto var(--space-4);
   letter-spacing: -0.01em;
 }
 
@@ -1034,7 +1054,8 @@ h3 {
 }
 
 .table-note {
-  margin: 0 0 var(--space-8);
+  max-width: var(--prose-width);
+  margin: 0 auto var(--space-8);
   color: var(--gray-400);
   font-size: var(--text-14);
 }

@@ -2818,3 +2818,18 @@ button {
 .compose-card .compose-send-btn {
   margin-top: var(--space-1);
 }
+
+/* 게시 묶음 — 채널·메시지를 하단에 모아 회의 내용과 분리 */
+.compose-publish {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+}
+.compose-publish-head {
+  margin: 0;
+  font-size: var(--text-13);
+  font-weight: 700;
+  color: var(--gray-700);
+}

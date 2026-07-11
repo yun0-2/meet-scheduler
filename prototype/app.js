@@ -1321,18 +1321,11 @@
   function renderComposeCard(jiwoo) {
     var addedCount = composeCandidates().filter(isComposeAdded).length;
     var addedRows = composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
-    // 순서: 어디에(채널) → 언제(소요·기한·시기) → 무엇(제목·설명) → 누구(참석자) → 보낼 말 → 보내기.
+    // 순서: 언제(소요·기한·시기) → 무엇(제목·설명) → 누구(참석자) → 어디에·어떻게 보낼지(채널·메시지) → 보내기.
+    // 채널·메시지는 '게시' 묶음으로 하단에 모아, 회의 내용 정의와 시각적으로 분리한다.
     // 각 필드는 .compose-field로 감싸 라벨-입력은 좁게, 필드 사이는 일정한 gap으로 벌린다.
     return (
       '<div class="schedule-card compose-card">' +
-        '<div class="compose-field">' +
-          '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
-          '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
-            ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
-              return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
-            }).join("") +
-          '</select>' +
-        '</div>' +
         '<div class="compose-field">' +
           '<div class="meeting-facts">' +
             '<label class="fact-select-wrap">소요 시간 ' +
@@ -1372,10 +1365,21 @@
           '</div>' +
           (addedRows ? '<div class="compose-list">' + addedRows + '</div>' : '') +
         '</div>' +
-        '<div class="compose-field">' +
-          '<label class="compose-section-label">채널에 보낼 메시지</label>' +
-          '<textarea class="compose-message-input" id="compose-message" rows="5" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
-          (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
+        '<div class="compose-publish">' +
+          '<p class="compose-publish-head">채널에 보내기</p>' +
+          '<div class="compose-field">' +
+            '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
+            '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
+              ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
+                return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
+              }).join("") +
+            '</select>' +
+          '</div>' +
+          '<div class="compose-field">' +
+            '<label class="compose-section-label">채널에 보낼 메시지</label>' +
+            '<textarea class="compose-message-input" id="compose-message" rows="5" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
+            (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
+          '</div>' +
         '</div>' +
         '<button class="btn btn-full compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
       '</div>'
