@@ -2368,3 +2368,8 @@ button {
 .compose-message-input {
   min-height: 132px;
 }
+
+.compose-context-input {
+  resize: vertical;
+  min-height: 96px;
+}

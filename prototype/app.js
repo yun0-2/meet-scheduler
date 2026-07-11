@@ -102,6 +102,18 @@
     seyoung: "지난 킥오프 결과 공유"
   };
 
+  // 회의 설명(인비 본문) 제안 — 인비 관례: 목적(왜·무엇을 얻는지) + Agenda(준비 가능하게)
+  function suggestedDescription() {
+    return [
+      "목적: " + meetingTitle() + "의 방향을 정하고 다음 액션을 나눠요.",
+      "",
+      "Agenda",
+      "• 진행 현황 공유",
+      "• 결정할 것 확인",
+      "• 다음 액션·담당 정리"
+    ].join("\n");
+  }
+
   // 채널에 곁들여 보낼 메시지 제안 — 입력값(멘션·제목·소요시간·안건)에서 생성.
   // 실제 슬랙에서 쓰는 공지 형식(멘션 → 인사·맥락 → Agenda → 요청)을 따른다.
   function suggestedMessage() {
@@ -117,8 +129,7 @@
     lines.push("아래 안건으로 " + durationLabel() + " 정도 싱크를 맞추면 좋을 것 같습니다.");
     if (context) {
       lines.push("");
-      lines.push("Agenda");
-      lines.push("• " + context);
+      lines.push(context);
     }
     lines.push("");
     lines.push("가능하신 시간을 카드에서 한번 표시해주세요.");
@@ -1092,7 +1103,8 @@
       '<div class="schedule-card compose-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
         '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
-        '<input class="compose-context-input" id="compose-context" type="text" value="' + escapeAttr(state.meetingContext) + '" placeholder="어떤 회의인지 알려주세요 (선택)" aria-label="회의 설명" />' +
+        '<p class="compose-section-label">설명 <span class="compose-section-caption">인비에 함께 나가요 — 비워두면 제안이 그대로</span></p>' +
+        '<textarea class="compose-context-input" id="compose-context" rows="5" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
         '<div class="meeting-facts">' +
           '<label class="fact-select-wrap">소요 시간 ' +
             '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
@@ -1150,7 +1162,6 @@
           '</div>' +
           '<button type="button" class="compose-remove-btn" data-action="compose-remove" data-person-id="' + person.id + '" aria-label="' + person.name + ' 참석자에서 제거">×</button>' +
         '</div>' +
-        '<span class="compose-row-caption">지난 회의 기준 추천 — 바꿀 수 있어요</span>' +
       '</div>'
     );
   }
@@ -2021,12 +2032,20 @@
     updateActiveSlotDetail();
   });
 
-  // 제안 문안 수락 — value가 비어 있을 때 Tab 키로 (keydown 캡처, 기본 포커스 이동 막음)
+  // 제안 수락 — value가 비어 있을 때 Tab/→ (keydown 캡처, 기본 포커스 이동 막음)
   app.addEventListener("keydown", function (event) {
     var field = event.target;
-    if (field && field.id === "compose-message" && (event.key === "Tab" || event.key === "ArrowRight") && !field.value) {
+    if (!field || (event.key !== "Tab" && event.key !== "ArrowRight") || field.value) {
+      return;
+    }
+    if (field.id === "compose-message") {
       event.preventDefault();
       acceptSuggestedMessage();
+    } else if (field.id === "compose-context") {
+      event.preventDefault();
+      state.meetingContext = suggestedDescription();
+      field.value = state.meetingContext;
+      syncComposeMessagePlaceholder();
     }
   });
 
