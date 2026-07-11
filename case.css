@@ -80,6 +80,14 @@ body {
   letter-spacing: 0;
   word-break: keep-all;
   overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+/* 제목은 줄 길이를 균형 있게(고아 단어·짧은 끝줄 방지) */
+.hero h1,
+.section h2,
+.article-subhead {
+  text-wrap: balance;
 }
 
 a {

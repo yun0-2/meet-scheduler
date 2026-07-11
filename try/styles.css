@@ -170,7 +170,7 @@ button {
 
 .eyebrow {
   margin: 0 0 var(--space-2);
-  color: var(--accent);
+  color: var(--grey-500);
   font-size: var(--text-12);
   font-weight: 700;
 }
@@ -2465,7 +2465,7 @@ body.is-embed .mobile-stage {
 
 .input-tentative {
   margin: 2px 0 0;
-  color: var(--accent-strong);
+  color: var(--grey-800);
   font-size: var(--text-12);
   font-weight: 600;
 }

@@ -934,23 +934,22 @@
   }
 
   // 임베드(?embed): 렌더 후 실제 콘텐츠 높이를 부모(아티클)에 알려
-  // iframe이 그 높이에 맞춰지도록 한다. 레이아웃·이미지 반영 뒤 측정하려고 rAF로 미룬다.
+  // iframe이 그 높이에 맞춰지도록 한다(세로 스크롤 제거).
   function postEmbedHeight() {
     if (!isEmbedMode || typeof window === "undefined" || window.parent === window) {
       return;
     }
     var send = function () {
-      var h = Math.max(
-        document.body ? document.body.scrollHeight : 0,
-        document.documentElement ? document.documentElement.scrollHeight : 0
-      );
-      window.parent.postMessage({ type: "ww-embed-height", route: state.route, height: h }, "*");
+      // body.scrollHeight만 쓴다 — documentElement.scrollHeight는 iframe 뷰포트 높이 이상으로
+      // 잡혀서 콘텐츠보다 큰 값이 나온다(빈 공간 발생).
+      var h = document.body ? document.body.scrollHeight : 0;
+      if (h) {
+        window.parent.postMessage({ type: "ww-embed-height", route: state.route, height: h }, "*");
+      }
     };
-    if (window.requestAnimationFrame) {
-      window.requestAnimationFrame(function () { window.requestAnimationFrame(send); });
-    } else {
-      send();
-    }
+    // rAF는 iframe이 화면 밖이면 throttle되어 전송이 늦는다. setTimeout으로 레이아웃 반영 뒤 두 번 전송.
+    setTimeout(send, 60);
+    setTimeout(send, 260);
   }
 
   // 모달 열림 동안 배경 페이지 스크롤 잠금 (이중 스크롤의 세 번째 원인 제거)
