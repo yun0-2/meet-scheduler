@@ -3,6 +3,12 @@
 
   var data = window.CAST;
   var app = document.getElementById("app");
+  // 아티클 장면 임베드용(?embed): 데모 레이어(리모컨·시나리오 카드)를 걷어내고
+  // 해시로 지정된 그 저니만 남긴다. 제품 동작 자체는 동일.
+  var isEmbedMode = String(window.location.search || "").indexOf("embed") !== -1;
+  if (isEmbedMode && document.body && document.body.classList) {
+    document.body.classList.add("is-embed");
+  }
   var state = {
     route: "entry",
     selectedSlotId: null,
@@ -958,6 +964,11 @@
     if (!nav) {
       return;
     }
+    if (isEmbedMode) {
+      // 임베드에서는 리모컨을 걷어낸다 — 비우면 #demo-nav:empty 규칙이 숨긴다.
+      nav.innerHTML = "";
+      return;
+    }
     var route = state.route;
     var isInputOptional = route === "input-optional";
     var jiwoo = getPerson("jiwoo");
@@ -1008,6 +1019,10 @@
   // 시나리오 카드 — 각 단계 첫 진입 시 1회만, #app 밖(다크 오버레이)에 상황 설명을 띄운다.
   // forceOpen이 없으면 이미 본 단계는 조용히 건너뛴다(memory-only, localStorage 미사용).
   function renderScenarioCard(route, forceOpen) {
+    if (isEmbedMode) {
+      // 임베드에서는 상황 설명을 아티클 본문이 대신한다 — 카드 없이 바로 조작.
+      return;
+    }
     // 코스 미선택 상태의 첫 진입 → 코스 선택 카드부터
     if (!state.course) {
       renderCourseChooser(forceOpen);
@@ -1185,7 +1200,7 @@
         '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
         '<div>' +
           '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">오전 10:03</span></div>' +
-          '<p class="bot-intro-text">회의 시간을 정할 때 불러주세요. 캘린더를 보고 잠정 시간을 제안하고, 참석자들의 사정을 모아드려요.</p>' +
+          '<p class="bot-intro-text">회의 시간을 정할 때 불러주세요.</p>' +
           '<div class="bot-intro-actions">' +
             '<button type="button" class="slack-btn slack-btn-primary" data-action="open-compose">회의 개최</button>' +
             '<button type="button" class="slack-btn" data-action="open-my-marks">내 캘린더 표시</button>' +
@@ -1458,8 +1473,8 @@
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
         (state.posted
-          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '잠정과 다른 시간이에요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
-          : '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
+          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '첫 제안과 다른 시간이에요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
+          : '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
         '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
         renderResponseStatusLine() +
         '<button class="btn" data-action="' + (state.posted ? 'go-confirm' : 'go-compare') + '">' + (state.posted ? '확정 내용 보기' : '추천 보기') + '</button>' +
@@ -1541,7 +1556,7 @@
               '<span class="fact-pill">' + durationLabel() + '</span>' +
               '<span class="fact-pill">' + (effectiveAttendance(person) === "required" ? "필수 참석" : "선택 참석") + '</span>' +
             '</div>' +
-            '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
+            '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
             (state.inputStage === "done"
               ? '<p class="helper-copy">응답을 보냈어요.</p>'
               : '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
@@ -1580,7 +1595,7 @@
           '</header>' +
           '<div class="slack-modal-body">' +
             '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
-            '<p class="input-tentative">잠정 ' + tentativeLabel() + ' · 어려우면 표시해주세요</p>' +
+            '<p class="input-tentative">첫 제안 ' + tentativeLabel() + ' · 어려우면 표시해주세요</p>' +
             (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             renderInputLegend() +
@@ -1769,7 +1784,7 @@
         // 세모는 본인이 직접 남긴 표시(privateSoft)만 — 추론·통념까지 그리면
         // 후보마다 전부 표시가 붙는 부조리가 된다. 약한 신호는 카드 문장의 몫.
         var privateBurden = !unavailable && slot.privateSoft.length > 0;
-        var rankLabel = slot.id === tentativeId ? "잠정" : null;
+        var rankLabel = slot.id === tentativeId ? "첫 제안" : null;
         html +=
           '<button class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
           'data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
@@ -1996,7 +2011,7 @@
           '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">방금</span></div>' +
           '<strong>' + meetingTitle() + ' 시간이 정해졌어요</strong>' +
           '<p>' + displayTime(slot) + ' · ' + durationLabel() + '</p>' +
-          (confirmedDiffersFromTentative() ? '<p class="helper-copy">처음 안내한 잠정 시간과 달라졌어요. 이 시간이 어려우면 카드에서 알려주세요.</p>' : '') +
+          (confirmedDiffersFromTentative() ? '<p class="helper-copy">처음 제안한 시간과 달라졌어요. 이 시간이 어려우면 카드에서 알려주세요.</p>' : '') +
           '<p class="helper-copy">참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</p>' +
         '</div>' +
       '</div>'

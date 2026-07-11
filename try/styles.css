@@ -1756,6 +1756,12 @@ button {
   padding-bottom: 88px;
 }
 
+/* 임베드(?embed): 리모컨이 없으니 그 자리 여백도 회수 */
+body.is-embed .screen,
+body.is-embed .screen-mobile {
+  padding-bottom: var(--space-6);
+}
+
 #demo-nav {
   position: fixed;
   bottom: 16px;
