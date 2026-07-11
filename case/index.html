@@ -7,7 +7,7 @@
     <title>WhenWorks · 메신저에 설치하는 회의 조율 앱</title>
     <meta
       name="description"
-      content="토스 프로덕트 디자이너 챌린지 케이스 소개입니다. 캘린더 기준 잠정안을 채널에 먼저 보내고, 캘린더가 모르는 사정을 기한까지 모아 확정하는 회의 조율 앱의 문제정의, 리서치, 해법, 버린 대안을 한 장에 담았어요."
+      content="토스 프로덕트 디자이너 챌린지 케이스입니다. 캘린더 기준 잠정안을 채널에 먼저 보내고, 캘린더가 모르는 사정을 기한까지 모아 확정하는 회의 조율 앱의 문제정의, 리서치, 해법, 버린 대안을 아티클로 풀었어요."
     >
     <link rel="stylesheet" href="./case.css">
   </head>
@@ -16,12 +16,12 @@
 
     <header class="hero">
       <div class="hero__inner">
-        <p class="eyebrow">TOSS 프로덕트 디자이너 챌린지 · 케이스 소개</p>
+        <p class="eyebrow">TOSS 프로덕트 디자이너 챌린지 · 케이스</p>
         <h1>WhenWorks은 메신저에 설치하는 회의 조율 앱이에요. 캘린더 기준 잠정안을 채널에 먼저 보내고, 캘린더가 모르는 사정을 기한까지 모아, 그 뒤에 확정해요.</h1>
         <p class="hero__copy">
-          제출 답안에 다 담기 어려운 문제정의와 리서치, 해법의 흐름, 버린 대안을 한 장으로 풀었어요. 프로토타입과 함께 보시면 좋아요.
+          어떤 문제를 발견했고, 무엇을 근거로 믿게 됐고, 그래서 무엇을 만들고 무엇을 버렸는지를 순서대로 담았어요. 글 곳곳에서 실제 화면을 열어볼 수 있고, 마지막에는 전체 흐름을 직접 돌려볼 수 있어요.
         </p>
-        <a class="hero__button" href="../prototype/">프로토타입 열기</a>
+        <a class="hero__button" href="../prototype/">프로토타입 바로 열기</a>
         <p class="hero__note">주최자 3분 · 참석자 2분 코스</p>
       </div>
     </header>
@@ -33,6 +33,10 @@
             <p class="eyebrow">01 · 문제</p>
             <h2 id="problem-title">빈 시간을 못 찾는 게 아니라, 조율에 필요한 정보가 캘린더에 없어요.</h2>
           </div>
+
+          <p class="article-lead">
+            여섯 명이 모이는 한 시간짜리 회의를 잡는 일은 도구가 이미 많아요. 캘린더 겹쳐보기도, 투표 도구도 있어요. 그런데도 사람들은 잡기 전에 메신저로 일일이 물어보고, 그렇게 잡아도 다시 잡아요. 인터뷰에서 이 반복의 원인이 도구 부족이 아니라는 걸 배웠어요. 문제는 세 층으로 쌓여 있었어요.
+          </p>
 
           <div class="layer-grid" aria-label="문제의 세 층위">
             <article class="layer-card">
@@ -71,13 +75,66 @@
 
       <section class="section section--research" aria-labelledby="research-title">
         <div class="section__inner">
-          <div class="section__head section__head--inline">
-            <div>
-              <p class="eyebrow">02 · 리서치</p>
-              <h2 id="research-title">서로 다른 5개 조직에서 같은 신호를 봤어요.</h2>
-            </div>
-            <p class="section-note">엔터·테크·전통 대기업·금융, 그리고 이직으로 세 조직을 겪은 비교. 재직자 전언과 데스크 리서치 20건을 더했어요.</p>
+          <div class="section__head">
+            <p class="eyebrow">02 · 리서치</p>
+            <h2 id="research-title">서로 다른 다섯 조직에서 같은 신호를 봤어요.</h2>
           </div>
+
+          <p class="article-lead">
+            직접 인터뷰 네 번과 재직자 전언 하나로, 업종과 문화가 다른 다섯 조직의 회의 조율을 들여다봤어요. 한 분은 세 조직을 옮겨 다니며 겪은 분이라, 도구가 아니라 문화가 변수라는 걸 같은 사람 안에서 비교할 수 있었어요.
+          </p>
+
+          <table class="sample-table">
+            <caption class="sr-only">인터뷰 표본</caption>
+            <thead>
+              <tr><th scope="col">참여자</th><th scope="col">조직</th><th scope="col">형식</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>프로덕트 디자이너</td><td>엔터 대기업</td><td>인터뷰 14분</td></tr>
+              <tr><td>데이터·BI 담당</td><td>테크, 해외팀 협업</td><td>인터뷰 12분</td></tr>
+              <tr><td>B2B 마케터</td><td>전통 대기업</td><td>인터뷰 23분</td></tr>
+              <tr><td>금융 대기업 현직, 엔터·커머스 전직</td><td>같은 사람의 세 조직 비교</td><td>인터뷰 37분</td></tr>
+              <tr><td>캘린더 문화가 강한 테크 조직 재직 경험자</td><td>테크</td><td>지인 경유 전언</td></tr>
+            </tbody>
+          </table>
+
+          <details class="method-box">
+            <summary>어떻게 묻고 골랐는지 (스크리너와 진행 원칙 발췌)</summary>
+            <div class="method-box__body">
+              <p>모집은 2분짜리 스크리너 폼으로 했어요. 핵심 문항은 하나예요.</p>
+              <blockquote class="method-quote">“최근 1개월 안에, 3명 이상이 모이는 회의의 ‘시간을 정하는 과정’에 참여한 적이 있나요? 주최였나요, 참석자였나요?”</blockquote>
+              <p>선정에는 쿼터를 뒀어요. 주니어와 리더를 섞고, 비IT 조직을 2곳 이상, 회의를 직접 잡아본 사람을 2명 이상, 같은 디자인 직군은 2명 이하로요. 위계와 도구 환경이 다른 조직을 일부러 겹치지 않게 골랐어요.</p>
+              <p>진행에서는 유도 질문을 막는 데 가장 신경 썼어요. 우리 가설의 단어를 먼저 말하지 않고, “보통 어떠세요?” 대신 “가장 최근에 언제였어요?”를 물었어요. 실제로 저지른 실수를 가드로 만들어 다음 세션에서 고쳤어요.</p>
+              <ul class="probe-list">
+                <li><span class="probe-bad">“높은 사람이라 말 못하고 이런 건 없어요?”</span><span class="probe-good">“그때 어떻게 했어요?”</span></li>
+                <li><span class="probe-bad">“그런 건 캘린더에 표시가 안 되는 편이죠?”</span><span class="probe-good">“그 사정은 다른 사람들이 어떻게 알아요?”</span></li>
+                <li><span class="probe-bad">“재택 같은 건 없죠?”</span><span class="probe-good">“근무 형태가 어떻게 돼요?”</span></li>
+              </ul>
+            </div>
+          </details>
+
+          <h3 class="article-subhead">캘린더에 없던 것들의 목록</h3>
+          <p class="article-body">
+            “캘린더엔 비어 있는데 사실은 안 되는 시간, 그건 남들이 어떻게 알아요?”라고 물었을 때 나온 답들이에요. 전부 회의를 다시 잡게 만든 실제 사례고, 전부 캘린더 밖에 있었어요.
+          </p>
+
+          <table class="sample-table">
+            <caption class="sr-only">캘린더에 없는 정보와 출처</caption>
+            <thead>
+              <tr><th scope="col">캘린더 밖의 정보</th><th scope="col">들은 곳</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>자율출퇴근 사정 (병원에 들러 늦게 출근)</td><td>엔터 대기업</td></tr>
+              <tr><td>받았지만 아직 수락하지 않은 초대</td><td>테크</td></tr>
+              <tr><td>구두로만 잡아둔 회의 약속</td><td>테크</td></tr>
+              <tr><td>연차 (캘린더에 자동 표시되지 않음)</td><td>전통 대기업</td></tr>
+              <tr><td>점심 직후와 오전을 피하는 통념 선호</td><td>세 조직 공통</td></tr>
+              <tr><td>임원 보고 직후는 피한다는 관계 맥락</td><td>엔터 대기업</td></tr>
+              <tr><td>이 회의에 누가 꼭 필요한지</td><td>세 조직 공통</td></tr>
+            </tbody>
+          </table>
+
+          <h3 class="article-subhead">가설은 다섯 조직을 거치며 이렇게 바뀌었어요</h3>
 
           <div class="clue-table" role="table" aria-label="리서치에서 읽은 신호와 판정">
             <div class="clue-row clue-row--head" role="row">
@@ -86,7 +143,7 @@
             </div>
             <div class="clue-row" role="row">
               <span role="cell">캘린더 ≠ 실제 일정</span>
-              <span role="cell">5개 조직 모두에서 확인했어요. 미수락 초대, 구두 약속, 연차는 캘린더 밖에 있어요.</span>
+              <span role="cell">다섯 조직 모두에서 확인했어요. 미수락 초대, 구두 약속, 연차는 캘린더 밖에 있어요.</span>
             </div>
             <div class="clue-row" role="row">
               <span role="cell">재조율이 잦다</span>
@@ -98,7 +155,7 @@
             </div>
             <div class="clue-row" role="row">
               <span role="cell">위계의 작동</span>
-              <span role="cell">사정을 못 말하는 문제가 아니라, 윗선 회의가 생기면 우선순위가 뒤집히는 문제로 다시 봤어요.</span>
+              <span role="cell">처음 가설은 “위계 때문에 사정을 말하기 어렵다”였어요. 세 인터뷰 연속으로 반박됐고, 윗선 회의가 생기면 우선순위가 뒤집히는 문제로 다시 정의했어요.</span>
             </div>
             <div class="clue-row" role="row">
               <span role="cell">익명 요구</span>
@@ -106,21 +163,28 @@
             </div>
             <div class="clue-row" role="row">
               <span role="cell">소프트 선호 사전 표시</span>
-              <span role="cell">“이 시간은 회의를 피하고 싶다”를 미리 표시하는 행동이 이미 실물로 존재했어요.</span>
+              <span role="cell">“이 시간은 회의를 피하고 싶다”를 미리 캘린더에 올려두는 행동이 한 조직에서 이미 실물로 존재했어요.</span>
             </div>
           </div>
 
-          <p class="research-lead">경계는 정직하게 그었어요. 이 제품이 서는 조직과 서지 못하는 조직이 나뉘어요.</p>
+          <h3 class="article-subhead">타깃의 경계도 정직하게 그었어요</h3>
+          <p class="article-body">
+            다섯 조직은 캘린더를 얼마나 성실히 쓰는지의 스펙트럼 위에 흩어져 있었고, 이 제품이 서는 자리는 그 가운데예요.
+          </p>
 
-          <div class="decision-list">
-            <article class="decision-item">
-              <h3>캘린더 위생이 강한 조직</h3>
-              <p>일정을 성실히 쓰는 조직에선 문제가 약해져요. 그래도 “안 되면 알려달라”는 수동 확인 루프는 남아, 잠정 제안과 기한이 그 자리를 대신해요.</p>
-            </article>
-            <article class="decision-item">
-              <h3>기록 문화가 없는 조직</h3>
-              <p>캘린더 불신이 아니라 캘린더 부재라, 우리 문제가 성립하지 않아요. 이건 다른 층의 문제로 두고 이번 범위에서 뺐어요.</p>
-            </article>
+          <div class="spectrum" role="img" aria-label="캘린더 기록 문화 스펙트럼과 타깃 위치">
+            <div class="spectrum__cell">
+              <h4>기록 문화가 없는 조직</h4>
+              <p>캘린더 불신이 아니라 캘린더 부재예요. 문제가 다른 층에 있어 범위에서 뺐어요.</p>
+            </div>
+            <div class="spectrum__cell spectrum__cell--target">
+              <h4>캘린더를 쓰지만, 다 믿지는 못하는 조직</h4>
+              <p>메신저로 협의해 회의를 잡는 팀. 인터뷰 세 조직이 모두 여기 있었고, 이 제품의 타깃이에요.</p>
+            </div>
+            <div class="spectrum__cell">
+              <h4>개인 일정까지 성실히 적는 조직</h4>
+              <p>문제가 약해져요. 그래도 “안 되면 알려달라”는 확인 루프는 남아, 잠정안과 기한이 그 자리를 대신해요.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -132,12 +196,17 @@
             <h2 id="lifecycle-title">카드의 일생: 잠정안이 채널에 오르고, 사정을 모아, 확정으로 바뀌어요.</h2>
           </div>
 
+          <p class="article-lead">
+            사람들이 이미 하던 두 행동, 잠정 제안과 사전 확인을 하나로 합쳤어요. 캘린더 기준 잠정안을 먼저 보내 기다림 없이 시작하고, 캘린더가 모르는 사정은 기한까지 모아 보정한 뒤 확정해요. 침묵은 잠정안 동의로, 응답은 보정으로 쓰여요. 아래 네 장면이 그 전부예요. 각 장면은 프로토타입에서 직접 열어볼 수 있어요.
+          </p>
+
           <div class="lifecycle">
             <figure class="stage">
               <img class="stage__img" src="img/case-1-compose.png" alt="슬랙 모달에서 회의를 만드는 화면" loading="lazy" />
               <figcaption>
                 <h3>회의 개최</h3>
-                <p>봇이 있는 채널에서 회의를 열면 슬랙 모달이 떠요. 제목을 치면 함께 일한 이력을 바탕으로 참석자가 제안되고, 캘린더 기준 잠정 시간과 채널에 보낼 문안까지 미리 채워져요. 주최자는 확인만 하고 보내요.</p>
+                <p>봇이 있는 채널에서 회의를 열면 슬랙 모달이 떠요. 제목을 치면 함께 일한 이력을 바탕으로 참석자가 제안되고, 회의 시기와 캘린더 기준 잠정 시간, 채널에 보낼 문안까지 미리 채워져요. 주최자는 확인만 하고 보내요.</p>
+                <a class="stage__try" href="../prototype/#entry">이 화면 직접 열기 →</a>
               </figcaption>
             </figure>
 
@@ -146,6 +215,7 @@
               <figcaption>
                 <h3>참석자 DM</h3>
                 <p>참석자는 받은 카드에서 잠정 시간과 응답 기한을 함께 봐요. “피하고 싶은 시간 표시하기”, “언제든 괜찮아요”, “참석 어려워요” 중에서 고르면 되고, 아무 표시가 없으면 잠정안 동의로 읽어요.</p>
+                <a class="stage__try" href="../prototype/#input">이 화면 직접 열기 →</a>
               </figcaption>
             </figure>
 
@@ -154,6 +224,7 @@
               <figcaption>
                 <h3>추천</h3>
                 <p>기한이 지나면 주최자가 추천을 열어요. 걸리는 게 적은 순으로 먼저 보여주고, “가능한 사람 많은 순”으로 바꿔 비교할 수 있어요. 각 후보 옆에는 왜 이 순위인지 이유가 붙어요.</p>
+                <a class="stage__try" href="../prototype/#compare">이 화면 직접 열기 →</a>
               </figcaption>
             </figure>
 
@@ -161,7 +232,8 @@
               <img class="stage__img" src="img/case-4-confirmed.png" alt="확정된 채널 카드" loading="lazy" />
               <figcaption>
                 <h3>확정</h3>
-                <p>확정하면 요청을 보냈던 채널의 카드가 확정으로 바뀌고 알림이 가요. 잠정과 시간이 달라졌으면 “처음 안내와 시간이 바뀌었어요” 같은 재확인 문구를 함께 붙여요.</p>
+                <p>확정하면 요청을 보냈던 채널의 카드가 확정으로 바뀌고 알림이 가요. 잠정과 시간이 달라졌으면 재확인 문구를 함께 붙여요. 동의는 이월되지 않으니까요.</p>
+                <a class="stage__try" href="../prototype/#confirm">이 화면 직접 열기 →</a>
               </figcaption>
             </figure>
           </div>
@@ -231,10 +303,31 @@
         </div>
       </section>
 
+      <section class="section section--demo" aria-labelledby="demo-title">
+        <div class="section__inner">
+          <div class="section__head">
+            <p class="eyebrow">06 · 직접 해보기</p>
+            <h2 id="demo-title">여기서 전체 흐름을 직접 돌려볼 수 있어요.</h2>
+          </div>
+
+          <p class="article-body">
+            주최자 코스는 회의를 만들어 채널에 보내고, 추천을 비교해 확정까지 가요. 참석자 코스는 봇 DM으로 초대를 받아 피하고 싶은 시간을 표시해요. 아래 화면에서 바로 시작하거나, 새 창에서 크게 열 수 있어요.
+          </p>
+
+          <div class="demo-embed">
+            <iframe src="../prototype/" title="WhenWorks 프로토타입 전체 데모" loading="lazy"></iframe>
+          </div>
+          <div class="demo-actions">
+            <a class="hero__button" href="../prototype/">새 창에서 크게 열기</a>
+            <p class="hero__note">화면이 좁으면 새 창을 추천해요.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="section section--growth" aria-labelledby="growth-title">
         <div class="section__inner">
           <div class="section__head">
-            <p class="eyebrow">06 · 자라날 방향</p>
+            <p class="eyebrow">07 · 자라날 방향</p>
             <h2 id="growth-title">도구가 먼저, 문화가 나중이에요.</h2>
           </div>
 
