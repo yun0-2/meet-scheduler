@@ -1,9 +1,9 @@
 (function () {
   "use strict";
 
-  // 활성 조건: URL 쿼리에 test=1이 있을 때만 전체 로직 실행.
-  // 없으면 리스너 등록, DOM 추가 없이 즉시 종료 — 제출용 URL에서는 완전 무동작.
-  if (!/(?:^|[?&])test=1(?:&|$)/.test(location.search)) {
+  // 활성 조건: 테스트 배포(/try/)가 심는 전역 플래그, 또는 URL 쿼리 test=1.
+  // 제출용 배포에는 이 파일 자체가 실리지 않는다.
+  if (!window.TEST_LOG_FORCE && !/(?:^|[?&])test=1(?:&|$)/.test(location.search)) {
     return;
   }
 
