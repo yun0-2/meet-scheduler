@@ -1121,3 +1121,22 @@ h3 {
 .hero__note {
   margin-left: 0;
 }
+
+/* 01 문제 — "기능은 이미 있다" 증거 캡처 */
+.evidence-figure {
+  margin: 0 0 var(--space-8);
+  max-width: 560px;
+}
+.evidence-figure img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-8);
+  background: var(--surface);
+}
+.evidence-figure figcaption {
+  margin-top: var(--space-2);
+  font-size: var(--text-13);
+  color: var(--gray-500);
+  line-height: 1.65;
+}
