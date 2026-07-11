@@ -1140,3 +1140,21 @@ h3 {
   color: var(--gray-500);
   line-height: 1.65;
 }
+
+/* 증거 캡처 2단 배치 — 구글·팀즈 나란히 */
+.evidence-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+  margin: 0 0 var(--space-8);
+}
+.evidence-row .evidence-figure {
+  margin: 0;
+  max-width: none;
+}
+@media (max-width: 760px) {
+  .evidence-row {
+    grid-template-columns: 1fr;
+  }
+}
