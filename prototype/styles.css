@@ -2389,3 +2389,30 @@ button {
 .compose-suggest-row .compose-evidence-chip {
   margin-left: auto;
 }
+
+/* 리모컨: 그룹 필 제거 — 역할 라벨·구분선만으로 충분 */
+.demo-nav-group {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* 보낼 채널 select + 봇 채널 항목 */
+.compose-channel-select {
+  display: block;
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-8);
+  padding: 8px 10px;
+  background: var(--surface);
+}
+
+.channel-list .channel-app {
+  margin-top: var(--space-2);
+  color: var(--workspace-muted);
+}
+
+.channel-list .channel-app.active {
+  background: var(--workspace-hover);
+  color: white;
+}

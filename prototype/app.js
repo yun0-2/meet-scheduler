@@ -34,6 +34,7 @@
     course: null,
     meetingTitle: null,
     meetingContext: "",
+    channelName: "q3-kickoff",
     durationHours: 1,
     composeQuery: "",
     composeSuggestOpen: false,
@@ -1004,14 +1005,15 @@
           '<aside class="workspace-rail" aria-label="워크스페이스">' +
             '<p class="workspace-name">Product Lab</p>' +
             '<ul class="channel-list">' +
-              '<li># 공지</li>' +
-              '<li class="active"># q3-kickoff</li>' +
-              '<li># 제품실험</li>' +
-              '<li># 데이터지원</li>' +
+              ["공지", "q3-kickoff", "제품실험", "데이터지원"].map(function (ch) {
+                var active = state.composePosted && ch === state.channelName;
+                return '<li class="' + (active ? "active" : "") + '"># ' + ch + '</li>';
+              }).join("") +
+              '<li class="channel-app' + (state.composePosted ? "" : " active") + '">회의 조율</li>' +
             '</ul>' +
           '</aside>' +
           '<section class="channel-panel" aria-label="슬랙 스타일 채널">' +
-            '<header class="channel-header"><h1># q3-kickoff</h1></header>' +
+            '<header class="channel-header"><h1>' + (state.composePosted ? '# ' + state.channelName : '회의 조율') + '</h1></header>' +
             (state.composePosted ? renderMeetingBanner() : '') +
             '<div class="message-thread">' +
               '<article class="message">' +
@@ -1102,9 +1104,16 @@
     return (
       '<div class="schedule-card compose-card">' +
         '<p class="card-kicker">회의 시간 정하기</p>' +
+        '<label class="compose-section-label" for="compose-channel">보낼 채널</label>' +
+        '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
+          ["q3-kickoff", "공지", "제품실험", "데이터지원"].map(function (ch) {
+            return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
+          }).join("") +
+        '</select>' +
         '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" aria-label="회의 이름" />' +
         '<p class="compose-section-label">설명 <span class="compose-section-caption">인비에 함께 나가요 — 비워두면 제안이 그대로</span></p>' +
         '<textarea class="compose-context-input" id="compose-context" rows="5" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
+        (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
         '<div class="meeting-facts">' +
           '<label class="fact-select-wrap">소요 시간 ' +
             '<select id="compose-duration" class="fact-select" aria-label="소요 시간">' +
@@ -1123,7 +1132,7 @@
         '<div class="compose-list">' + addedRows + '</div>' +
         '<p class="compose-section-label">채널에 보낼 메시지 <span class="compose-section-caption">비워두면 제안 문안이 그대로 나가요</span></p>' +
         '<textarea class="compose-message-input" id="compose-message" rows="7" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
-        '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>' +
+        (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
         '<button class="btn btn-full compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
       '</div>'
     );
@@ -1567,7 +1576,7 @@
               '<div class="posted-message ' + (state.posted ? "is-visible" : "") + '" role="status">슬랙 채널에 확정 메시지를 올렸어요. 참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</div>' +
             '</section>' +
             '<aside class="slack-preview">' +
-              '<h2>#q3-kickoff 채널의 조율 카드에 올라가요</h2>' +
+              '<h2>#' + state.channelName + ' 채널의 조율 카드에 올라가요</h2>' +
               renderSlackPreview(slot) +
             '</aside>' +
           '</div>' +
@@ -1728,6 +1737,10 @@
 
   app.addEventListener("change", function (event) {
     var sel = event.target;
+    if (sel && sel.id === "compose-channel") {
+      state.channelName = sel.value;
+      return;
+    }
     if (sel && sel.id === "compose-duration") {
       state.durationHours = parseFloat(sel.value);
       render();
@@ -1748,6 +1761,9 @@
       state.meetingContext = field.value;
       syncComposeMessagePlaceholder();
       return;
+    }
+    if (field.id === "compose-context" || field.id === "compose-message") {
+      syncAcceptChips();
     }
     if (field.id === "compose-message") {
       // 직접 타이핑 = 자기 글. placeholder(제안 문안)는 브라우저가 알아서 숨긴다.
@@ -1845,6 +1861,7 @@
       var addId = target.getAttribute("data-person-id");
       state.composeAdded[addId] = true;
       state.composeQuery = "";
+      syncMentionLine();
       // 연속 추가 — 오버레이는 열린 채로 두고 검색 입력으로 포커스 복귀
       state.composeSuggestOpen = true;
       render();
@@ -1853,11 +1870,18 @@
         searchEl.focus();
       }
     }
+    if (action === "accept-description") {
+      acceptSuggestedDescription();
+      return;
+    }
     if (action === "compose-accept-message") {
       acceptSuggestedMessage();
+      syncAcceptChips();
     }
     if (action === "compose-remove") {
       var removeId = target.getAttribute("data-person-id");
+      delete state.composeAdded[removeId];
+      syncMentionLine();
       delete state.composeAdded[removeId];
       delete state.attendanceOverride[removeId];
       render();
@@ -2033,7 +2057,7 @@
   // 제안 수락 — value가 비어 있을 때 Tab/→ (keydown 캡처, 기본 포커스 이동 막음)
   app.addEventListener("keydown", function (event) {
     var field = event.target;
-    if (!field || (event.key !== "Tab" && event.key !== "ArrowRight") || field.value) {
+    if (!field || event.key !== "ArrowRight" || field.value) {
       return;
     }
     if (field.id === "compose-message") {
@@ -2041,11 +2065,53 @@
       acceptSuggestedMessage();
     } else if (field.id === "compose-context") {
       event.preventDefault();
-      state.meetingContext = suggestedDescription();
-      field.value = state.meetingContext;
-      syncComposeMessagePlaceholder();
+      acceptSuggestedDescription();
     }
   });
+
+  // 참석자가 바뀌면 문안의 멘션 줄도 따라간다 — 첫 줄이 멘션으로만 된 줄일 때만 (손글 존중)
+  function syncMentionLine() {
+    if (!state.composeMessage) {
+      return;
+    }
+    var lines = state.composeMessage.split("\n");
+    var mentionPattern = /^(@\S+[ ]*)+$/;
+    var mentions = composeCandidates().filter(isComposeAdded).map(function (person) {
+      return "@" + person.name;
+    }).join(" ");
+    if (mentionPattern.test(lines[0])) {
+      if (mentions) {
+        lines[0] = mentions;
+      } else {
+        lines.shift();
+      }
+    } else if (mentions) {
+      lines.unshift(mentions);
+    }
+    state.composeMessage = lines.join("\n");
+  }
+
+  function acceptSuggestedDescription() {
+    state.meetingContext = suggestedDescription();
+    var ctxEl = document.getElementById && document.getElementById("compose-context");
+    if (ctxEl) {
+      ctxEl.value = state.meetingContext;
+    }
+    syncComposeMessagePlaceholder();
+    syncAcceptChips();
+  }
+
+  // 수락 칩은 '받아들일 것이 있을 때만' — 값이 생기면 사라진다
+  function syncAcceptChips() {
+    var pairs = [["compose-context", "accept-description"], ["compose-message", "compose-accept-message"]];
+    pairs.forEach(function (pair) {
+      var field = document.getElementById && document.getElementById(pair[0]);
+      var chip = document.querySelector && document.querySelector('[data-action="' + pair[1] + '"]');
+      if (field && chip) {
+        chip.style.display = field.value ? "none" : "";
+      }
+    });
+  }
 
   function updateActiveSlotDetail() {
     if (!app.querySelector) {
