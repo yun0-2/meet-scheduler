@@ -381,7 +381,7 @@ button {
 
 .card-kicker {
   margin: 0 0 var(--space-2);
-  color: var(--accent);
+  color: var(--grey-500);
   font-size: var(--text-13);
   font-weight: 700;
 }
