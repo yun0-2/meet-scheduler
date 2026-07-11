@@ -964,11 +964,19 @@
     if (typeof document === "undefined" || !document.getElementById) {
       return;
     }
-    try {
-      autosizeTextarea(document.getElementById("compose-context"));
-      autosizeTextarea(document.getElementById("compose-message"));
-    } catch (lookupError) {
-      // 테스트 하네스 등 #app만 아는 최소 DOM 목업에서는 조용히 건너뛴다.
+    // 레이아웃 이후에 측정해야 폭이 확정돼 placeholder 줄바꿈 높이가 올바르다
+    var run = function () {
+      try {
+        autosizeTextarea(document.getElementById("compose-context"));
+        autosizeTextarea(document.getElementById("compose-message"));
+      } catch (lookupError) {
+        // 테스트 하네스 등 #app만 아는 최소 DOM 목업에서는 조용히 건너뛴다.
+      }
+    };
+    if (typeof window !== "undefined" && window.requestAnimationFrame) {
+      window.requestAnimationFrame(run);
+    } else {
+      run();
     }
   }
 
