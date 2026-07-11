@@ -35,6 +35,7 @@
     meetingTitle: null,
     meetingContext: "",
     channelName: "pm-admin-dashboard",
+    replyBy: "내일",
     durationHours: 1,
     composeQuery: "",
     composeSuggestOpen: false,
@@ -53,7 +54,7 @@
       },
       compare: {
         eyebrow: "2/3 · 주최자",
-        body: "며칠 뒤, 참석자들의 응답이 모였어요.",
+        body: "응답 기한이 지났어요. 그동안 온 표시가 반영돼 있어요.",
         mission: "왜 이 시간이 1순위인지 이유를 눌러 확인해보세요."
       },
       confirm: {
@@ -133,7 +134,8 @@
       lines.push(context);
     }
     lines.push("");
-    lines.push("가능하신 시간을 카드에서 한번 표시해주세요.");
+    lines.push("우선 " + tentativeLabel() + "(잠정)으로 잡아두려 해요.");
+    lines.push("어려우시면 " + state.replyBy + "까지 카드에서 표시해주세요 — 그 뒤에 확정할게요.");
     return lines.join("\n");
   }
 
@@ -238,6 +240,15 @@
     return activePeople().filter(function (person) {
       return effectiveAttendance(person) === "optional";
     });
+  }
+
+  // 잠정 제안 — 캘린더 기준 1순위. 침묵=동의, 응답=보정, 기한=확정 트리거.
+  function tentativeSlot() {
+    return currentFeatured().recommended;
+  }
+
+  function tentativeLabel() {
+    return displayTime(tentativeSlot());
   }
 
   function meetingDuration() {
@@ -1119,6 +1130,13 @@
               }).join("") +
             '</select>' +
           '</label>' +
+          '<label class="fact-select-wrap">응답 기한 ' +
+            '<select id="compose-replyby" class="fact-select" aria-label="응답 기한">' +
+              ["오늘", "내일", "모레"].map(function (opt) {
+                return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
+              }).join("") +
+            '</select>' +
+          '</label>' +
           '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
         '</div>' +
         '<p class="compose-section-label">참석자</p>' +
@@ -1186,6 +1204,7 @@
           '<span class="fact-pill">' + data.meeting.deadline + '</span>' +
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
+        '<div class="tentative-line"><strong>잠정 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요 — 그 뒤 확정해요</span></div>' +
         '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
         renderResponseStatusLine() +
         '<button class="btn" data-action="go-compare">추천 보기</button>' +
@@ -1229,6 +1248,7 @@
             '<div class="phone-body">' +
               '<section class="context-card compact">' +
                 '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
+                '<p class="input-tentative">잠정 ' + tentativeLabel() + ' — 어려우면 표시해주세요</p>' +
                 '<h1>다음 주 킥오프, 피하고 싶은 시간이 있나요?</h1>' +
                 (optional ? '<p class="input-guidance">선택 참석이에요 — 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
               '</section>' +
@@ -1734,6 +1754,10 @@
 
   app.addEventListener("change", function (event) {
     var sel = event.target;
+    if (sel && sel.id === "compose-replyby") {
+      state.replyBy = sel.value;
+      return;
+    }
     if (sel && sel.id === "compose-channel") {
       state.channelName = sel.value;
       return;
