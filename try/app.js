@@ -1633,7 +1633,6 @@
             '<p class="input-tentative">첫 제안 ' + tentativeLabel() + ' · 어려우면 표시해주세요</p>' +
             (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
-            renderInputLegend() +
             '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
             '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
             '<button class="btn btn-full" data-action="submit-response">제출</button>' +
@@ -1710,16 +1709,6 @@
     });
 
     return html;
-  }
-
-  function renderInputLegend() {
-    return (
-      '<div class="legend legend-input" role="group" aria-label="입력 범례">' +
-        '<span class="legend-item"><span class="legend-swatch is-busy" aria-hidden="true"></span>내 일정</span>' +
-        '<span class="legend-item"><span class="legend-swatch is-preferred" aria-hidden="true"></span>피하고 싶어요</span>' +
-        '<span class="legend-item"><span class="legend-swatch is-open" aria-hidden="true"></span>괜찮아요</span>' +
-      '</div>'
-    );
   }
 
   function renderCompare() {
