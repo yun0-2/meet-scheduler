@@ -1581,6 +1581,7 @@
           '</section>' +
         '</div>' +
         '<div class="compose-footer">' +
+          '<button type="button" class="btn btn-secondary" data-action="compose-back">이전으로</button>' +
           '<button class="btn compose-send-btn" data-action="post-compose">' + (state.postToChannel ? '제안 보내기' : '초대 보내기') + '</button>' +
         '</div>' +
       '</div>'
@@ -1628,7 +1629,9 @@
               '</button>'
             );
           }).join("")
-        : '')
+        : '') +
+      '<div class="compose-group-divider" aria-hidden="true"></div>' +
+      '<p class="compose-group-label">보내기 설정</p>'
     );
   }
 

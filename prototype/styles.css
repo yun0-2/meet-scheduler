@@ -3587,14 +3587,19 @@ button.compose-step:hover {
 /* 작성 다이얼로그는 높이를 처음부터 고정 — 참석자 추가로 모달이 자라며
    버튼 위치가 널뛰지 않게. 넘치는 내용은 body가 스크롤한다 */
 .slack-modal.is-compose {
-  height: min(760px, calc(100vh - 48px));
+  /* 프레임은 1·2단계 공통 고정 — 단계 전환이 '이동'이 아니라 '전환'으로 읽히게.
+     1단계는 내용 컬럼만 좁게 가운데 정렬한다 */
+  width: min(1120px, calc(100vw - 48px));
+  height: min(880px, calc(100vh - 48px));
   display: flex;
   flex-direction: column;
 }
 
-/* 2단계는 결정 컬럼(카드+기한+게시)이 길어 높이 여유를 더 쓴다 */
-.slack-modal.is-compose.is-wide {
-  height: min(880px, calc(100vh - 48px));
+/* 1단계: 프레임은 넓게, 내용은 원래 폭으로 가운데 */
+.slack-modal.is-compose:not(.is-wide) .compose-card {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 .slack-modal.is-compose .slack-modal-body {
@@ -3842,4 +3847,22 @@ button.compose-step:hover {
   font-weight: 600;
   padding: 4px 10px;
   cursor: pointer;
+}
+
+/* 2단계 왼쪽 컬럼 그룹 경계 — '무엇을 보낼지'와 '어떻게 보낼지'를 가른다 */
+.compose-group-divider {
+  border-top: 1px solid var(--border);
+  margin: var(--space-1) 0;
+}
+
+.compose-group-label {
+  margin: 0 0 calc(-1 * var(--space-2));
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  font-weight: 700;
+}
+
+/* 푸터: [이전으로][제안 보내기] 쌍 — 슬랙 모달 푸터 문법 */
+.compose-footer {
+  gap: var(--space-2);
 }
