@@ -1776,13 +1776,13 @@
             '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>괜찮으면 그대로 확정돼요 · 어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
             (state.inputStage === "done"
               ? '<div class="dm-answered is-ok">' +
-                  '<p class="dm-answered-check">✓ 응답 완료</p>' +
-                  '<button type="button" class="btn btn-secondary btn-full" data-action="dm-edit-response">응답 고치기</button>' +
+                  '<p class="dm-answered-check">✓ ' + (inputMarkCount(person) > 0 ? '피하고 싶은 시간 ' + inputMarkCount(person) + '개를 표시했어요' : '언제든 괜찮다고 답했어요') + '</p>' +
+                  '<button type="button" class="btn btn-secondary btn-full" data-action="dm-change-answer">답변 바꾸기</button>' +
                 '</div>'
               : state.declined
                 ? '<div class="dm-answered">' +
                     '<p class="dm-answered-text">참석 어려움으로 답했어요. 기한 전까지 언제든 바꿀 수 있어요.</p>' +
-                    '<button type="button" class="btn btn-secondary btn-full" data-action="dm-undecline">역시 참석할게요</button>' +
+                    '<button type="button" class="btn btn-secondary btn-full" data-action="dm-change-answer">답변 바꾸기</button>' +
                   '</div>'
                 : '<button class="btn btn-full" data-action="dm-open-grid">피하고 싶은 시간 표시하기</button>' +
                   '<button type="button" class="btn btn-secondary btn-full dm-ok-btn" data-action="dm-all-ok">' + windowLabel() + ' 언제든 괜찮아요</button>' +
@@ -1791,6 +1791,19 @@
         '</div>' +
       '</article>'
     );
+  }
+
+  // 내가 칠한 피하고 싶은 시간 수 — 응답 상태 카드가 '뭐라고 답했는지'를 말하게 한다
+  function inputMarkCount(person) {
+    var n = 0;
+    activeDays().forEach(function (day) {
+      slotHours.forEach(function (hour) {
+        if (softSelectedForInput(person, slotId(day, hour))) {
+          n += 1;
+        }
+      });
+    });
+    return n;
   }
 
   function renderInputGridModal(person, optional, optedOut) {
@@ -2458,7 +2471,9 @@
       render();
       return;
     }
-    if (action === "dm-open-grid" || action === "dm-edit-response") {
+    if (action === "dm-open-grid" || action === "dm-change-answer") {
+      // 답변 바꾸기는 바로 격자를 연다 — 상태만 되돌리고 다시 누르게 하지 않는다
+      state.declined = false;
       state.inputStage = "grid";
       render();
       return;
@@ -2474,11 +2489,6 @@
       // 거절도 하나의 응답 — 기한 전까지 되돌릴 수 있다 (구글 캘린더 RSVP처럼 가역적)
       state.declined = true;
       state.inputStage = "dm";
-      render();
-      return;
-    }
-    if (action === "dm-undecline") {
-      state.declined = false;
       render();
       return;
     }

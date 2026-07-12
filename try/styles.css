@@ -2696,6 +2696,8 @@ body.is-embed .web-dialog-close {
 
 .dm-card {
   margin-top: var(--space-2);
+  /* 내용 3줄짜리 DM 카드에 680은 헐렁 — 슬랙 Block Kit 카드 폭(~600)에 맞춤 */
+  max-width: 600px;
 }
 
 .dm-card h2 {
