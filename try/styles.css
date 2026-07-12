@@ -3776,3 +3776,43 @@ button.compose-step:hover {
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* 2단계 대안 행 — 카드 대신 한 줄, 클릭하면 그 시간이 보낼 제안이 된다 */
+.compose-alt-label {
+  margin: var(--space-1) 0 calc(-1 * var(--space-2));
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  font-weight: 700;
+}
+
+.compose-alt-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-8);
+  background: var(--surface);
+  padding: 8px 12px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.compose-alt-row:hover {
+  border-color: var(--accent);
+}
+
+.compose-alt-time {
+  font-weight: 700;
+  font-size: var(--text-13);
+  white-space: nowrap;
+}
+
+.compose-alt-meta {
+  margin-left: auto;
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  white-space: nowrap;
+}

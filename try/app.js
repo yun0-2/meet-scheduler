@@ -1591,24 +1591,47 @@
 
   // 2단계 좌측 — compare 화면의 renderRecommendCards를 컴팩트하게 축약한 것.
   // 카드 전체가 클릭 타깃(중첩 button 금지 — 안쪽은 span만).
+  // 이 화면의 주인공은 '보낼 제안 하나' — 선택된 제안만 카드로, 나머지는 한 줄 대안.
+  // 순위 번호는 격자 뱃지가 이미 말하므로 여기선 뺀다(밀도 축소).
   function renderComposePickCards() {
     var tentativeId = state.tentativeSlotId || currentFeatured().recommended.id;
-    return orderedCards().map(function (card) {
-      var slot = card.slot;
-      var rank = state.sortMode === "availability" ? card.availableRank : card.recommendedRank;
-      var selected = tentativeId === slot.id;
-      return (
-        '<button type="button" class="recommend-card compose-pick-card' + (selected ? ' is-selected' : '') + '" data-action="compose-pick-slot" data-slot-id="' + slot.id + '" aria-pressed="' + String(selected) + '">' +
-          '<span class="rank-label">' + rank + (selected ? ' · 보낼 제안' : '') + '</span>' +
-          '<span class="card-time">' + displayTime(slot) + '</span>' +
-          '<span class="card-copy">' + card.copy + '</span>' +
-          '<span class="metric-row">' +
-            '<span class="metric-pill">필수 ' + slot.requiredAvailable + '/' + requiredPeople().length + '</span>' +
-            '<span class="metric-pill">선택 ' + slot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
-          '</span>' +
-        '</button>'
-      );
-    }).join("");
+    var cards = orderedCards();
+    var main = null;
+    cards.forEach(function (card) {
+      if (card.slot.id === tentativeId) {
+        main = card;
+      }
+    });
+    // 격자에서 30분 단위 등 카드 밖 시각을 골랐으면 그 시각으로 주 카드를 만든다
+    var mainSlot = main ? main.slot : slotById(tentativeId);
+    var mainCopy = main
+      ? main.copy
+      : '필수 ' + mainSlot.requiredAvailable + '명, 선택 ' + mainSlot.optionalAvailable + '명이 가능한 시간이에요.';
+    var alts = cards.filter(function (card) {
+      return card.slot.id !== tentativeId;
+    }).slice(0, 2);
+    return (
+      '<div class="recommend-card compose-pick-card is-selected is-main">' +
+        '<span class="rank-label">보낼 제안</span>' +
+        '<span class="card-time">' + displayTime(mainSlot) + '</span>' +
+        '<span class="card-copy">' + mainCopy + '</span>' +
+        '<span class="metric-row">' +
+          '<span class="metric-pill">필수 ' + mainSlot.requiredAvailable + '/' + requiredPeople().length + '</span>' +
+          '<span class="metric-pill">선택 ' + mainSlot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
+        '</span>' +
+      '</div>' +
+      (alts.length
+        ? '<p class="compose-alt-label">다른 후보</p>' +
+          alts.map(function (card) {
+            return (
+              '<button type="button" class="compose-alt-row" data-action="compose-pick-slot" data-slot-id="' + card.slot.id + '">' +
+                '<span class="compose-alt-time">' + displayTime(card.slot) + '</span>' +
+                '<span class="compose-alt-meta">필수 ' + card.slot.requiredAvailable + '/' + requiredPeople().length + ' · 선택 ' + card.slot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
+              '</button>'
+            );
+          }).join("")
+        : '')
+    );
   }
 
   function renderOrganizerRow(jiwoo) {
