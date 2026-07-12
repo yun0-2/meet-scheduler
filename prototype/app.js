@@ -1083,14 +1083,9 @@
       );
     }).join('<span class="demo-nav-divider" aria-hidden="true"></span>');
 
+    // 필수/선택 서브토글 제거 — 거절 행동은 둘 다 같아 시나리오는 하나로(사용자 결정).
+    // 선택 참석 개념은 추천 카드(선택 2/2)와 확정 화면이 이어서 보여준다.
     var subToggleHtml = "";
-    if (route === "input" || isInputOptional) {
-      subToggleHtml =
-        '<div class="demo-nav-subtoggle" role="group" aria-label="입력 화면 대상 전환">' +
-          '<button type="button" data-route="input" aria-pressed="' + String(route === "input") + '">필수</button>' +
-          '<button type="button" data-route="input-optional" aria-pressed="' + String(isInputOptional) + '">선택</button>' +
-        '</div>';
-    }
 
     nav.innerHTML =
       '<div class="demo-nav-track">' + buttonsHtml + '</div>' + subToggleHtml +
@@ -1353,34 +1348,18 @@
 
   function renderComposeModal(jiwoo) {
     var isStep2 = state.composeStep === 2;
+    // 단계 표시는 스테퍼 대신 슬랙 모달 스택(views.push) 문법 —
+    // 타이틀 교체 + 좌상단 ← + 진행형 CTA 라벨. 확정 화면 제목(이 시간으로 정할까요?)과 대구.
     return (
       '<div class="slack-modal-overlay" data-action="close-compose-backdrop">' +
-        '<div class="slack-modal' + (isStep2 ? ' is-wide' : '') + '" role="dialog" aria-modal="true" aria-label="회의 잡기">' +
+        '<div class="slack-modal is-compose' + (isStep2 ? ' is-wide' : '') + '" role="dialog" aria-modal="true" aria-label="회의 잡기">' +
           '<header class="slack-modal-head">' +
-            '<h2>회의 잡기</h2>' +
+            (isStep2 ? '<button type="button" class="slack-modal-back" data-action="compose-back" aria-label="뒤로">←</button>' : '') +
+            '<h2>' + (isStep2 ? '이 시간으로 제안할까요?' : '회의 잡기') + '</h2>' +
             '<button type="button" class="slack-modal-close" data-action="close-compose" aria-label="닫기">✕</button>' +
           '</header>' +
-          renderComposeSteps() +
           '<div class="slack-modal-body">' + (isStep2 ? renderComposeStep2(jiwoo) : renderComposeStep1(jiwoo)) + '</div>' +
         '</div>' +
-      '</div>'
-    );
-  }
-
-  // 2단계 스테퍼 — 원형 숫자 위저드 대신 텍스트 라벨. 현재 단계만 진하게(gray-900).
-  // 2단계에서 ①을 누르면 compose-back — 라벨 자체가 뒤로가기 입구.
-  function renderComposeSteps() {
-    var step1Label = "① 회의 정보";
-    var step2Label = "② 확인하고 보내기";
-    var step1 = state.composeStep === 2
-      ? '<button type="button" class="compose-step" data-action="compose-back">' + step1Label + '</button>'
-      : '<span class="compose-step is-current" aria-current="step">' + step1Label + '</span>';
-    var step2 = '<span class="compose-step' + (state.composeStep === 2 ? ' is-current" aria-current="step"' : '"') + '>' + step2Label + '</span>';
-    return (
-      '<div class="compose-steps" role="group" aria-label="작성 단계">' +
-        step1 +
-        '<span class="compose-step-arrow" aria-hidden="true">→</span>' +
-        step2 +
       '</div>'
     );
   }
@@ -1533,9 +1512,15 @@
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="compose-row-icon compose-note-row">' +
-          '<span class="compose-icon" aria-hidden="true"></span>' +
-          '<p class="compose-note">내 캘린더 일정과 <button type="button" class="compose-note-link" data-action="open-my-marks">내 캘린더 표시</button>에 표시한 시간은 추천에 자동 반영돼요.</p>' +
+        '<div class="compose-row-icon">' +
+          '<span class="compose-icon" aria-hidden="true">' + ICONS.people + '</span>' +
+          '<div class="compose-row-body">' +
+            '<div class="compose-search-wrap">' +
+              '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="초대할 사람 추가" aria-label="참석자 검색" autocomplete="off" />' +
+              '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
+            '</div>' +
+            (addedRows ? '<div class="compose-list">' + addedRows + '</div>' : '') +
+          '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +
           '<span class="compose-icon" aria-hidden="true">' + ICONS.lines + '</span>' +
@@ -1547,31 +1532,20 @@
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="compose-row-icon">' +
-          '<span class="compose-icon" aria-hidden="true">' + ICONS.people + '</span>' +
-          '<div class="compose-row-body">' +
-            '<div class="compose-search-wrap">' +
-              '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="초대할 사람 추가" aria-label="참석자 검색" autocomplete="off" />' +
-              '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
-            '</div>' +
-            (addedRows ? '<div class="compose-list">' + addedRows + '</div>' : '') +
-          '</div>' +
-        '</div>' +
         '<div class="compose-footer">' +
-          '<button class="btn compose-send-btn" data-action="compose-next"' + (addedCount === 0 ? " disabled" : "") + '>추천 시간 보기</button>' +
+          '<button class="btn compose-send-btn" data-action="compose-next"' + (addedCount === 0 ? " disabled" : "") + '>제안 시간 보기</button>' +
         '</div>' +
       '</div>'
     );
   }
 
-  // 2단계 — 첫 제안을 확인·조정하고 보낸다: 컴팩트 카드(좌) + 주간 격자(우) → 응답 기한 → 게시 묶음.
+  // 2단계 — 제안 시간을 확인·조정하고 보낸다: 컴팩트 카드(좌) + 주간 격자(우) → 응답 기한 → 게시 묶음.
   function renderComposeStep2(jiwoo) {
     var featured = currentFeatured();
     return (
       '<div class="schedule-card compose-card">' +
         '<div class="compose-step2-intro">' +
-          '<p class="eyebrow">첫 제안, 이대로 보낼까요?</p>' +
-          '<p class="compose-step2-hint">참석자 캘린더 기준으로 계산했어요. 응답을 받으면 더 정확해져요.</p>' +
+          '<p class="compose-step2-hint">참석자들의 캘린더와 미리 표시해 둔 피하고 싶은 시간으로 계산했어요. 응답을 받으면 더 정확해져요.</p>' +
         '</div>' +
         '<div class="compose-step2-layout">' +
           '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
@@ -1619,9 +1593,8 @@
             '</div>' +
           '</div>' : '') +
         '</div>' +
-        '<div class="compose-footer compose-footer-split">' +
-          '<button type="button" class="btn btn-secondary" data-action="compose-back">← 뒤로</button>' +
-          '<button class="btn compose-send-btn" data-action="post-compose">' + (state.postToChannel ? '첫 제안 보내기' : '초대 보내기') + '</button>' +
+        '<div class="compose-footer">' +
+          '<button class="btn compose-send-btn" data-action="post-compose">' + (state.postToChannel ? '제안 보내기' : '초대 보내기') + '</button>' +
         '</div>' +
       '</div>'
     );
@@ -1637,7 +1610,7 @@
       var selected = tentativeId === slot.id;
       return (
         '<button type="button" class="recommend-card compose-pick-card' + (selected ? ' is-selected' : '') + '" data-action="compose-pick-slot" data-slot-id="' + slot.id + '" aria-pressed="' + String(selected) + '">' +
-          '<span class="rank-label">' + rank + (selected ? ' · 첫 제안' : '') + '</span>' +
+          '<span class="rank-label">' + rank + (selected ? ' · 보낼 제안' : '') + '</span>' +
           '<span class="card-time">' + displayTime(slot) + '</span>' +
           '<span class="card-copy">' + card.copy + '</span>' +
           '<span class="metric-row">' +
@@ -1707,8 +1680,8 @@
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
         '</div>' +
         (state.posted
-          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '첫 제안과 다른 시간이에요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
-          : '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
+          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '처음 제안한 시간과 달라요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
+          : '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
         // 주최자도 참석자와 대칭으로 자기 캘린더 표시를 남길 수 있게 — 조용한 링크 한 줄(과설명 금지)
         '<p class="posted-mark-note"><button type="button" class="compose-note-link" data-action="open-my-marks">나도 피하고 싶은 시간 표시하기</button></p>' +
         '<div class="participant-grid">' + renderParticipantRows() + '</div>' +
@@ -1801,7 +1774,7 @@
               '<span class="fact-pill">' + durationLabel() + '</span>' +
               '<span class="fact-pill">' + (effectiveAttendance(person) === "required" ? "필수 참석" : "선택 참석") + '</span>' +
             '</div>' +
-            '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>괜찮으면 그대로 확정돼요 · 어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
+            '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>괜찮으면 그대로 확정돼요 · 어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
             (state.inputStage === "done"
               ? '<div class="dm-answered is-ok">' +
                   '<p class="dm-answered-check">✓ 응답 완료</p>' +
@@ -1831,7 +1804,7 @@
           '</header>' +
           '<div class="slack-modal-body">' +
             '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
-            '<p class="input-tentative">첫 제안은 격자에 표시했어요. 피하고 싶은 시간을 칠해주세요</p>' +
+            '<p class="input-tentative">제안 시간은 격자에 표시했어요. 피하고 싶은 시간을 칠해주세요</p>' +
             (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
@@ -1855,7 +1828,7 @@
 
   function renderMiniGrid(person, optedOut) {
     var days = activeDays();
-    // 첫 제안 슬롯을 격자에 직접 표시 (내 캘린더 표시 모달에는 특정 제안이 없으므로 제외)
+    // 제안 시간 슬롯을 격자에 직접 표시 (내 캘린더 표시 모달에는 특정 제안이 없으므로 제외)
     var proposalId = state.myMarksOpen ? null : (tentativeSlot() ? tentativeSlot().id : null);
     var html = '<div class="mini-head"></div>';
     days.forEach(function (day) {
@@ -1892,8 +1865,8 @@
         var isProposal = id === proposalId;
         html +=
           '<button class="mini-slot' + (hard ? " is-hard" : "") + (hard && !hardTitle ? " is-blocked" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + (isProposal ? " is-proposal" : "") + '" ' +
-          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + (isProposal ? ", 첫 제안" : "") + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
-            (isProposal ? '<span class="mini-proposal-tag">첫 제안</span>' : '') +
+          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + (isProposal ? ", 제안 시간" : "") + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
+            (isProposal ? '<span class="mini-proposal-tag">제안 시간</span>' : '') +
             (hardTitle ? '<span class="mini-slot-label">' + escapeText(hardTitle) + '</span>' : '') +
             (video ? '<span class="mini-video-badge" aria-hidden="true"></span>' : '') +
           '</button>';
@@ -1989,7 +1962,7 @@
   }
 
   // opts.pickAction — compose 2단계 전용 모드. 지정하면 셀·팝오버 버튼이 select-grid-slot/
-  // choose-slot 대신 이 액션으로 렌더된다(첫 제안 선택 전용, confirm 라우트로 안 감).
+  // choose-slot 대신 이 액션으로 렌더된다(보낼 제안 선택 전용, confirm 라우트로 안 감).
   // opts가 없으면(compare 화면) 기존 동작 그대로 — 1픽셀도 안 바뀐다.
   function renderScheduleGrid(featured, opts) {
     var pickAction = (opts && opts.pickAction) || "select-grid-slot";
@@ -2028,8 +2001,8 @@
         // 카드와 같은 번호 언어(1·2·3순위)를 격자에도 — 카드↔격자 연결(사용성 테스트 006 P1)
         var rankIndex = rankOrderIds.indexOf(slot.id);
         var rankLabel = rankIndex >= 0
-          ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 첫 제안" : "")
-          : (slot.id === tentativeId ? "첫 제안" : null);
+          ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 제안 시간" : "")
+          : (slot.id === tentativeId ? "제안 시간" : null);
         var rankClass = rankIndex === 0 ? "rank-tag is-first" : "rank-tag";
         // 10분 단위 선택: 정시가 아닌 시각을 고르면 그 셀 안에 라인+시간 칩으로 표시
         var pick = state.customSlot && state.customSlot.day === day && Math.floor(state.customSlot.start) === hour
@@ -2689,7 +2662,7 @@
       }
       state.composePosted = true;
       state.composeModalOpen = false;
-      // 2단계에서 카드/격자로 직접 고른 첫 제안이 있으면 그대로 존중 — 없을 때만 추천 1순위로 기본값
+      // 2단계에서 카드/격자로 직접 고른 제안이 있으면 그대로 존중 — 없을 때만 추천 1순위로 기본값
       if (!state.tentativeSlotId) {
         state.tentativeSlotId = currentFeatured().recommended.id;
       }

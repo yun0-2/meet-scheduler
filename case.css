@@ -595,6 +595,12 @@ h3 {
   position: relative;
 }
 
+/* 콘텐츠 폭이 좁은 장면(확정 카드)은 컨테이너도 좁혀 좌우 빈 여백을 없앤다 */
+.stage--narrow {
+  width: min(720px, calc(100vw - var(--space-8)));
+  margin-left: calc((100% - min(720px, calc(100vw - var(--space-8)))) / 2);
+}
+
 .stage figcaption {
   max-width: var(--prose-width);
 }
@@ -960,30 +966,22 @@ h3 {
   text-decoration: underline;
 }
 
-.demo-embed {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-16);
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.demo-embed iframe {
-  display: block;
-  width: 100%;
-  height: 720px;
-  border: 0;
-}
-
 .demo-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
   margin-top: var(--space-5);
   flex-wrap: wrap;
 }
 
-.demo-actions .hero__note {
-  margin: 0;
+/* CTA 옆의 보조 이동(리서치 부록) */
+.hero__button--secondary {
+  background: var(--gray-100);
+  color: var(--gray-800);
+}
+
+.hero__button--secondary:hover {
+  background: var(--gray-200);
 }
 
 /* ===== 공용 얇은 상단바 (아티클·부록 공용, 프로토타입에는 싣지 않음) ===== */
@@ -1102,10 +1100,6 @@ h3 {
     grid-template-columns: 1fr;
     gap: var(--space-1);
   }
-
-  .demo-embed {
-    display: none;
-  }
 }
 
 /* ── 정렬 통일 ──
@@ -1173,8 +1167,19 @@ h3 {
   margin: 0;
   max-width: none;
 }
+/* 비율이 다른 두 캡처의 높이를 맞춘다 — 잘라내지 않고(contain) 남는 자리는 배경으로 채운다 */
+.evidence-row .evidence-figure img {
+  height: 240px;
+  object-fit: contain;
+  object-position: center;
+  padding: var(--space-3);
+  background: var(--surface-muted);
+}
 @media (max-width: 760px) {
   .evidence-row {
     grid-template-columns: 1fr;
+  }
+  .evidence-row .evidence-figure img {
+    height: 200px;
   }
 }

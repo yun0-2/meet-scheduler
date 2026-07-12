@@ -3566,26 +3566,7 @@ body.is-embed .web-dialog-close {
 
 /* ===== 작성 모달 2단계 스테퍼 (2026-07-12) ===== */
 /* ①/②는 원형 위젯이 아니라 텍스트 라벨 — 현재 단계만 진하게(gray-900), 파랑은 쓰지 않는다 */
-.compose-steps {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 8px);
-  flex: 0 0 auto;
-  padding: 10px 20px 14px;
-  border-bottom: 1px solid var(--border, #e2e8f0);
-  font-size: var(--text-13, 13px);
-  font-weight: 600;
-}
 
-.compose-step {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  font: inherit;
-  color: var(--gray-400, #B0B8C1);
-  cursor: default;
-}
 
 button.compose-step {
   cursor: pointer;
@@ -3596,15 +3577,22 @@ button.compose-step:hover {
   text-decoration: underline;
 }
 
-.compose-step.is-current {
-  color: var(--gray-900, #191F28);
-}
 
-.compose-step-arrow {
-  color: var(--gray-300, #C9CDD2);
-}
 
 /* 2단계 — 카드+격자를 나란히 보려면 1단계보다 넓은 폭이 필요. 1단계는 기존 560px 유지 */
+/* 작성 다이얼로그는 높이를 처음부터 고정 — 참석자 추가로 모달이 자라며
+   버튼 위치가 널뛰지 않게. 넘치는 내용은 body가 스크롤한다 */
+.slack-modal.is-compose {
+  height: min(760px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+}
+
+.slack-modal.is-compose .slack-modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
 .slack-modal.is-wide {
   width: min(1120px, calc(100vw - 48px));
 }
@@ -3665,4 +3653,30 @@ button.compose-step:hover {
 /* 2단계 와이드 모달에선 카드 폭 제한 해제 — 격자가 패널 밖으로 넘치던 원인 */
 .slack-modal.is-wide .compose-card {
   max-width: none;
+}
+
+/* 슬랙 모달 스택 문법의 뒤로 — 타이틀 왼쪽 화살표 */
+.slack-modal-back {
+  border: 0;
+  background: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-8);
+  color: var(--gray-700);
+  font-size: var(--text-16, 17px);
+  cursor: pointer;
+  margin-right: var(--space-2);
+}
+
+.slack-modal-back:hover {
+  background: var(--gray-100);
+}
+
+/* 고정 높이 모달에서 내용이 짧아도 푸터는 바닥에 */
+.slack-modal.is-compose .compose-card {
+  min-height: 100%;
+}
+
+.slack-modal.is-compose .compose-footer {
+  margin-top: auto;
 }
