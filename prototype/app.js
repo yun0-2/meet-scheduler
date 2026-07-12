@@ -1342,7 +1342,7 @@
     );
   }
 
-  // 마감 알림 — 봇이 주최자에게 보내는 메시지. 여기의 [추천 보기]가 다음 단계 입구.
+  // 마감 알림 — 봇이 주최자에게 보내는 메시지. 여기의 [시간 확정하기]가 다음 단계 입구.
   function renderDeadlineMessage() {
     return (
       '<article class="message">' +
@@ -1351,7 +1351,7 @@
           '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
           '<p class="bot-intro-text">' + meetingTitle() + ' 응답 기한이 끝났어요. 모인 응답으로 추천 시간을 골라보세요.</p>' +
           '<div class="bot-intro-actions">' +
-            '<button type="button" class="slack-btn slack-btn-primary" data-action="go-compare">추천 보기</button>' +
+            '<button type="button" class="slack-btn slack-btn-primary" data-action="go-compare">시간 확정하기</button>' +
           '</div>' +
         '</div>' +
       '</article>'
