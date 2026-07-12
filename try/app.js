@@ -1135,7 +1135,7 @@
     nav.innerHTML =
       '<div class="demo-nav-controls">' +
         '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="데모 안내 다시 보기">?</button>' +
-        '<button type="button" class="demo-nav-collapse" data-action="demo-nav-collapse" aria-label="리모컨 접기">최소화<span class="demo-nav-chevron" aria-hidden="true">›</span></button>' +
+        '<button type="button" class="demo-nav-collapse" data-action="demo-nav-collapse" aria-label="리모컨 접기"><svg class="demo-nav-min-icon" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3v10"/><path d="M3 8h7"/><path d="M7 5l3 3-3 3"/></svg>최소화</button>' +
       '</div>' +
       '<p class="demo-nav-caption">' + demoCaptionFor(route) + '</p>' +
       '<div class="demo-nav-row">' + renderGroup(hostGroup) + '</div>' +
