@@ -4143,21 +4143,24 @@ button.compose-step:hover {
 }
 
 /* 확정 격자의 보낸 제안 칸 — 점선(아직 확정 아님 문법)으로 위치만 표시 */
-.slot-cell.is-sent::before {
-  content: "";
+/* 보낸 제안 칸 — 왼쪽 카드의 [보낸 제안] 칩과 동일한 accent-soft 토널 (rank-tag 아래) */
+.slot-sent-flag {
   position: absolute;
-  inset: 2px;
-  border: 1.5px dashed var(--accent);
-  border-radius: 4px;
-  pointer-events: none;
+  top: 22px;
+  left: 4px;
+  z-index: 1;
+  border-radius: 999px;
+  padding: 1px 6px;
+  background: var(--accent-soft, #E8F3FF);
+  color: var(--accent, #3182F6);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
 }
-.slot-cell.is-selected.is-sent::before {
-  border-color: rgba(255, 255, 255, 0.85);
-}
-.legend-swatch.is-sent {
-  margin-left: 12px;
-  background: transparent;
-  border: 1.5px dashed var(--accent);
+/* 선택(파랑 필)과 겹치면 흰 배경 칩으로 반전 */
+.slot-cell.is-selected .slot-sent-flag {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--accent);
 }
 
 /* 순위 기준 설명은 클릭 팝오버가 아니라 호버 툴팁 — 아이콘에 얹으면 바로 보인다 */

@@ -1919,7 +1919,7 @@
               '<div class="recommend-list">' + renderRecommendCards() + '</div>' +
             '</aside>' +
             '<section class="panel" aria-label="주간 격자">' +
-              '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>가능한 시간<span class="legend-swatch is-sent" aria-hidden="true"></span>보낸 제안</div>' +
+              '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>가능한 시간</div>' +
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
             '</section>' +
           '</div>' +
@@ -2001,7 +2001,7 @@
     // 이어져 보이지 않는다는 실사용 피드백(006)으로 복원. 번호 언어는 카드와 동일.
     var rankOrderIds = cardOrder(state.sortMode).map(function (slot) { return slot.id; });
     var days = activeDays();
-    var html = '<div class="grid-corner">시간</div>';
+    var html = '<div class="grid-corner"></div>';
     days.forEach(function (day) {
       html += '<div class="grid-day">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
     });
@@ -2033,7 +2033,7 @@
               : (slot.id === tentativeId ? "제안 시간" : null))
           : (rankIndex >= 0 ? (rankIndex + 1) + "순위" : null);
         var rankClass = composeMode && slot.id === tentativeId ? "rank-tag is-tonal" : "rank-tag";
-        // 확정 격자에서 보낸 제안 칸은 점선 테두리로 — 텍스트 뱃지 없이 위치만 표시(범례가 해독)
+        // 확정 격자에서 보낸 제안 칸은 왼쪽 카드와 같은 토널 칩으로 표시 — 별도 범례 불필요
         var isSent = !composeMode && slot.id === tentativeId;
         // 10분 단위 선택: 정시가 아닌 시각을 고르면 그 셀 안에 라인+시간 칩으로 표시
         var pick = state.customSlot && state.customSlot.day === day && Math.floor(state.customSlot.start) === hour
@@ -2046,6 +2046,7 @@
           '<div class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + (isSent ? " is-sent" : "") + '" ' +
           'role="button" tabindex="0" data-pick-source="cell" data-action="' + pickAction + '" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + (isSent ? ', 보낸 제안' : '') + '">' +
             (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '') +
+            (isSent ? '<span class="slot-sent-flag">보낸 제안</span>' : '') +
             (pick ? '<span class="slot-pick" style="top:' + Math.round((pick.start - hour) * 100) + '%"><span class="slot-pick-chip">' + formatClock(pick.start) + '</span></span>' : '') +
             '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot, open, opts) + '</span>' +
           '</div>';
