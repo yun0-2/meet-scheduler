@@ -1133,8 +1133,10 @@
     // (세 조각으로 떠 보인다는 피드백 반영). 폭은 모달 푸터 CTA 텍스트를 가리지 않는
     // 한도로 CSS에서 고정한다.
     nav.innerHTML =
-      '<button type="button" class="demo-nav-collapse" data-action="demo-nav-collapse" aria-label="리모컨 접기"><span class="demo-nav-chevron" aria-hidden="true">›</span></button>' +
-      '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="데모 안내 다시 보기">?</button>' +
+      '<div class="demo-nav-controls">' +
+        '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="데모 안내 다시 보기">?</button>' +
+        '<button type="button" class="demo-nav-collapse" data-action="demo-nav-collapse" aria-label="리모컨 접기">최소화<span class="demo-nav-chevron" aria-hidden="true">›</span></button>' +
+      '</div>' +
       '<p class="demo-nav-caption">' + demoCaptionFor(route) + '</p>' +
       '<div class="demo-nav-row">' + renderGroup(hostGroup) + '</div>' +
       '<div class="demo-nav-row">' + renderGroup(guestGroup) + '</div>';
