@@ -1612,10 +1612,7 @@
       '<div class="recommend-card compose-pick-card is-selected is-main">' +
         '<span class="rank-label">보낼 제안</span>' +
         '<span class="card-time">' + displayTime(mainSlot) + '</span>' +
-        '<span class="metric-row">' +
-          '<span class="metric-pill">필수 ' + mainSlot.requiredAvailable + '/' + requiredPeople().length + '</span>' +
-          '<span class="metric-pill">선택 ' + mainSlot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
-        '</span>' +
+        '<span class="compose-main-count">' + (mainSlot.totalAvailable === activePeople().length ? activePeople().length + '명 모두 가능' : mainSlot.totalAvailable + '/' + activePeople().length + '명 가능') + '</span>' +
       '</div>' +
       (alts.length
         ? '<p class="compose-alt-label">다른 후보</p>' +
@@ -1623,7 +1620,7 @@
             return (
               '<button type="button" class="compose-alt-row" data-action="compose-pick-slot" data-slot-id="' + card.slot.id + '">' +
                 '<span class="compose-alt-time">' + displayTime(card.slot) + '</span>' +
-                '<span class="compose-alt-meta">필수 ' + card.slot.requiredAvailable + '/' + requiredPeople().length + ' · 선택 ' + card.slot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
+                '<span class="compose-alt-meta">' + card.slot.totalAvailable + '/' + activePeople().length + '명 가능</span>' +
               '</button>'
             );
           }).join("")
@@ -2022,7 +2019,7 @@
         var rankLabel = rankIndex >= 0
           ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 제안 시간" : "")
           : (slot.id === tentativeId ? "제안 시간" : null);
-        var rankClass = rankIndex === 0 ? "rank-tag is-first" : "rank-tag";
+        var rankClass = slot.id === tentativeId ? "rank-tag is-tonal" : "rank-tag";
         // 10분 단위 선택: 정시가 아닌 시각을 고르면 그 셀 안에 라인+시간 칩으로 표시
         var pick = state.customSlot && state.customSlot.day === day && Math.floor(state.customSlot.start) === hour
           ? state.customSlot
