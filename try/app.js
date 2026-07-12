@@ -1331,7 +1331,9 @@
           '<div class="slack-modal-body">' +
             '<p class="helper-copy">피하고 싶은 시간을 표시해두면 앞으로의 모든 회의 조율에 반영돼요. 누가 표시했는지는 보이지 않아요.</p>' +
             '<div class="mini-week-grid" style="--day-cols: ' + activeDays().length + '" aria-label="내 표시 격자">' + renderMiniGrid(jiwoo, false) + '</div>' +
-            '<button class="btn btn-full" data-action="close-my-marks">저장</button>' +
+          '</div>' +
+          '<div class="compose-footer">' +
+            '<button class="btn compose-send-btn" data-action="close-my-marks">저장</button>' +
           '</div>' +
         '</div>' +
       '</div>'
@@ -1854,7 +1856,7 @@
     });
 
     slotHours.forEach(function (hour) {
-      html += '<div class="mini-time">' + hour + '</div>';
+      html += '<div class="mini-time"><span>' + hour + '</span></div>';
       days.forEach(function (day) {
         var id = slotId(day, hour);
         // 내 캘린더의 일정 — 본인 화면이라 비공개 하드(예: 학원)도 제목 노출 OK
