@@ -2400,11 +2400,11 @@ body.is-embed .web-dialog-close {
   color: var(--gray-600);
 }
 
-/* 선택된 제안 뱃지만 토널 필 — 순위(1·2·3)는 뉴트럴 아웃라인 */
+/* 선택된 제안 뱃지 = 솔리드 필(흰 글자) — 순위(1·2·3)는 뉴트럴 아웃라인 */
 .rank-tag.is-tonal {
-  background: var(--accent-soft);
+  background: var(--accent);
   border-color: transparent;
-  color: var(--accent-strong);
+  color: #fff;
 }
 
 /* 태그 칩 토널화 — 필수는 파랑 토널, 선택은 뉴트럴 필 */
@@ -2595,11 +2595,26 @@ body.is-embed .web-dialog-close {
 }
 
 .slack-modal-head {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 16px 20px 12px;
   border-bottom: 1px solid var(--border);
+}
+
+.slack-modal-head h2 {
+  text-align: center;
+}
+
+.slack-modal-head .slack-modal-back {
+  position: absolute;
+  left: 16px;
+}
+
+.slack-modal-head .slack-modal-close {
+  position: absolute;
+  right: 16px;
 }
 
 .slack-modal-head h2 {
@@ -3676,8 +3691,29 @@ button.compose-step:hover {
   font-size: var(--text-16, 17px);
 }
 
-.compose-pick-card .card-copy {
-  font-size: var(--text-13);
+.compose-pick-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* 선택된 제안 표식 — 토널 필 안의 작은 라벨 */
+.compose-pick-flag {
+  margin-left: auto;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+}
+
+/* 선택 = 레이어 필(스트로크 아님) — 능동적 결정이 가장 튀게.
+   추천 카드 기본은 뉴트럴 아웃라인 유지(추천=스트로크 레지스터) */
+.compose-pick-card.is-selected {
+  border-color: transparent;
+  background: var(--accent-soft);
+  box-shadow: none;
 }
 
 /* 뒤로/보내기를 양쪽 끝으로 — 기본 compose-footer는 우측 정렬 하나뿐이라 분기 클래스 필요 */
@@ -3786,7 +3822,8 @@ button.compose-step:hover {
 
 /* 주최자 고정 행 캡션 — 뺄 수 없는 사람이라 컨트롤 대신 정체만 */
 .organizer-cap {
-  margin-left: auto;
+  /* 세그먼트([필수|선택]) 폭만큼 차지하고 왼쪽 정렬 — 다른 행의 '필수' 버튼과 x축 정렬 */
+  min-width: 83px;
   color: var(--gray-500);
   font-size: var(--text-12);
   font-weight: 600;
@@ -3934,4 +3971,9 @@ button.compose-step:hover {
   color: var(--gray-600);
   font-size: var(--text-13);
   font-weight: 600;
+}
+
+/* 결정 컬럼 상단 응답 기한 — 카드 위, 왼쪽 정렬 */
+.compose-decide-col .compose-chip-field {
+  margin-bottom: var(--space-1);
 }

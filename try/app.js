@@ -1548,17 +1548,17 @@
       '<div class="schedule-card compose-card">' +
         '<div class="compose-step2-top">' +
           '<p class="compose-step2-hint">참석자들의 캘린더와 미리 표시해 둔 피하고 싶은 시간으로 계산했어요. 응답을 받으면 더 정확해져요.</p>' +
-          '<div class="compose-chip-field">' +
-            '<span class="compose-chip-label">응답 기한</span>' +
-            '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
-              ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
-                return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지 받기</option>';
-              }).join("") +
-            '</select></span>' +
-          '</div>' +
         '</div>' +
         '<div class="compose-step2-layout">' +
           '<div class="compose-decide-col">' +
+            '<div class="compose-chip-field">' +
+              '<span class="compose-chip-label">응답 기한</span>' +
+              '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
+                ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
+                  return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지 받기</option>';
+                }).join("") +
+              '</select></span>' +
+            '</div>' +
             '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
           '</div>' +
           '<section class="panel" aria-label="주간 격자">' +
@@ -1594,45 +1594,41 @@
   // 카드 전체가 클릭 타깃(중첩 button 금지 — 안쪽은 span만).
   // 이 화면의 주인공은 '보낼 제안 하나' — 선택된 제안만 카드로, 나머지는 한 줄 대안.
   // 순위 번호는 격자 뱃지가 이미 말하므로 여기선 뺀다(밀도 축소).
+  // 후보 카드는 위계 동등 — 선택(보낼 제안)만 레이어 필로 따라온다.
+  // 격자에서 30분 단위 등 카드 밖 시각을 골랐으면 그 슬롯을 목록 맨 위에 얹는다.
   function renderComposePickCards() {
     var tentativeId = state.tentativeSlotId || currentFeatured().recommended.id;
-    var cards = orderedCards();
-    var main = null;
-    cards.forEach(function (card) {
-      if (card.slot.id === tentativeId) {
-        main = card;
-      }
-    });
-    // 격자에서 30분 단위 등 카드 밖 시각을 골랐으면 그 시각으로 주 카드를 만든다
-    var mainSlot = main ? main.slot : slotById(tentativeId);
-    var alts = cards.filter(function (card) {
-      return card.slot.id !== tentativeId;
-    }).slice(0, 2);
-    return (
-      '<div class="recommend-card compose-pick-card is-selected is-main">' +
-        '<span class="rank-label">보낼 제안</span>' +
-        '<span class="card-time">' + displayTime(mainSlot) + '</span>' +
-        '<span class="compose-main-count">' + (mainSlot.totalAvailable === activePeople().length ? activePeople().length + '명 모두 가능' : mainSlot.totalAvailable + '/' + activePeople().length + '명 가능') + '</span>' +
-      '</div>' +
-      (alts.length
-        ? '<p class="compose-alt-label">다른 후보</p>' +
-          alts.map(function (card) {
-            return (
-              '<button type="button" class="compose-alt-row" data-action="compose-pick-slot" data-slot-id="' + card.slot.id + '">' +
-                '<span class="compose-alt-time">' + displayTime(card.slot) + '</span>' +
-                '<span class="compose-alt-meta">' + card.slot.totalAvailable + '/' + activePeople().length + '명 가능</span>' +
-              '</button>'
-            );
-          }).join("")
-        : '')
-    );
+    var cards = orderedCards().slice();
+    var inList = cards.some(function (card) { return card.slot.id === tentativeId; });
+    if (!inList) {
+      cards.unshift({ slot: slotById(tentativeId) });
+    }
+    return cards.map(function (card) {
+      var slot = card.slot;
+      var selected = slot.id === tentativeId;
+      var count = slot.totalAvailable === activePeople().length
+        ? activePeople().length + '명 모두 가능'
+        : slot.totalAvailable + '/' + activePeople().length + '명 가능';
+      return (
+        '<button type="button" class="recommend-card compose-pick-card' + (selected ? ' is-selected' : '') + '" data-action="compose-pick-slot" data-slot-id="' + slot.id + '" aria-pressed="' + String(selected) + '">' +
+          '<span class="compose-pick-head">' +
+            '<span class="card-time">' + displayTime(slot) + '</span>' +
+            (selected ? '<span class="compose-pick-flag">보낼 제안</span>' : '') +
+          '</span>' +
+          '<span class="compose-main-count">' + count + '</span>' +
+        '</button>'
+      );
+    }).join("");
   }
 
   function renderOrganizerRow(jiwoo) {
     return (
       '<div class="compose-row is-organizer">' +
         personIdentityBlock(jiwoo, "required") +
-        '<span class="organizer-cap">필수</span>' +
+        '<div class="compose-row-controls">' +
+          '<span class="organizer-cap">필수</span>' +
+          '<span class="compose-remove-btn" aria-hidden="true" style="visibility:hidden">×</span>' +
+        '</div>' +
       '</div>'
     );
   }
@@ -2013,7 +2009,8 @@
         // 부담 반영)이 안 보인다. 인원수·이름은 여전히 절대 노출하지 않는다(k-익명).
         // 세모는 본인이 직접 남긴 표시(privateSoft)만 — 추론·통념까지 그리면
         // 후보마다 전부 표시가 붙는 부조리가 된다. 약한 신호는 카드 문장의 몫.
-        var privateBurden = !unavailable && slot.privateSoft.length > 0;
+        // compose(응답 전) 격자에선 부담 세모를 숨긴다 — 아직 표시가 안 모였는데 뜨면 노이즈
+        var privateBurden = !unavailable && slot.privateSoft.length > 0 && !(opts && opts.pickAction);
         // 카드와 같은 번호 언어(1·2·3순위)를 격자에도 — 카드↔격자 연결(사용성 테스트 006 P1)
         var rankIndex = rankOrderIds.indexOf(slot.id);
         var rankLabel = rankIndex >= 0

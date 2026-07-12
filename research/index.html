@@ -9,7 +9,7 @@
       name="description"
       content="WhenWorks 케이스의 리서치 부록입니다. 발견이 설계로 이어진 경로와 여섯 조직 표본, 가설 채점, 진행 방법을 담았어요."
     >
-    <link rel="stylesheet" href="../case.css?v=71aae97">
+    <link rel="stylesheet" href="../case.css?v=a21a7f5">
     <style>
       .appendix-toc {
         display: flex;
@@ -71,52 +71,70 @@
 
           <h3 class="article-subhead" id="insights">1. 발견이 설계가 된 경로</h3>
           <p class="article-body">
-            리서치의 쓸모는 발견의 개수가 아니라 발견이 결정을 바꿨는지로 재요. 핵심 발견 여섯 개가 각각 어떤 설계로 이어졌는지 직결로 적었어요. 오른쪽 결정은 전부 프로토타입에서 확인할 수 있어요.
+            리서치의 쓸모는 발견의 개수가 아니라 발견이 결정을 바꿨는지로 재요. 핵심 발견 여섯 개가 각각 어떤 설계로 이어졌는지 직결로 적었어요. 이어진 결정은 전부 프로토타입에서 확인할 수 있어요.
           </p>
-          <div class="table-scroll">
-            <table class="sample-table">
-              <caption class="sr-only">발견과 설계 결정의 연결</caption>
-              <thead>
-                <tr>
-                  <th scope="col">발견</th>
-                  <th scope="col">설계로 이어진 결정</th>
-                  <th scope="col">출처</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>미응답의 의미는 사전 협의가 있었는지에 따라 갈려요. 미리 물었을 땐 무응답도 신호가 되고, 안 물었을 땐 그냥 침묵이에요.</td>
-                  <td>첫 제안을 먼저 보내고 응답 기한을 붙였어요. 침묵을 동의로 읽어도 안전해지는 조건을 흐름으로 만든 거예요.</td>
-                  <td>테크, 전통 대기업</td>
-                </tr>
-                <tr>
-                  <td>기록 의지가 있어도 공식 도구가 불편하면 팀은 위키로 갈아타요. 문화 이전에 도구 비용의 문제였어요.</td>
-                  <td>새 앱을 만들지 않고 이미 쓰는 메신저 안에 설치했어요. 사정 표시는 DM에서 바로 끝나요.</td>
-                  <td>문서협업 테크</td>
-                </tr>
-                <tr>
-                  <td>피하고 싶은 시간을 미리 캘린더에 올려 두는 관행이 실제로 있었고, 겪어 본 사람은 그걸 그리워했어요.</td>
-                  <td>피하고 싶은 시간 표시를 핵심 입력으로 삼았어요. 다만 전면 공개 대신 이름과 분리된 집계로 바꿔 표시의 부담을 낮췄어요.</td>
-                  <td>커머스</td>
-                </tr>
-                <tr>
-                  <td>시간 선호는 취향이 아니라 위험 관리였어요. 회의가 길어지면 퇴근에 걸리니까 4시 이후를 피해요.</td>
-                  <td>안 되는 시간과 피하고 싶은 시간을 다른 신호로 분리했어요. 주간 시간표에서도 회색(불가)과 앰버(회피)로 다르게 읽혀요.</td>
-                  <td>문서협업 테크</td>
-                </tr>
-                <tr>
-                  <td>초대 알림은 잘 안 읽혀요. 메신저 공지에 육성 공지까지 겹쳐야 전달되는 조직도 있었어요.</td>
-                  <td>결과를 알림에 맡기지 않았어요. 사람들이 이미 보는 채널의 카드가 잠정에서 확정으로 바뀌어요.</td>
-                  <td>금융 대기업</td>
-                </tr>
-                <tr>
-                  <td>필수와 선택은 직급이 아니라 안건과의 관계로 갈렸고, 이 구분은 구두로 다 물을 수 없는 규모부터 필요해졌어요.</td>
-                  <td>주최자가 안건 기준으로 필수·선택을 지정하고, 추천 계산이 필수 참석을 우선하게 했어요.</td>
-                  <td>엔터 중견, 테크, 전통 대기업, 문서협업 테크</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <ul class="path-list" aria-label="발견과 설계 결정의 연결">
+            <li class="path-item">
+              <div class="path-finding">
+                <p>미응답의 의미는 사전 협의가 있었는지에 따라 갈려요. 미리 물었을 땐 무응답도 신호가 되고, 안 물었을 땐 그냥 침묵이에요.</p>
+                <span class="path-source">테크, 전통 대기업</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="path-decision">
+                <p>첫 제안을 먼저 보내고 응답 기한을 붙였어요. 침묵을 동의로 읽어도 안전해지는 조건을 흐름으로 만든 거예요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>기록 의지가 있어도 공식 도구가 불편하면 팀은 위키로 갈아타요. 문화 이전에 도구 비용의 문제였어요.</p>
+                <span class="path-source">문서협업 테크</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="path-decision">
+                <p>새 앱을 만들지 않고 이미 쓰는 메신저 안에 설치했어요. 사정 표시는 DM에서 바로 끝나요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>피하고 싶은 시간을 미리 캘린더에 올려 두는 관행이 실제로 있었고, 겪어 본 사람은 그걸 그리워했어요.</p>
+                <span class="path-source">커머스</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="path-decision">
+                <p>피하고 싶은 시간 표시를 핵심 입력으로 삼았어요. 다만 전면 공개 대신 이름과 분리된 집계로 바꿔 표시의 부담을 낮췄어요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>시간 선호는 취향이 아니라 위험 관리였어요. 회의가 길어지면 퇴근에 걸리니까 4시 이후를 피해요.</p>
+                <span class="path-source">문서협업 테크</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="path-decision">
+                <p>안 되는 시간과 피하고 싶은 시간을 다른 신호로 분리했어요. 주간 시간표에서도 회색(불가)과 앰버(회피)로 다르게 읽혀요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>초대 알림은 잘 안 읽혀요. 메신저 공지에 육성 공지까지 겹쳐야 전달되는 조직도 있었어요.</p>
+                <span class="path-source">금융 대기업</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="path-decision">
+                <p>결과를 알림에 맡기지 않았어요. 사람들이 이미 보는 채널의 카드가 잠정에서 확정으로 바뀌어요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>필수와 선택은 직급이 아니라 안건과의 관계로 갈렸고, 이 구분은 구두로 다 물을 수 없는 규모부터 필요해졌어요.</p>
+                <span class="path-source">엔터 중견, 테크, 전통 대기업, 문서협업 테크</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="path-decision">
+                <p>주최자가 안건 기준으로 필수·선택을 지정하고, 추천 계산이 필수 참석을 우선하게 했어요.</p>
+              </div>
+            </li>
+          </ul>
 
           <h3 class="article-subhead" id="usability">2. 사용성 테스트에서 본 것과 고친 것</h3>
           <p class="article-body">
