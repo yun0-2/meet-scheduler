@@ -516,7 +516,7 @@ button {
 
 /* 게시된 곁들임 메시지 — 앱 카드 위 일반 메시지 텍스트 */
 .posted-message-text {
-  margin: 0 0 var(--space-2);
+  margin: 0 0 var(--space-3);
   color: var(--gray-800);
   font-size: var(--text-14);
   white-space: pre-wrap;
@@ -3506,7 +3506,8 @@ button.compose-step:hover {
 
 /* 주최자용 '나도 표시하기' — 참석자 DM 링크와 대칭, 조용한 한 줄 */
 .posted-mark-note {
-  margin: -4px 0 var(--space-2, 8px);
+  margin: 0;
+  padding: var(--space-2) 0 var(--space-1);
 }
 
 @media (max-width: 560px) {

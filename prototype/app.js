@@ -119,6 +119,7 @@
       lines.push("");
       lines.push(context);
     }
+    lines.push("");
     lines.push("시간은 아래 카드에서 확인하고, 어려우면 표시해주세요.");
     return lines.join("\n");
   }
