@@ -930,7 +930,6 @@ button {
 }
 
 .panel,
-.confirm-panel,
 .slack-preview {
   border: 1px solid var(--border);
   border-radius: var(--radius-16);
@@ -1167,25 +1166,6 @@ button {
   font-size: 10px;
   font-weight: 700;
   padding: 1px 5px;
-}
-
-.person-dot {
-  position: relative;
-  display: inline-grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border-radius: 50%;
-  font-size: var(--text-12);
-  font-weight: 700;
-  line-height: 1;
-}
-
-/* 아바타는 사람 정체성 파스텔 — 필수/선택 구분은 옆 태그가 함 (색 레지스터 분리) */
-.person-dot.is-required,
-.person-dot.is-optional {
-  background: var(--avatar, var(--gray-200));
-  color: var(--avatar-text, var(--gray-700));
 }
 
 .video-icon {
@@ -1457,31 +1437,8 @@ button {
   margin-top: var(--space-6);
 }
 
-.confirm-panel,
 .slack-preview {
   padding: var(--space-6);
-}
-
-.selected-time {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-3);
-  align-items: baseline;
-  margin: 0 0 var(--space-5);
-  border-radius: var(--radius-12);
-  background: var(--accent-soft);
-  color: var(--gray-900);
-  padding: var(--space-4) var(--space-5);
-}
-
-.selected-time strong {
-  font-size: var(--text-24, 26px);
-  color: var(--accent-strong);
-}
-
-.selected-time span {
-  color: var(--gray-600);
-  font-size: var(--text-14);
 }
 
 .btn-ghost-dark {
@@ -1515,60 +1472,6 @@ button {
   font-weight: 600;
 }
 
-.attendee-status {
-  display: grid;
-  gap: 0;
-  margin: var(--space-4) 0 var(--space-2);
-}
-
-.status-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-3);
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-  padding: var(--space-3) 0;
-}
-
-.status-row:last-child {
-  border-bottom: 0;
-}
-
-.status-person {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-}
-
-.status-name {
-  font-weight: 700;
-}
-
-.status-detail {
-  color: var(--gray-600);
-  font-size: var(--text-13);
-}
-
-.status-badge {
-  border-radius: 999px;
-  background: var(--green-soft);
-  color: var(--green-text);
-  font-size: var(--text-12);
-  font-weight: 700;
-  padding: var(--space-1) var(--space-2);
-}
-
-.status-badge.replace {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-}
-
-.status-badge.is-pending {
-  /* 응답 전 = 확정 아님. 초록 대신 중립 회색 (F-004) */
-  background: var(--gray-100);
-  color: var(--gray-700);
-}
-
 .summary-list {
   display: grid;
   gap: var(--space-2);
@@ -1599,20 +1502,6 @@ button {
 
 .slack-preview h2 {
   margin: 0 0 var(--space-4);
-}
-
-.preview-message {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
-  gap: var(--space-3);
-  border-radius: var(--radius-12);
-  background: var(--gray-50);
-  padding: var(--space-4);
-}
-
-.empty-preview {
-  margin: 0;
-  color: var(--gray-500);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1669,7 +1558,6 @@ button {
   .message-thread,
   .channel-header,
   .schedule-card,
-  .confirm-panel,
   .slack-preview {
     padding: var(--space-4);
   }
@@ -1730,9 +1618,8 @@ button {
 .mini-time,
 .metric-pill,
 .fact-pill,
-.selected-time strong,
-.message-time,
-.status-detail {
+.confirm-time-value,
+.message-time {
   font-feature-settings: "tnum";
   font-variant-numeric: tabular-nums;
 }
@@ -1827,17 +1714,11 @@ body.is-embed .screen-mobile {
   padding-bottom: var(--space-6);
 }
 
-/* 임베드에서는 화면을 뷰포트 높이로 채우지 않는다(콘텐츠 높이만큼만 잡아
-   부모(아티클)가 iframe 높이를 딱 맞출 수 있게 한다 → 세로 스크롤 제거). */
-body.is-embed .app-shell,
-body.is-embed .screen,
-body.is-embed .messenger-shell,
-body.is-embed .mobile-stage {
-  min-height: 0;
-}
+/* 임베드에서도 화면은 뷰포트(=iframe 높이)를 꽉 채운다 — 셸의 100dvh 기본값 그대로.
+   iframe 높이는 부모가 장면별 최대 상태로 고정하고, 높이 보고는 모달 카드 기준으로만
+   하므로(스크롤 높이 미사용) 뷰포트를 채워도 성장 루프가 생기지 않는다. */
 
 /* 임베드: 다이얼로그는 실제 앱처럼 모달로 뜬다 — 딤 배경 위에 카드가 뜨고 뒤 화면이 비친다.
-   iframe 높이(시드)가 고정이라 100dvh=iframe이므로 무한 성장 루프가 없고, 오버레이가 정확히 채운다.
    내부 스크롤만 없애면 되니 뷰포트 기준 max-height 캡과 100vh 고정 높이만 콘텐츠 기준으로 푼다.
    오버레이·딤 배경·그림자·폭·가운데 정렬은 원래 모달 그대로 둔다(모달 느낌 유지). */
 
@@ -3532,30 +3413,6 @@ body.is-embed .schedule-grid {
   line-height: 16px;
 }
 
-/* 카드의 겹치는 사람 아바타 — 격자 팝오버와 같은 공개 정보(캘린더 일정)만 */
-.card-people {
-  display: inline-flex;
-  align-items: center;
-  margin-left: auto;
-}
-
-.card-people .card-avatar {
-  display: inline-grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid var(--surface);
-  background: var(--avatar, var(--gray-200));
-  color: var(--avatar-text, var(--gray-700));
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.card-people .card-avatar + .card-avatar {
-  margin-left: -6px;
-}
-
 /* 열린 셀 팝오버의 액션 — 정보와 선택이 클릭 지점에서 한 번에 (구글 캘린더 문법) */
 .popover-choose {
   display: block;
@@ -3892,21 +3749,6 @@ button.compose-step:hover {
   white-space: nowrap;
 }
 
-/* 확정 화면 회의실 — 강조 덜: 시간 아래 조용한 라벨 + 인라인 셀렉트 */
-.confirm-room {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: calc(-1 * var(--space-2));
-  margin-bottom: var(--space-4);
-  color: var(--gray-500);
-  font-size: var(--text-14);
-}
-
-.confirm-room-label {
-  font-weight: 600;
-}
-
 .confirm-room-select {
   border: 1px solid var(--border);
   border-radius: var(--radius-8);
@@ -4030,25 +3872,6 @@ button.compose-step:hover {
   margin: 0;
 }
 
-/* 회의명 옆 장소 메타 — 핀 아이콘과 함께 */
-.meta-pin {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  vertical-align: -2px;
-}
-
-.meta-pin svg {
-  vertical-align: middle;
-}
-
-/* 확정 회의실 라벨의 핀 정렬 */
-.confirm-room-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
 /* 추천 화면이 모달 body 안에 들어오며 생기는 미세 가로 넘침 차단 */
 .slack-modal.is-compose .slack-modal-body {
   overflow-x: hidden;
@@ -4121,4 +3944,152 @@ button.compose-step:hover {
 /* 제목 라벨: 제목 인풋만 위 마진과 큰 행높이로 첫 줄이 낮게 앉아, 라벨도 같이 내린다 */
 .compose-step1-col > *:has(.compose-title-input) .compose-row-label {
   padding-top: 22px;
+}
+
+/* ===== 추천·확정 화면 정비 (2026-07-12) ===== */
+
+/* 선택된 카드에만: 참석 가능한 사람 아바타 줄 — 겹치는 사람(카드 문장이 이미 말함) 대신
+   결정을 도울 정보만 결정 이후에 보여준다. 겹치지 않고 나열(과거 card-people은 겹쳐 쌓았다) */
+.card-attendees {
+  display: flex;
+  gap: 4px;
+  margin-top: var(--space-2);
+}
+
+.card-attendees .card-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--avatar, var(--gray-200));
+  color: var(--avatar-text, var(--gray-700));
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* 미응답자는 캘린더 기준 추정일 뿐 — 팝오버의 is-unresponded와 같은 반투명+점선 문법 */
+.card-attendees .card-avatar.is-unresponded {
+  opacity: .55;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  border-style: dashed;
+}
+
+/* 카드·팝오버의 핀 아이콘 회의실 필 — 텍스트 라벨과 같은 톤(중립), 강조는 안 함 */
+.metric-room svg,
+.popover-room svg {
+  vertical-align: -2px;
+  margin-right: 2px;
+}
+
+.popover-room {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gray-600, #4e5968);
+  font-size: var(--text-12);
+}
+
+/* 선택된 셀은 프라이머리로 완전히 칠한다 — 격자에서 '내가 고른 시간'이 스트로크보다
+   또렷해야 한다는 실사용 피드백. 데이터(가능=연파랑) 채움 규칙 위에 상태(선택)로 얹는다 */
+.slot-cell.is-selected:not(.is-unavailable) {
+  background: var(--accent);
+}
+
+/* 선택 셀 위 부담 세모는 파랑 위에서 앰버 대신 흰색으로 — 배경에 묻히지 않게 */
+.slot-cell.is-selected.has-private-burden:not(.is-unavailable)::after {
+  border-bottom-color: #fff;
+}
+
+/* 솔리드 뱃지 반전 — 파랑 칠 위에 파랑 뱃지가 앉으면 안 보인다(파랑 위 파랑 방지) */
+.slot-cell.is-selected .rank-tag.is-tonal {
+  background: #fff;
+  color: var(--accent);
+}
+
+/* 10분 픽 라인·칩도 같은 이유로 반전 — 선택 셀 안에서만 나타나는 요소라 항상 짝을 이룬다 */
+.slot-cell.is-selected:not(.is-unavailable) .slot-pick {
+  border-top-color: #fff;
+}
+
+.slot-cell.is-selected:not(.is-unavailable) .slot-pick-chip {
+  background: #fff;
+  color: var(--accent);
+}
+
+/* 선택한 셀은 팝오버를 숨긴다 — 이미 골랐으니 그 정보는 이제 카드가 담당 */
+.slot-cell.is-selected:hover .slot-popover,
+.slot-cell.is-selected.is-open .slot-popover {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 임베드(~900px)에서 추천 격자 패널이 모달 밖으로 삐져나오는 문제 — 그리드 아이템은
+   트랙이 minmax(0, 1fr)이어도 기본 min-width:auto(콘텐츠 크기)라 줄어들지 않는다.
+   패널 자체를 0까지 줄일 수 있게 하고, 넘치는 내용은 패널 안에서만 가로 스크롤한다. */
+.slack-modal-body .desktop-layout > .panel {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* 확정 화면 재조립 — 작성 1단계의 라벨 컬럼 문법을 그대로 써서 '읽기 전용 요약'으로 보이게 한다.
+   시간 행: 박스 없이 텍스트만 — 시간이 화면의 유일한 주인공. */
+.confirm-time-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.confirm-time-value {
+  color: var(--gray-900);
+  font-size: var(--text-20);
+  font-weight: 800;
+}
+
+.confirm-time-meta {
+  color: var(--gray-600);
+  font-size: var(--text-14);
+}
+
+/* 참석자 요약 한 줄 — 예외(미응답·불참)는 아래 개별 행이 맡는다(한 사실은 한 번만) */
+.confirm-attendee-summary {
+  margin: 0 0 var(--space-2);
+  color: var(--gray-800);
+  font-size: var(--text-14);
+}
+
+.confirm-attendee-summary:last-child {
+  margin-bottom: 0;
+}
+
+/* 예외 행은 작성 1단계 참석자 행(.compose-row)과 같은 아나토미를 재사용 — 목록 끝 여백은 없앤다 */
+.confirm-exceptions {
+  margin-bottom: 0;
+}
+
+/* 오른쪽 상태는 초록 뱃지 대신 중립 텍스트 — 참석 여부를 단정하지 않는다(F-004) */
+.confirm-attendee-status {
+  color: var(--gray-600);
+  font-size: var(--text-13);
+  white-space: nowrap;
+}
+
+/* 알림 행: 확정하면 채널에 올라갈 내용 미리보기 */
+.confirm-preview {
+  border-radius: var(--radius-12);
+  background: var(--surface-muted, #f9fafb);
+  padding: 12px 14px;
+  font-size: var(--text-13);
+}
+
+.confirm-preview p {
+  margin: 0;
+}
+
+.confirm-preview p + p {
+  margin-top: 4px;
+  color: var(--gray-600);
 }

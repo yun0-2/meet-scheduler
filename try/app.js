@@ -367,9 +367,18 @@
 
   // 회의가 점심시간(12–13)이나 근무 종료(18시)를 침범하면 그 시작 시각은 불가
   function slotBlockedByHours(start) {
-    // 점심은 더 이상 하드 차단이 아니다 — 기본 회피 표시(소프트)로 강등
+    // 점심(12시)은 조직 전체가 비우는 시간 — 소프트 회피 표시로는 추천·후보에 계속
+    // 섞여 나와 혼란을 줬다. 근무 종료와 같은 등급의 하드 차단으로 되돌림.
     var end = start + meetingDuration();
-    return end > data.meeting.workHours.end;
+    return end > data.meeting.workHours.end || start === data.meeting.workHours.lunch[0];
+  }
+
+  // 하드 차단 사유 라벨 — "왜 안 되는지"를 말할 때 쓴다
+  function blockedHoursReason(start) {
+    if (start === data.meeting.workHours.lunch[0]) {
+      return "조직 점심시간";
+    }
+    return "근무 시간 밖";
   }
 
   function personHasBusy(person, day, start) {
@@ -424,16 +433,12 @@
     return state.optionalSoftSlots;
   }
 
-  // 미리 채워진 회피 표시 = 점심(12시, 전원) + 본인 상시 표시(예: 17시 이후).
+  // 본인 상시 표시(예: 17시 이후) — 점심(12시)은 이제 하드 차단이라 여기서 다루지 않는다.
   // 본인이 직접 정한 값(표시든 해제든)이 항상 우선한다.
   function lunchDefaultSoft(person, key, start) {
     var map = softOverrideMap(person);
     if (Object.prototype.hasOwnProperty.call(map, key)) {
       return false;
-    }
-    var lunchStart = data.meeting.workHours.lunch[0];
-    if (start >= lunchStart && start < lunchStart + 1) {
-      return true;
     }
     return (person.constraints || []).some(function (constraint) {
       if (constraint.type !== "soft") {
@@ -453,10 +458,8 @@
     var key = slotId(day, start);
     var found = [];
 
-    if (lunchDefaultSoft(person, key, start)) {
-      found.push({ type: "soft", visibility: "private", label: "점심시간", source: "기본 표시 — 본인이 바꿀 수 있음" });
-    }
-
+    // 점심(12시)은 하드 차단으로 옮겨서 여기선 다루지 않는다 — lunchDefaultSoft는
+    // 이제 본인 상시 표시(예: 17시 이후)만 반환한다
     if (person.id === "jiwoo" && state.jiwooSoftSlots && state.jiwooSoftSlots[key]) {
       found.push({ type: "soft", visibility: "private", label: "피하고 싶은 시간", source: "본인 입력" });
       return found;
@@ -745,6 +748,17 @@
     }) || currentFeatured().recommended;
   }
 
+  // 데모용 결정적 매핑 — 시간대별로 빈 회의실이 다르다는 걸 보여주기 위한 것
+  function roomForSlot(slot) {
+    if (slot.start < 12) {
+      return "미팅룸 4";
+    }
+    if (slot.start < 16) {
+      return "미팅룸 6";
+    }
+    return "포커스룸 A";
+  }
+
   function recommendedCards() {
     var featured = currentFeatured();
     var cards = [
@@ -1012,17 +1026,15 @@
       return;
     }
     var send = function () {
-      // 모달은 position:fixed라 body.scrollHeight에 안 잡힌다(뒤 화면 높이만 잡혀
-      // iframe이 배경 높이로 붕괴 → 모달이 잘린다). 모달이 열려 있으면 카드 높이 +
-      // 오버레이 상하 padding(64)을 써서 모달이 딤 여백 안에 딱 들어가게 한다.
-      var h = document.body ? document.body.scrollHeight : 0;
+      // 배경 화면은 뷰포트(=iframe 높이)를 채우도록 두므로 scrollHeight를 보고하면
+      // 자기 자신을 따라가는 루프가 된다. 모달 카드만이 뷰포트와 무관한 진짜 콘텐츠
+      // 높이라서, 모달이 열렸을 때만 카드 높이 + 오버레이 상하 여백(64)을 보고한다.
+      // 부모는 이 값이 지금 높이보다 클 때만 늘린다(줄이지 않음).
       var modal = document.querySelector(".slack-modal-overlay .slack-modal");
-      if (modal) {
-        var needed = Math.ceil(modal.getBoundingClientRect().height + 64);
-        if (needed > h) {
-          h = needed;
-        }
+      if (!modal) {
+        return;
       }
+      var h = Math.ceil(modal.getBoundingClientRect().height + 64);
       if (h) {
         window.parent.postMessage({ type: "ww-embed-height", route: state.route, height: h }, "*");
       }
@@ -1619,7 +1631,7 @@
             '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
           '</div>' +
           '<section class="panel" aria-label="주간 격자">' +
-            '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>추천 시간</div>' +
+            '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>가능한 시간</div>' +
             '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
           '</section>' +
         '</div>' +
@@ -1919,6 +1931,14 @@
     });
 
     slotHours.forEach(function (hour) {
+      // 점심(12시)은 개인 표시가 아니라 조직 전체가 막힌 시간 — 사람마다 셀을 반복하지
+      // 않고 점심시간과 같은 밴드 하나로 접는다(한 사실은 한 번만).
+      if (hour === data.meeting.workHours.lunch[0]) {
+        html +=
+          '<div class="mini-time mini-time-lunch" aria-hidden="true">' + hour + '</div>' +
+          '<div class="mini-lunch-band" role="note" aria-label="' + hour + '시 ' + blockedHoursReason(hour) + ', 후보에서 제외">점심시간</div>';
+        return;
+      }
       html += '<div class="mini-time">' + hour + '</div>';
       days.forEach(function (day) {
         var id = slotId(day, hour);
@@ -1967,7 +1987,7 @@
         '<div class="screen-inner">' +
           '<header class="compare-header">' +
             '<div>' +
-              '<p class="eyebrow">' + meetingTitle() + ' · <span class="meta-pin">' + ICONS.pin + ' ' + state.meetingRoom + '</span></p>' +
+              '<p class="eyebrow">' + meetingTitle() + '</p>' +
               '<p class="screen-subtitle">캘린더 충돌과 피하고 싶다는 표시가 적은 순서로 정리했어요.</p>' +
               renderResponseLine() +
             '</div>' +
@@ -1978,7 +1998,7 @@
               '<div class="recommend-list">' + renderRecommendCards() + '</div>' +
             '</aside>' +
             '<section class="panel" aria-label="주간 격자">' +
-              '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>추천 시간</div>' +
+              '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>가능한 시간</div>' +
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
             '</section>' +
           '</div>' +
@@ -2103,7 +2123,8 @@
   function slotAria(slot, recommended) {
     var parts = [displayTime(slot)];
     if (isUnavailableSlot(slot)) {
-      parts.push("안 돼요");
+      // 하드 차단은 사유가 있으면 그대로 말한다(예: 조직 점심시간)
+      parts.push(slot.blockedByHours ? blockedHoursReason(slot.start) + " — 안 돼요" : "안 돼요");
     } else {
       parts.push(slot.totalAvailable + "명 참석 가능");
       parts.push("여유 " + availabilityLevel(slot) + "단계");
@@ -2161,6 +2182,8 @@
     return (
       '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
       '<span class="popover-avatar-stack">' + avatars + '</span>' +
+      // 안 되는 시간엔 회의실을 안내할 이유가 없다
+      (isUnavailableSlot(slot) ? '' : '<span class="popover-room">' + ICONS.pin + ' ' + roomForSlot(slot) + ' 예약 가능</span>') +
       (slot.privateSoft.length > 0 ? '<span class="popover-note">피하고 싶다는 표시가 있어요</span>' : '') +
       ''
     );
@@ -2174,9 +2197,10 @@
     return orderedCards().map(function (card, index) {
       var slot = card.slot;
       var isOpen = state.openCardId === card.key;
+      var selected = state.selectedSlotId === slot.id;
       var rank = state.sortMode === "availability" ? card.availableRank : card.recommendedRank;
       return (
-        '<article class="recommend-card ' + (state.selectedSlotId === slot.id ? "is-selected" : "") + '" data-card-id="' + slot.id + '">' +
+        '<article class="recommend-card ' + (selected ? "is-selected" : "") + '" data-card-id="' + slot.id + '">' +
           '<button class="card-summary" data-action="toggle-card" data-card-id="' + card.key + '" data-slot-id="' + slot.id + '" aria-expanded="' + String(isOpen) + '">' +
             '<span class="rank-label">' + rank + '</span>' +
             '<span class="card-time">' + displayTime(slot) + '</span>' +
@@ -2186,34 +2210,30 @@
             '<span class="metric-pill">필수 ' + slot.requiredAvailable + '/' + requiredPeople().length + '</span>' +
             '<span class="metric-pill">선택 ' + slot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
             (slot.conditional.length ? '<span class="metric-pill"><span class="video-icon" aria-hidden="true"></span>화상</span>' : '') +
-            renderCardBusyPeople(slot) +
+            '<span class="metric-pill metric-room">' + ICONS.pin + ' ' + roomForSlot(slot) + '</span>' +
           '</div>' +
           (isOpen ? '<p class="recommend-detail">' + card.detail + '</p>' : '') +
+          (selected ? renderCardAttendees(slot) : '') +
         '</article>'
       );
     }).join("");
   }
 
-  // 카드에도 '누가 겹치는지'를 아바타로 — 격자 팝오버와 같은 정보(캘린더=공개)를 카드에서도
-  function renderCardBusyPeople(slot) {
-    var busy = slot.requiredUnavailable.concat(slot.optionalUnavailable);
-    if (!busy.length) {
-      return '';
-    }
-    return '<span class="card-people">' + busy.map(function (item) {
-      return '<span class="card-avatar" title="' + item.person.name + ' · 캘린더 일정과 겹침"' + avatarVars(item.person) + '>' + initials(item.person.name) + '</span>';
+  // 선택된 카드에만 참석 가능한 사람을 아바타로 보여준다 — 정보는 결정 이후에나 필요하다(과설명 방지)
+  function renderCardAttendees(slot) {
+    var going = slotPeopleStates(slot).filter(function (item) {
+      return !item.away;
+    });
+    return '<span class="card-attendees">' + going.map(function (item) {
+      return '<span class="card-avatar' + (item.unresponded ? ' is-unresponded' : '') + '" title="' + item.person.name + (item.unresponded ? ' · 응답 전 — 캘린더 기준' : '') + '"' + avatarVars(item.person) + '>' + initials(item.person.name) + '</span>';
     }).join('') + '</span>';
-  }
-
-  function names(items) {
-    return items.map(function (item) {
-      return item.person.name + "님";
-    }).join("과 ");
   }
 
   function renderConfirm() {
     var slot = slotById(state.selectedSlotId || currentFeatured().recommended.id);
-    // 추천 다이얼로그에서 이어지는 같은 저니 — 여기만 페이지로 튀지 않게 같은 다이얼로그 문법
+    // 추천 다이얼로그에서 이어지는 같은 저니 — 여기만 페이지로 튀지 않게 같은 다이얼로그 문법.
+    // 작성 1단계의 왼쪽 라벨 컬럼 문법(compose-row-icon/compose-row-label)을 그대로 써서
+    // '읽기 전용 요약'으로 보이게 한다(이중 프레임·초록 뱃지 등 옛 스타일 폐기).
     app.innerHTML =
       '<div class="dialog-backdrop" aria-hidden="true" inert>' + entryMarkup() + '</div>' +
       '<div class="slack-modal-overlay">' +
@@ -2225,19 +2245,34 @@
         '</header>' +
         '<div class="slack-modal-body">' +
         '<div class="compose-step1-col confirm-single">' +
-          '<section class="confirm-panel">' +
-            '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>' + durationLabel() + ' · ' + meetingTitle() + '</span></div>' +
-            '<label class="confirm-room">' +
-              '<span class="confirm-room-label">' + ICONS.pin + ' 회의실</span>' +
+          '<div class="compose-row-icon">' +
+            '<span class="compose-row-label">시간</span>' +
+            '<div class="compose-row-body confirm-time-body">' +
+              '<strong class="confirm-time-value">' + displayTime(slot) + '</strong>' +
+              '<span class="confirm-time-meta">' + durationLabel() + ' · ' + meetingTitle() + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="compose-row-icon">' +
+            '<span class="compose-row-label">회의실</span>' +
+            '<div class="compose-row-body">' +
               '<select id="confirm-room" class="confirm-room-select" aria-label="회의실">' +
                 ["미팅룸 6", "미팅룸 4", "포커스룸 A", "화상으로 진행"].map(function (room) {
                   return '<option value="' + room + '"' + (state.meetingRoom === room ? " selected" : "") + '>' + room + '</option>';
                 }).join("") +
               '</select>' +
-            '</label>' +
-            (hasPrivateBurden(slot) ? '<p class="confirm-soft-note">이 시간은 피하고 싶다는 표시가 있어요. 누가 표시했는지는 보이지 않아요.</p>' : '') +
-            '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
-          '</section>' +
+            '</div>' +
+          '</div>' +
+          (hasPrivateBurden(slot) ? '<p class="confirm-soft-note">이 시간은 피하고 싶다는 표시가 있어요. 누가 표시했는지는 보이지 않아요.</p>' : '') +
+          // 보낸 잠정안과 지금 확정하려는 시간이 다르면 — 확정 뒤 재확인이 필요하다는 걸 미리 말한다
+          (tentativeSlot().id !== slot.id ? '<p class="confirm-soft-note">처음 제안한 시간(' + displayTime(tentativeSlot()) + ')과 달라요. 확정하면 바뀐 시간으로 한 번 더 물어봐요.</p>' : '') +
+          '<div class="compose-row-icon">' +
+            '<span class="compose-row-label">참석자</span>' +
+            '<div class="compose-row-body">' + renderConfirmAttendeeSection(slot) + '</div>' +
+          '</div>' +
+          '<div class="compose-row-icon">' +
+            '<span class="compose-row-label">알림</span>' +
+            '<div class="compose-row-body">' + renderConfirmPreview(slot) + '</div>' +
+          '</div>' +
         '</div>' +
         '</div>' +
         '<div class="compose-footer">' +
@@ -2247,84 +2282,71 @@
       '</div>';
   }
 
-  function renderAttendeeStatus(slot) {
+  // 참석자 행 — 요약 한 줄(전원/N명 가능, 미응답 보정) + 예외자(미응답·불참)만 개별 행.
+  // 정상 참석자는 요약이 이미 셌으니 다시 나열하지 않는다(한 사실은 한 번만).
+  function renderConfirmAttendeeSection(slot) {
     if (hasPrivateHardConflict(slot)) {
       // 비공개 하드 제약이 있는 슬롯은 사람별 상태를 그리지 않는다 — 이름 결합 금지
       return '<p class="privacy-note">이 시간은 비공개 사정 때문에 확정하기 어려워요. 다른 시간을 골라주세요.</p>';
     }
-    return activePeople().map(function (person) {
-      var attendance = effectiveAttendance(person);
-      var hardConflict = slot.busyConflicts.find(function (item) {
-        return item.person.id === person.id;
-      });
-      var condition = slot.conditional.find(function (item) {
-        return item.person.id === person.id;
-      });
-      var canAttend = !hardConflict;
-      // 미응답자는 초록 '참석'으로 단정하지 않는다 — 캘린더 기준 추정임을 배지에도 반영 (F-004)
-      var pending = person.responded === false && canAttend;
-      var badge = pending ? "캘린더로는 가능" : canAttend ? "참석 가능" : (attendance === "optional" ? "결과 공유" : "다른 시간 필요");
-      var badgeClass = pending ? "is-pending" : (!canAttend && attendance === "optional" ? "replace" : "");
-      var detail = attendance === "required" ? "필수" : "선택";
-      if (pending) {
-        detail += " · 응답 전이라 캘린더 기준이에요";
-      }
-      if (!canAttend && attendance === "optional") {
-        detail = "정해지면 결과를 공유해요";
-      }
-      if (condition && canAttend) {
-        detail = "화상으로 들어와요";
-      }
-      return (
-        '<div class="status-row">' +
-          '<div class="status-person">' +
-            '<span class="person-dot ' + (attendance === "required" ? "is-required" : "is-optional") + '" aria-hidden="true"' + avatarVars(person) + '><span>' + initials(person.name) + '</span></span>' +
-            '<div><div class="status-name">' + person.name + '</div><div class="status-detail">' + detail + '</div></div>' +
-          '</div>' +
-          '<span class="status-badge ' + badgeClass + '">' + badge + '</span>' +
-        '</div>'
-      );
-    }).join("");
-  }
-
-  function renderSummary(slot) {
-    var items = [];
-    if (slot.requiredUnavailable.length === 0) {
-      items.push("필수 참석자는 모두 들어와요.");
-    } else {
-      items.push("필수 참석자 시간이 맞지 않아요.");
+    var states = slotPeopleStates(slot);
+    var total = states.length;
+    var going = states.filter(function (item) {
+      return !item.away;
+    });
+    var unresponded = states.filter(function (item) {
+      return item.unresponded;
+    });
+    var summary = going.length === total
+      ? total + "명 모두 참석 가능해요."
+      : going.length + "명 참석 가능해요.";
+    if (unresponded.length > 0) {
+      summary += " " + unresponded.length + "명은 응답 전이라 캘린더 기준이에요.";
     }
-    if (slot.optionalUnavailable.length > 0) {
-      items.push(names(slot.optionalUnavailable) + "에게는 정해지면 결과를 공유해요.");
-    } else {
-      items.push("선택 참석자도 들어올 수 있어요. 정해지면 결과도 같이 공유해요.");
-    }
-    if (burdenCount(slot) > 0) {
-      items.push("피하고 싶은 표시가 있어요. 개인 사유는 보이지 않아요.");
-    }
-    if (slot.conditional.length > 0) {
-      items.push("화상으로 들어오는 참석자가 있어요.");
-    }
-    return items.map(function (item) {
-      return "<li>" + item + "</li>";
-    }).join("");
-  }
-
-  function renderSlackPreview(slot) {
-    if (!state.posted) {
-      return '<p class="empty-preview">확정하면 이 채널에 올라갈 메시지가 보여요.</p>';
-    }
-    var jiwoo = getPerson("jiwoo");
+    var exceptions = states.filter(function (item) {
+      return item.away || item.unresponded;
+    });
     return (
-      '<div class="preview-message">' +
-        '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
-        '<div>' +
-          '<div class="message-meta"><span class="message-author">서지우</span><span class="message-time">방금</span></div>' +
-          '<strong>' + meetingTitle() + ' 시간이 정해졌어요</strong>' +
-          '<p>' + displayTime(slot) + ' · ' + durationLabel() + '</p>' +
-          (confirmedDiffersFromTentative() ? '<p class="helper-copy">처음 제안한 시간과 달라졌어요. 이 시간이 어려우면 카드에서 알려주세요.</p>' : '') +
-          '<p class="helper-copy">참석이 어려운 분에게는 결정 내용을 따로 공유해요. 시간을 바꿔야 하면 이 카드에서 다시 조율해요.</p>' +
+      '<p class="confirm-attendee-summary">' + summary + '</p>' +
+      (exceptions.length
+        ? '<div class="compose-list confirm-exceptions">' + exceptions.map(renderConfirmExceptionRow).join("") + '</div>'
+        : '')
+    );
+  }
+
+  // 예외(미응답/불참) 개별 행 — 작성 1단계 참석자 행과 같은 아나토미(아바타 + 이름/설명),
+  // 오른쪽은 초록 뱃지 대신 중립 텍스트(참석 여부를 단정하지 않는다, F-004)
+  function renderConfirmExceptionRow(item) {
+    var person = item.person;
+    var description, statusText;
+    if (item.unresponded) {
+      description = "응답 전이라 캘린더 기준이에요";
+      statusText = "캘린더로는 가능";
+    } else if (effectiveAttendance(person) === "optional") {
+      description = "정해지면 결과를 공유해요";
+      statusText = "결과 공유";
+    } else {
+      description = "다른 시간이 필요해요";
+      statusText = "다른 시간 필요";
+    }
+    return (
+      '<div class="compose-row confirm-attendee-row">' +
+        '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
+        '<div class="compose-row-main">' +
+          '<span class="compose-row-line"><span class="compose-row-name">' + person.name + '</span></span>' +
+          '<span class="compose-row-role">' + description + '</span>' +
         '</div>' +
+        '<span class="confirm-attendee-status">' + statusText + '</span>' +
+      '</div>'
+    );
+  }
+
+  // 확정하면 채널에 올라갈 내용 미리보기 — 확정 전에 무엇이 알림으로 나가는지 보여준다
+  function renderConfirmPreview(slot) {
+    return (
+      '<div class="confirm-preview">' +
+        '<p><strong>확정 · ' + meetingTitle() + '</strong></p>' +
+        '<p>' + displayTime(slot) + ' · ' + state.meetingRoom + ' · #' + state.channelName + ' 채널에 알림이 가요</p>' +
       '</div>'
     );
   }
@@ -2575,6 +2597,10 @@
       return;
     }
     if (action === "go-confirm") {
+      // 확정 화면의 회의실 기본값이 고른 시간을 따라가게 — 방을 직접 못 고른 채 넘어가지 않는다
+      if (state.selectedSlotId) {
+        state.meetingRoom = roomForSlot(slotById(state.selectedSlotId));
+      }
       setRoute("confirm");
       return;
     }
