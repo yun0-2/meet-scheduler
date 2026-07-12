@@ -1197,11 +1197,16 @@ h3 {
 }
 
 .site-bar__brand {
-  color: var(--gray-800);
-  font-size: var(--text-13);
-  font-weight: 500;
+  color: var(--gray-900);
+  font-size: var(--text-14);
+  font-weight: 600;
   letter-spacing: -0.01em;
   text-decoration: none;
+}
+
+/* 수동 <br>로 줄바꿈하는 제목은 balance가 다시 나누지 않게 */
+.h2--manual-break {
+  text-wrap: normal;
 }
 
 .site-bar__links {

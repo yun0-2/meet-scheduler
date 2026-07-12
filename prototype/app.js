@@ -2210,7 +2210,7 @@
         '</div>' +
         '</div>' +
         '<div class="compose-footer">' +
-          '<button class="btn compose-send-btn" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "확정하고 #" + state.channelName + " 채널에 알리기") + '</button>' +
+          '<button class="btn compose-send-btn" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "확정하고 알리기") + '</button>' +
         '</div>' +
         '</div>' +
       '</div>';
