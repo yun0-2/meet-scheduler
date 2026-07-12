@@ -3993,3 +3993,30 @@ button.compose-step:hover {
 .compose-decide-col .compose-chip-field {
   margin-bottom: var(--space-1);
 }
+
+/* 미니 범례 — 색칠 = 추천 시간, 격자 우상단 */
+.legend-mini {
+  justify-content: flex-end;
+  padding: var(--space-3) var(--space-3) 0;
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch.is-viable {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--slot-available-mid);
+}
+
+/* 선택 = 필 + 스트로크 (카드·격자 공통 문법) */
+.compose-pick-card.is-selected {
+  border-color: var(--accent);
+}
+
+.slot-cell.is-selected {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}

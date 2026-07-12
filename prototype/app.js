@@ -1384,7 +1384,7 @@
         '<div class="slack-modal is-compose' + (isStep2 ? ' is-wide' : '') + '" role="dialog" aria-modal="true" aria-label="회의 잡기">' +
           '<header class="slack-modal-head">' +
             (isStep2 ? '<button type="button" class="slack-modal-back" data-action="compose-back" aria-label="뒤로">←</button>' : '') +
-            '<h2>' + (isStep2 ? '이 시간으로 제안할까요?' : '회의 잡기') + '</h2>' +
+            '<h2>' + (isStep2 ? (state.tentativeSlotId ? '이 시간으로 제안할까요?' : '어느 시간으로 제안할까요?') : '회의 잡기') + '</h2>' +
             '<button type="button" class="slack-modal-close" data-action="close-compose" aria-label="닫기">✕</button>' +
           '</header>' +
           '<div class="slack-modal-body">' + (isStep2 ? renderComposeStep2(jiwoo) : renderComposeStep1(jiwoo)) + '</div>' +
@@ -1591,6 +1591,7 @@
             '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
           '</div>' +
           '<section class="panel" aria-label="주간 격자">' +
+            '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>추천 시간</div>' +
             '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
           '</section>' +
         '</div>' +
@@ -1613,7 +1614,7 @@
         '</div>' +
         '<div class="compose-footer">' +
           '<button type="button" class="btn btn-secondary" data-action="compose-back">이전으로</button>' +
-          '<button class="btn compose-send-btn" data-action="post-compose">' + (state.postToChannel ? '제안 보내기' : '초대 보내기') + '</button>' +
+          '<button class="btn compose-send-btn" data-action="post-compose"' + (state.tentativeSlotId ? '' : ' disabled') + '>' + (state.postToChannel ? '제안 보내기' : '초대 보내기') + '</button>' +
         '</div>' +
       '</div>'
     );
@@ -1626,10 +1627,11 @@
   // 후보 카드는 위계 동등 — 선택(보낼 제안)만 레이어 필로 따라온다.
   // 격자에서 30분 단위 등 카드 밖 시각을 골랐으면 그 슬롯을 목록 맨 위에 얹는다.
   function renderComposePickCards() {
-    var tentativeId = state.tentativeSlotId || currentFeatured().recommended.id;
+    // 기본 선택 없음 — 보낼 제안은 주최자가 직접 고른다 (도구는 후보만 내민다)
+    var tentativeId = state.tentativeSlotId || null;
     var cards = orderedCards().slice();
     var inList = cards.some(function (card) { return card.slot.id === tentativeId; });
-    if (!inList) {
+    if (tentativeId && !inList) {
       cards.unshift({ slot: slotById(tentativeId) });
     }
     return cards.map(function (card) {
@@ -1642,7 +1644,7 @@
         '<button type="button" class="recommend-card compose-pick-card' + (selected ? ' is-selected' : '') + '" data-action="compose-pick-slot" data-slot-id="' + slot.id + '" aria-pressed="' + String(selected) + '">' +
           '<span class="compose-pick-head">' +
             '<span class="card-time">' + displayTime(slot) + '</span>' +
-            (selected ? '<span class="compose-pick-flag">보낼 제안</span>' : '') +
+            (selected ? '<span class="compose-pick-flag">제안 시간</span>' : '') +
           '</span>' +
           '<span class="compose-main-count">' + count + '</span>' +
         '</button>'
@@ -1943,6 +1945,7 @@
               '<div class="recommend-list">' + renderRecommendCards() + '</div>' +
             '</aside>' +
             '<section class="panel" aria-label="주간 격자">' +
+              '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>추천 시간</div>' +
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
             '</section>' +
           '</div>' +
@@ -2004,7 +2007,10 @@
   function renderScheduleGrid(featured, opts) {
     var pickAction = (opts && opts.pickAction) || "select-grid-slot";
     var composeMode = Boolean(opts && opts.pickAction);
-    var tentativeId = state.tentativeSlotId || featured.recommended.id;
+    // compose(보내기 전) 모드: 주최자가 고르기 전엔 제안 시간이 없다. 그 외 화면은 폴백 유지
+    var tentativeId = composeMode
+      ? state.tentativeSlotId
+      : (state.tentativeSlotId || featured.recommended.id);
     // 현재 정렬 기준의 1~3위를 격자에도 찍는다 — 뱃지를 뺐더니 카드와 격자가
     // 이어져 보이지 않는다는 실사용 피드백(006)으로 복원. 번호 언어는 카드와 동일.
     var rankOrderIds = cardOrder(state.sortMode).map(function (slot) { return slot.id; });
