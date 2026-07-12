@@ -1796,20 +1796,22 @@
         // 내 캘린더의 일정 — 본인 화면이라 비공개 하드(예: 학원)도 제목 노출 OK
         var hardInfo = participantHardForInput(person, day, hour);
         var hard = Boolean(hardInfo);
-        var hardLabel = hard ? (hardInfo.title || hardInfo.label || "") : "";
+        // 캘린더 일정만 이름을 가진다(title). 등록한 상시 제약(label만)은 사유를 밝히지 않고
+        // 안 되는 시간으로만 표시 — 다른 막힌 칸과 똑같이 ×.
+        var hardTitle = hard ? (hardInfo.title || "") : "";
         var soft = !hard && !optedOut && softSelectedForInput(person, id);
         var video = !hard && conditionalStatus(person, day);
         var disabled = hard || optedOut;
-        var label = day + "요일 " + hour + "시, " + (hard ? (hardLabel ? hardLabel + " 일정이 있어요" : "안 되는 시간") : optedOut ? "비활성화된 시간" : soft ? "피하고 싶은 시간" : "가능한 시간");
+        var label = day + "요일 " + hour + "시, " + (hard ? (hardTitle ? hardTitle + " 일정이 있어요" : "안 되는 시간") : optedOut ? "비활성화된 시간" : soft ? "피하고 싶은 시간" : "가능한 시간");
         if (video) {
           label += ", 화상 참여 가능";
         }
         var isProposal = id === proposalId;
         html +=
-          '<button class="mini-slot' + (hard ? " is-hard" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + (isProposal ? " is-proposal" : "") + '" ' +
+          '<button class="mini-slot' + (hard ? " is-hard" : "") + (hard && !hardTitle ? " is-blocked" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + (isProposal ? " is-proposal" : "") + '" ' +
           'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + (isProposal ? ", 첫 제안" : "") + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
             (isProposal ? '<span class="mini-proposal-tag">첫 제안</span>' : '') +
-            (hard && hardLabel ? '<span class="mini-slot-label">' + escapeText(hardLabel) + '</span>' : '') +
+            (hardTitle ? '<span class="mini-slot-label">' + escapeText(hardTitle) + '</span>' : '') +
             (video ? '<span class="mini-video-badge" aria-hidden="true"></span>' : '') +
           '</button>';
       });

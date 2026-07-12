@@ -726,7 +726,8 @@ button {
 .mini-week-grid {
   display: grid;
   grid-template-columns: 34px repeat(var(--day-cols, 5), minmax(44px, 1fr));
-  gap: 6px;
+  /* 추천 격자와 같은 연속 표면 — 갭 없이 헤어라인만 (구글 캘린더 문법) */
+  gap: 0;
 }
 
 .mini-week-grid.is-disabled .mini-slot {
@@ -743,6 +744,15 @@ button {
   font-weight: 700;
 }
 
+/* 시간 라벨 열이 격자 왼쪽 경계, 헤더가 위 경계를 담당 (연속 격자) */
+.mini-time {
+  border-right: 1px solid var(--border);
+}
+
+.mini-head {
+  border-bottom: 1px solid var(--border);
+}
+
 .mini-time-lunch {
   min-height: 20px;
   color: var(--gray-400);
@@ -754,7 +764,6 @@ button {
   display: grid;
   min-height: 20px;
   place-items: center;
-  border-radius: var(--radius-8);
   background: var(--gray-100);
   color: var(--gray-400);
   font-size: var(--text-12);
@@ -766,26 +775,28 @@ button {
   display: grid;
   min-height: 38px;
   place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  /* 연속 격자: 오른쪽·아래 헤어라인만, 라운드 없음 */
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   background: var(--surface);
   color: var(--gray-700);
   cursor: pointer;
   touch-action: none;
-  transition: background-color 200ms ease-out, border-color 200ms ease-out, transform 200ms ease-out;
+  transition: background-color 200ms ease-out, box-shadow 200ms ease-out;
 }
 
+/* 상태(호버·선택)는 보더 대신 inset 링 — 연속 표면에서 셀 크기가 안 흔들린다 */
 .mini-slot:not(:disabled):hover {
-  border-color: var(--accent);
-}
-
-.mini-slot:not(:disabled):active {
-  transform: scale(0.97);
+  z-index: 2;
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 .mini-slot.is-soft {
-  border-color: var(--amber-line);
+  z-index: 1;
   background: var(--amber-2);
+  box-shadow: inset 0 0 0 1px var(--amber-line);
 }
 
 /* 색만으론 약하니 '회피' 의미를 옅은 × 로 보강 (배경 앰버와 저대비) */
@@ -798,10 +809,19 @@ button {
 }
 
 .mini-slot.is-hard {
-  border-color: var(--slot-unavailable-border);
   background: var(--slot-unavailable);
   color: var(--gray-500);
   cursor: not-allowed;
+}
+
+/* 등록한 상시 제약(사유 미노출) — 이름 없이 다른 막힌 칸과 똑같이 옅은 ×.
+   회피(is-soft)의 앰버 ×와 달리 회색이라 '내가 표시한 것'과 '원래 막힌 것'이 구분된다 */
+.mini-slot.is-blocked::after {
+  content: "×";
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gray-400);
 }
 
 /* 내 캘린더 일정 이름 — 셀 안 작은 회색 텍스트, 넘치면 말줄임 */
@@ -3168,8 +3188,8 @@ body.is-embed .mobile-stage {
 
 /* 입력 격자 첫 제안 배지 */
 .mini-slot.is-proposal {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
+  z-index: 2;
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 .mini-proposal-tag {
   position: absolute;
