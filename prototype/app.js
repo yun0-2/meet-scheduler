@@ -20,6 +20,7 @@
     activeSlotId: null,
     openSlotId: null,
     openCardId: null,
+    rankInfoOpen: false,
     sortMode: "recommended",
     dragActive: false,
     dragMoved: false,
@@ -1863,16 +1864,23 @@
         // 안 되는 시간으로만 표시 — 다른 막힌 칸과 똑같이 ×.
         var hardTitle = hard ? (hardInfo.title || "") : "";
         var soft = !hard && !optedOut && softSelectedForInput(person, id);
+        // 미리 칠해진 표시(점심·상시)는 이번 응답으로 세지 않으니 새 표시와 톤을 가른다 —
+        // 안 가르면 '1개를 표시했어요'와 화면의 칠해진 칸 수가 어긋나 보인다
+        var presetSoft = soft && lunchDefaultSoft(person, id, hour);
+        var presetIsLunch = presetSoft && data.meeting.workHours.lunch.indexOf(hour) >= 0;
         var video = !hard && conditionalStatus(person, day);
         var disabled = hard || optedOut;
-        var label = day + "요일 " + hour + "시, " + (hard ? (hardTitle ? hardTitle + " 일정이 있어요" : "안 되는 시간") : optedOut ? "비활성화된 시간" : soft ? "피하고 싶은 시간" : "가능한 시간");
+        var label = day + "요일 " + hour + "시, " + (hard ? (hardTitle ? hardTitle + " 일정이 있어요" : "안 되는 시간") : optedOut ? "비활성화된 시간" : presetSoft ? (presetIsLunch ? "조직 점심시간, 미리 표시됨" : "평소 피하는 시간, 미리 표시됨") : soft ? "피하고 싶은 시간" : "가능한 시간");
         if (video) {
           label += ", 화상 참여 가능";
         }
+        var softTitle = presetSoft
+          ? (presetIsLunch ? "조직 점심시간 · 눌러서 바꿀 수 있어요" : "평소 피하는 시간 · 눌러서 바꿀 수 있어요")
+          : "표시한 시간이에요";
         var isProposal = id === proposalId;
         html +=
-          '<button class="mini-slot' + (hard ? " is-hard" : "") + (hard && !hardTitle ? " is-blocked" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + (isProposal ? " is-proposal" : "") + '" ' +
-          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + (isProposal ? ", 제안 시간" : "") + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
+          '<button class="mini-slot' + (hard ? " is-hard" : "") + (hard && !hardTitle ? " is-blocked" : "") + (soft ? " is-soft" : "") + (presetSoft ? " is-preset" : "") + (video ? " has-video" : "") + (isProposal ? " is-proposal" : "") + '" ' +
+          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + (isProposal ? ", 제안 시간" : "") + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="' + softTitle + '"' : "") + '>' +
             (isProposal ? '<span class="mini-proposal-tag">제안 시간</span>' : '') +
             (hardTitle ? '<span class="mini-slot-label">' + escapeText(hardTitle) + '</span>' : '') +
             (video ? '<span class="mini-video-badge" aria-hidden="true"></span>' : '') +
@@ -1902,7 +1910,17 @@
           '<header class="compare-header">' +
             '<div>' +
               '<p class="eyebrow">' + meetingTitle() + '</p>' +
-              '<p class="screen-subtitle">캘린더 충돌과 피하고 싶다는 표시가 적은 순서로 정리했어요.</p>' +
+              '<p class="screen-subtitle">캘린더 충돌과 피하고 싶다는 표시가 적은 순서로 정리했어요.' +
+                '<button type="button" class="rank-info-btn" data-action="toggle-rank-info" aria-expanded="' + String(Boolean(state.rankInfoOpen)) + '" aria-label="순위 기준 설명">i</button>' +
+                (state.rankInfoOpen
+                  ? '<span class="rank-info-pop" role="note">' +
+                      '<strong>순위는 이렇게 매겨요</strong>' +
+                      '<span>필수 참석자가 안 되는 시간은 후보에서 빠져요.</span>' +
+                      '<span>남은 후보는 캘린더 충돌과 피하고 싶다는 표시가 적은 순서예요. 모두 가능한 시간이라도 부담 표시가 있으면 순위가 내려가요.</span>' +
+                      '<span>인원수로 보고 싶으면 \'가능한 사람 많은 순\'으로 바꿀 수 있어요.</span>' +
+                    '</span>'
+                  : '') +
+              '</p>' +
               renderResponseLine() +
             '</div>' +
           '</header>' +
@@ -2469,6 +2487,15 @@
     var action = target.getAttribute("data-action");
     if (action !== "select-grid-slot") {
       state.openSlotId = null;
+    }
+    if (action === "toggle-rank-info") {
+      state.rankInfoOpen = !state.rankInfoOpen;
+      render();
+      return;
+    }
+    // 순위 설명은 다른 조작을 시작하면 닫는다 — 한 번에 하나만
+    if (state.rankInfoOpen) {
+      state.rankInfoOpen = false;
     }
     if (action === "go-input") {
       setRoute("input");

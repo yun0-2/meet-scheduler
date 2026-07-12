@@ -582,7 +582,8 @@ h3 {
    비교표가 아니라 "항목 : 출처" 나열이라 표 대신 칩 리스트로 읽는다. */
 .absent-list {
   display: grid;
-  gap: var(--space-2);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
   margin: 0 0 var(--space-8);
   padding: 0;
   list-style: none;
@@ -590,13 +591,12 @@ h3 {
 
 .absent-list li {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-3);
   border-radius: var(--radius-12);
   background: var(--surface-muted);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-5);
 }
 
 .absent-list .absent-item {
@@ -1113,6 +1113,13 @@ h3 {
   color: var(--gray-600);
 }
 
+/* 이상향(드문 조직): 실제로 도달한 자리가 아니라 지향점이라 채운 박스 대신
+   흰 배경 + 회색 점선 테두리로 '아직 비어 있는 목표'처럼 보이게 한다. */
+.spectrum__cell--ideal {
+  background: var(--surface);
+  border: 1px dashed var(--gray-300);
+}
+
 .stage__try {
   display: inline-block;
   margin-top: var(--space-3);
@@ -1256,6 +1263,10 @@ h3 {
 
 @media (max-width: 760px) {
   .spectrum {
+    grid-template-columns: 1fr;
+  }
+
+  .absent-list {
     grid-template-columns: 1fr;
   }
 
