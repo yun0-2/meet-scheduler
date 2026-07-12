@@ -3885,13 +3885,15 @@ button.compose-step:hover {
   overflow-x: auto;
 }
 
-/* 확정 화면 재조립 — 작성 1단계의 라벨 컬럼 문법을 그대로 써서 '읽기 전용 요약'으로 보이게 한다.
-   시간 행: 박스 없이 텍스트만 — 시간이 화면의 유일한 주인공. */
-.confirm-time-body {
+.confirm-basics {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.confirm-time-body {
+  display: grid;
+  row-gap: var(--space-1);
 }
 
 .confirm-time-value {
@@ -3903,6 +3905,14 @@ button.compose-step:hover {
 .confirm-time-meta {
   color: var(--gray-600);
   font-size: var(--text-14);
+}
+
+.confirm-room-row {
+  align-items: center;
+}
+
+.confirm-room-row .compose-row-label {
+  padding-top: 0;
 }
 
 /* 참석자 요약 한 줄 — 예외(미응답·불참)는 아래 개별 행이 맡는다(한 사실은 한 번만) */
@@ -4221,4 +4231,17 @@ button.compose-step:hover {
   color: var(--gray-900);
   font-weight: 600;
   font-feature-settings: "tnum";
+}
+
+/* 확정 예외 행 — 아바타·이름·뱃지 한 줄(설명 줄 폐지). 이름과 뱃지는 왼쪽에 붙이고 여백은 오른쪽 */
+.confirm-attendee-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.confirm-attendee-row .compose-row-name {
+  flex: 0 0 auto;
+}
+.confirm-attendee-row .confirm-attendee-status {
+  margin-left: 0;
 }

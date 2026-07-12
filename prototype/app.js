@@ -2190,6 +2190,7 @@
         '</header>' +
         '<div class="slack-modal-body">' +
         '<div class="compose-step1-col confirm-single">' +
+          '<div class="confirm-basics">' +
           '<div class="compose-row-icon">' +
             '<span class="compose-row-label">시간</span>' +
             '<div class="compose-row-body confirm-time-body">' +
@@ -2197,7 +2198,7 @@
               '<span class="confirm-time-meta">' + durationLabel() + ' · ' + meetingTitle() + '</span>' +
             '</div>' +
           '</div>' +
-          '<div class="compose-row-icon">' +
+          '<div class="compose-row-icon confirm-room-row">' +
             '<span class="compose-row-label">회의실</span>' +
             '<div class="compose-row-body">' +
               '<select id="confirm-room" class="confirm-room-select" aria-label="회의실">' +
@@ -2206,6 +2207,7 @@
                 }).join("") +
               '</select>' +
             '</div>' +
+          '</div>' +
           '</div>' +
           (hasPrivateBurden(slot) ? '<p class="confirm-soft-note">이 시간은 피하고 싶다는 표시가 있어요. 누가 표시했는지는 보이지 않아요.</p>' : '') +
           // 보낸 잠정안과 지금 확정하려는 시간이 다르면 — 확정 뒤 재확인이 필요하다는 걸 미리 말한다
@@ -2248,8 +2250,10 @@
     if (unresponded.length > 0) {
       summary += " " + unresponded.length + "명은 응답 전이라 캘린더 기준이에요.";
     }
+    // 예외 행 = '못 오는 사람'만(away). 미응답(추정상 가능)은 요약의 'N명 응답 전'이 담당한다 —
+    // 가능·불가를 한 리스트에 섞으면 요약의 가능 인원과 셈이 안 맞아 보인다.
     var exceptions = states.filter(function (item) {
-      return item.away || item.unresponded;
+      return item.away;
     });
     return (
       '<p class="confirm-attendee-summary">' + summary + '</p>' +
@@ -2263,24 +2267,13 @@
   // 오른쪽은 초록 뱃지 대신 중립 텍스트(참석 여부를 단정하지 않는다, F-004)
   function renderConfirmExceptionRow(item) {
     var person = item.person;
-    var description, statusText;
-    if (item.unresponded) {
-      description = "응답 전이라 캘린더 기준이에요";
-      statusText = "캘린더로는 가능";
-    } else if (effectiveAttendance(person) === "optional") {
-      description = "정해지면 결과를 공유해요";
-      statusText = "결과 공유";
-    } else {
-      description = "다른 시간이 필요해요";
-      statusText = "다른 시간 필요";
-    }
+    // 못 오는 사람만 온다(away). 뱃지 하나로 상태를 말하고 중복 설명 줄은 두지 않는다.
+    var statusText = effectiveAttendance(person) === "optional" ? "결과 공유" : "다른 시간 필요";
     return (
       '<div class="compose-row confirm-attendee-row">' +
         '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
-        '<div class="compose-row-main">' +
-          '<span class="compose-row-line"><span class="compose-row-name">' + person.name + '</span><span class="confirm-attendee-status">' + statusText + '</span></span>' +
-          '<span class="compose-row-role">' + description + '</span>' +
-        '</div>' +
+        '<span class="compose-row-name">' + person.name + '</span>' +
+        '<span class="confirm-attendee-status">' + statusText + '</span>' +
       '</div>'
     );
   }

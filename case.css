@@ -733,7 +733,7 @@ h3 {
 /* 장면 캡션: 제목(왼쪽 열) · 설명(오른쪽 열)을 수평 정렬 */
 .stage figcaption {
   max-width: var(--prose-width);
-  margin-top: var(--space-4);
+  margin-top: var(--space-6);
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr);
   gap: var(--space-5);
