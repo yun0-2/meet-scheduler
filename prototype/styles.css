@@ -243,6 +243,7 @@ button {
 .slot-cell:focus-visible,
 .card-summary:focus-visible,
 .card-button:focus-visible,
+.compose-pick-card:focus-visible,
 .sort-toggle button:focus-visible {
   outline: 3px solid var(--accent-ring);
   outline-offset: 2px;
@@ -1826,13 +1827,38 @@ body.is-embed .screen-mobile {
   padding-bottom: var(--space-6);
 }
 
-/* 임베드에서는 화면을 뷰포트 높이로 채우지 않는다 — 콘텐츠 높이만큼만 잡아
-   부모(아티클)가 iframe 높이를 딱 맞출 수 있게 한다(세로 스크롤 제거). */
+/* 임베드에서는 화면을 뷰포트 높이로 채우지 않는다(콘텐츠 높이만큼만 잡아
+   부모(아티클)가 iframe 높이를 딱 맞출 수 있게 한다 → 세로 스크롤 제거). */
 body.is-embed .app-shell,
 body.is-embed .screen,
 body.is-embed .messenger-shell,
 body.is-embed .mobile-stage {
   min-height: 0;
+}
+
+/* 추천(compare)은 원래 fixed 오버레이 + 내부 스크롤 모달이라 문서 흐름 높이에 안 잡힌다.
+   임베드에서는 오버레이를 풀어 인라인 화면으로 편다 → body 높이에 들어와 정확히 맞춰진다. */
+body.is-embed .compare-stage {
+  position: static;
+  display: block;
+  padding: 0;
+  background: none;
+}
+
+body.is-embed .dialog-backdrop {
+  display: none;
+}
+
+body.is-embed .web-dialog {
+  width: 100%;
+  max-height: none;
+  overflow-y: visible;
+  box-shadow: none;
+  padding: 0;
+}
+
+body.is-embed .web-dialog-close {
+  display: none;
 }
 
 #demo-nav {
@@ -3508,4 +3534,135 @@ body.is-embed .mobile-stage {
 
 .popover-choose:hover {
   background: var(--accent-strong);
+}
+
+/* 작성 모달: 주최자 선호 반영 안내 — 조용한 한 줄 + 링크형 버튼 */
+.compose-note-row {
+  margin-top: calc(-1 * var(--space-2));
+}
+
+.compose-note {
+  margin: 0;
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  line-height: 1.5;
+}
+
+.compose-note-link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--gray-700);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.compose-note-link:hover {
+  color: var(--gray-900);
+}
+
+/* ===== 작성 모달 2단계 스테퍼 (2026-07-12) ===== */
+/* ①/②는 원형 위젯이 아니라 텍스트 라벨 — 현재 단계만 진하게(gray-900), 파랑은 쓰지 않는다 */
+.compose-steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  flex: 0 0 auto;
+  padding: 10px 20px 14px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  font-size: var(--text-13, 13px);
+  font-weight: 600;
+}
+
+.compose-step {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--gray-400, #B0B8C1);
+  cursor: default;
+}
+
+button.compose-step {
+  cursor: pointer;
+}
+
+button.compose-step:hover {
+  color: var(--gray-900, #191F28);
+  text-decoration: underline;
+}
+
+.compose-step.is-current {
+  color: var(--gray-900, #191F28);
+}
+
+.compose-step-arrow {
+  color: var(--gray-300, #C9CDD2);
+}
+
+/* 2단계 — 카드+격자를 나란히 보려면 1단계보다 넓은 폭이 필요. 1단계는 기존 560px 유지 */
+.slack-modal.is-wide {
+  width: min(1120px, calc(100vw - 48px));
+}
+
+.compose-step2-intro {
+  margin-bottom: var(--space-1, 4px);
+}
+
+.compose-step2-hint {
+  margin: -4px 0 0;
+  color: var(--gray-500, #8B95A1);
+  font-size: var(--text-12, 12px);
+  line-height: 1.5;
+}
+
+/* compare 화면의 desktop-layout을 축소 재사용 — 이름을 분리해 compare 쪽 규칙(920px 브레이크)에
+   영향을 주지 않는다. 스택 지점은 요구사항대로 560px */
+.compose-step2-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--space-5, 20px);
+  align-items: start;
+  margin: var(--space-1, 4px) 0;
+}
+
+.compose-pick-list {
+  gap: var(--space-3, 12px);
+}
+
+/* 컴팩트 카드 — .recommend-card 박스(테두리·라운드·is-selected 링)는 그대로 쓰고
+   버튼 기본 크롬만 초기화한다(전체 카드가 클릭 타깃, 안쪽엔 중첩 button 없음) */
+.compose-pick-card {
+  display: grid;
+  gap: var(--space-2, 8px);
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 뒤로/보내기를 양쪽 끝으로 — 기본 compose-footer는 우측 정렬 하나뿐이라 분기 클래스 필요 */
+.compose-footer.compose-footer-split {
+  justify-content: space-between;
+}
+
+/* 주최자용 '나도 표시하기' — 참석자 DM 링크와 대칭, 조용한 한 줄 */
+.posted-mark-note {
+  margin: -4px 0 var(--space-2, 8px);
+}
+
+@media (max-width: 560px) {
+  .compose-step2-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 2단계 와이드 모달에선 카드 폭 제한 해제 — 격자가 패널 밖으로 넘치던 원인 */
+.slack-modal.is-wide .compose-card {
+  max-width: none;
 }

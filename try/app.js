@@ -28,6 +28,7 @@
     dragLastPaintedId: null,
     suppressNextSoftToggle: false,
     composeModalOpen: false,
+    composeStep: 1,
     inputStage: "dm",
     declined: false,
     myMarksOpen: false,
@@ -178,7 +179,8 @@
     lines: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h6"/></svg>',
     people: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="6" cy="5.5" r="2.4"/><path d="M1.8 13.2c.6-2.2 2.3-3.4 4.2-3.4s3.6 1.2 4.2 3.4"/><path d="M10.6 3.6a2.4 2.4 0 0 1 0 3.9M12.4 9.9c1 .5 1.7 1.6 2 3"/></svg>',
     hash: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M6.2 2.5 4.8 13.5M11.2 2.5 9.8 13.5M3 6h10.5M2.5 10H13"/></svg>',
-    bubble: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 3.5h11v7.5H8l-3 2.5v-2.5H2.5z"/></svg>'
+    bubble: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 3.5h11v7.5H8l-3 2.5v-2.5H2.5z"/></svg>',
+    hourglass: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M4 2.5h8M4 13.5h8M5 2.5v2.6L8 8l3-2.9V2.5M5 13.5v-2.6L8 8l3 2.9v2.6"/></svg>'
   };
 
   var slotHours = buildSlotHours();
@@ -1350,15 +1352,35 @@
   }
 
   function renderComposeModal(jiwoo) {
+    var isStep2 = state.composeStep === 2;
     return (
       '<div class="slack-modal-overlay" data-action="close-compose-backdrop">' +
-        '<div class="slack-modal" role="dialog" aria-modal="true" aria-label="회의 잡기">' +
+        '<div class="slack-modal' + (isStep2 ? ' is-wide' : '') + '" role="dialog" aria-modal="true" aria-label="회의 잡기">' +
           '<header class="slack-modal-head">' +
             '<h2>회의 잡기</h2>' +
             '<button type="button" class="slack-modal-close" data-action="close-compose" aria-label="닫기">✕</button>' +
           '</header>' +
-          '<div class="slack-modal-body">' + renderComposeCard(jiwoo) + '</div>' +
+          renderComposeSteps() +
+          '<div class="slack-modal-body">' + (isStep2 ? renderComposeStep2(jiwoo) : renderComposeStep1(jiwoo)) + '</div>' +
         '</div>' +
+      '</div>'
+    );
+  }
+
+  // 2단계 스테퍼 — 원형 숫자 위저드 대신 텍스트 라벨. 현재 단계만 진하게(gray-900).
+  // 2단계에서 ①을 누르면 compose-back — 라벨 자체가 뒤로가기 입구.
+  function renderComposeSteps() {
+    var step1Label = "① 회의 정보";
+    var step2Label = "② 확인하고 보내기";
+    var step1 = state.composeStep === 2
+      ? '<button type="button" class="compose-step" data-action="compose-back">' + step1Label + '</button>'
+      : '<span class="compose-step is-current" aria-current="step">' + step1Label + '</span>';
+    var step2 = '<span class="compose-step' + (state.composeStep === 2 ? ' is-current" aria-current="step"' : '"') + '>' + step2Label + '</span>';
+    return (
+      '<div class="compose-steps" role="group" aria-label="작성 단계">' +
+        step1 +
+        '<span class="compose-step-arrow" aria-hidden="true">→</span>' +
+        step2 +
       '</div>'
     );
   }
@@ -1476,12 +1498,13 @@
     );
   }
 
-  function renderComposeCard(jiwoo) {
+  // 1단계 — 회의 정보만: 제목 → 후보 날짜·소요 시간 → 내 캘린더 표시 안내 → 설명 → 참석자.
+  // 응답 기한·게시 묶음은 2단계로 옮겼다(추천을 먼저 보고 정하는 게 순서에 맞아서).
+  function renderComposeStep1(jiwoo) {
     var addedCount = composeCandidates().filter(isComposeAdded).length;
     var addedRows = composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
     // 구글 캘린더 빠른 생성 문법 차용: 제목이 최상단 대형 언더라인, 시간 요소는 회색 칩 한 행,
     // 왼쪽 아이콘 컬럼이 라벨을 대신, 주 액션은 우측 정렬 푸터. (접힌 행은 미채택 — 프리필이 있어서)
-    // 순서: 제목 → 시간(시기·소요·기한) → 설명 → 초대할 사람 → [게시 묶음: 채널·메시지] → 푸터.
     return (
       '<div class="schedule-card compose-card">' +
         '<div class="compose-row-icon">' +
@@ -1492,9 +1515,9 @@
           '<span class="compose-icon" aria-hidden="true">' + ICONS.clock + '</span>' +
           '<div class="compose-chip-row">' +
             '<div class="compose-chip-field">' +
-              '<span class="compose-chip-label">회의 시기</span>' +
+              '<span class="compose-chip-label">후보 날짜</span>' +
               '<div class="wcal-anchor">' +
-                '<button type="button" class="compose-chip" data-action="toggle-window-picker" aria-expanded="' + state.windowPickerOpen + '" aria-label="회의 시기">' +
+                '<button type="button" class="compose-chip" data-action="toggle-window-picker" aria-expanded="' + state.windowPickerOpen + '" aria-label="후보 날짜">' +
                   windowLabel() + ' <span class="compose-chip-caret" aria-hidden="true">▾</span>' +
                 '</button>' +
                 (state.windowPickerOpen ? '<div class="wcal-popover">' + renderWindowCalendar() + '</div>' : '') +
@@ -1508,15 +1531,11 @@
                 }).join("") +
               '</select></span>' +
             '</div>' +
-            '<div class="compose-chip-field">' +
-              '<span class="compose-chip-label">응답 기한</span>' +
-              '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
-                ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
-                  return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지</option>';
-                }).join("") +
-              '</select></span>' +
-            '</div>' +
           '</div>' +
+        '</div>' +
+        '<div class="compose-row-icon compose-note-row">' +
+          '<span class="compose-icon" aria-hidden="true"></span>' +
+          '<p class="compose-note">내 캘린더 일정과 <button type="button" class="compose-note-link" data-action="open-my-marks">내 캘린더 표시</button>에 표시한 시간은 추천에 자동 반영돼요.</p>' +
         '</div>' +
         '<div class="compose-row-icon">' +
           '<span class="compose-icon" aria-hidden="true">' + ICONS.lines + '</span>' +
@@ -1536,6 +1555,45 @@
               '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
             '</div>' +
             (addedRows ? '<div class="compose-list">' + addedRows + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="compose-footer">' +
+          '<button class="btn compose-send-btn" data-action="compose-next"' + (addedCount === 0 ? " disabled" : "") + '>추천 시간 보기</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // 2단계 — 첫 제안을 확인·조정하고 보낸다: 컴팩트 카드(좌) + 주간 격자(우) → 응답 기한 → 게시 묶음.
+  function renderComposeStep2(jiwoo) {
+    var featured = currentFeatured();
+    return (
+      '<div class="schedule-card compose-card">' +
+        '<div class="compose-step2-intro">' +
+          '<p class="eyebrow">첫 제안, 이대로 보낼까요?</p>' +
+          '<p class="compose-step2-hint">참석자 캘린더 기준으로 계산했어요. 응답을 받으면 더 정확해져요.</p>' +
+        '</div>' +
+        '<div class="compose-step2-layout">' +
+          '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
+          '<section class="panel" aria-label="주간 격자">' +
+            '<header class="panel-header">' +
+              '<h2>주간 격자</h2>' +
+              renderLegend() +
+            '</header>' +
+            '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
+          '</section>' +
+        '</div>' +
+        '<div class="compose-row-icon">' +
+          '<span class="compose-icon" aria-hidden="true">' + ICONS.hourglass + '</span>' +
+          '<div class="compose-chip-row">' +
+            '<div class="compose-chip-field">' +
+              '<span class="compose-chip-label">응답 기한</span>' +
+              '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
+                ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
+                  return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지 받기</option>';
+                }).join("") +
+              '</select></span>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<div class="compose-publish' + (state.postToChannel ? '' : ' is-off') + '">' +
@@ -1561,11 +1619,34 @@
             '</div>' +
           '</div>' : '') +
         '</div>' +
-        '<div class="compose-footer">' +
-          '<button class="btn compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>' + (state.postToChannel ? '채널에 보내기' : '초대 보내기') + '</button>' +
+        '<div class="compose-footer compose-footer-split">' +
+          '<button type="button" class="btn btn-secondary" data-action="compose-back">← 뒤로</button>' +
+          '<button class="btn compose-send-btn" data-action="post-compose">' + (state.postToChannel ? '첫 제안 보내기' : '초대 보내기') + '</button>' +
         '</div>' +
       '</div>'
     );
+  }
+
+  // 2단계 좌측 — compare 화면의 renderRecommendCards를 컴팩트하게 축약한 것.
+  // 카드 전체가 클릭 타깃(중첩 button 금지 — 안쪽은 span만).
+  function renderComposePickCards() {
+    var tentativeId = state.tentativeSlotId || currentFeatured().recommended.id;
+    return orderedCards().map(function (card) {
+      var slot = card.slot;
+      var rank = state.sortMode === "availability" ? card.availableRank : card.recommendedRank;
+      var selected = tentativeId === slot.id;
+      return (
+        '<button type="button" class="recommend-card compose-pick-card' + (selected ? ' is-selected' : '') + '" data-action="compose-pick-slot" data-slot-id="' + slot.id + '" aria-pressed="' + String(selected) + '">' +
+          '<span class="rank-label">' + rank + (selected ? ' · 첫 제안' : '') + '</span>' +
+          '<span class="card-time">' + displayTime(slot) + '</span>' +
+          '<span class="card-copy">' + card.copy + '</span>' +
+          '<span class="metric-row">' +
+            '<span class="metric-pill">필수 ' + slot.requiredAvailable + '/' + requiredPeople().length + '</span>' +
+            '<span class="metric-pill">선택 ' + slot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
+          '</span>' +
+        '</button>'
+      );
+    }).join("");
   }
 
   function renderOrganizerRow(jiwoo) {
@@ -1628,6 +1709,8 @@
         (state.posted
           ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '첫 제안과 다른 시간이에요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
           : '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
+        // 주최자도 참석자와 대칭으로 자기 캘린더 표시를 남길 수 있게 — 조용한 링크 한 줄(과설명 금지)
+        '<p class="posted-mark-note"><button type="button" class="compose-note-link" data-action="open-my-marks">나도 피하고 싶은 시간 표시하기</button></p>' +
         '<div class="participant-grid">' + renderParticipantRows() + '</div>' +
         (state.posted ? '<button type="button" class="btn btn-secondary dm-ok-btn" data-action="propose-change">시간 변경 제안</button>' : '') +
       '</div>'
@@ -1718,7 +1801,7 @@
               '<span class="fact-pill">' + durationLabel() + '</span>' +
               '<span class="fact-pill">' + (effectiveAttendance(person) === "required" ? "필수 참석" : "선택 참석") + '</span>' +
             '</div>' +
-            '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
+            '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>괜찮으면 그대로 확정돼요 · 어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
             (state.inputStage === "done"
               ? '<div class="dm-answered is-ok">' +
                   '<p class="dm-answered-check">✓ 응답 완료</p>' +
@@ -1905,7 +1988,12 @@
     );
   }
 
-  function renderScheduleGrid(featured) {
+  // opts.pickAction — compose 2단계 전용 모드. 지정하면 셀·팝오버 버튼이 select-grid-slot/
+  // choose-slot 대신 이 액션으로 렌더된다(첫 제안 선택 전용, confirm 라우트로 안 감).
+  // opts가 없으면(compare 화면) 기존 동작 그대로 — 1픽셀도 안 바뀐다.
+  function renderScheduleGrid(featured, opts) {
+    var pickAction = (opts && opts.pickAction) || "select-grid-slot";
+    var composeMode = Boolean(opts && opts.pickAction);
     var tentativeId = state.tentativeSlotId || featured.recommended.id;
     // 현재 정렬 기준의 1~3위를 격자에도 찍는다 — 뱃지를 뺐더니 카드와 격자가
     // 이어져 보이지 않는다는 실사용 피드백(006)으로 복원. 번호 언어는 카드와 동일.
@@ -1926,7 +2014,7 @@
       html += '<div class="grid-time">' + String(hour).padStart(2, "0") + ':00</div>';
       days.forEach(function (day) {
         var slot = slotById(slotId(day, hour));
-        var selected = state.selectedSlotId === slot.id;
+        var selected = composeMode ? tentativeId === slot.id : state.selectedSlotId === slot.id;
         var recommended = slot.id === featured.recommended.id;
         var active = state.activeSlotId === slot.id;
         var open = state.openSlotId === slot.id;
@@ -1952,10 +2040,10 @@
         }
         html +=
           '<div class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
-          'role="button" tabindex="0" data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
+          'role="button" tabindex="0" data-pick-source="cell" data-action="' + pickAction + '" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
             (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '') +
             (pick ? '<span class="slot-pick" style="top:' + Math.round((pick.start - hour) * 100) + '%"><span class="slot-pick-chip">' + formatClock(pick.start) + '</span></span>' : '') +
-            '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot, open) + '</span>' +
+            '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot, open, opts) + '</span>' +
           '</div>';
       });
     });
@@ -1999,9 +2087,10 @@
     });
   }
 
-  function renderSlotPopover(slot, isOpen) {
+  function renderSlotPopover(slot, isOpen, opts) {
     // 아바타 회색 처리 문법 — 불참(회색 흐림)·미응답(반투명)은 범례 없이 읽힌다.
     // 이름별 설명 문장은 과설명이라 쓰지 않는다.
+    var chooseAction = (opts && opts.pickAction) || "choose-slot";
     var states = slotPeopleStates(slot);
     var avatars = states.map(function (item) {
       var cls = "slot-avatar " + (effectiveAttendance(item.person) === "required" ? "is-required" : "is-optional");
@@ -2024,7 +2113,7 @@
       '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
       '<span class="popover-avatar-stack">' + avatars + '</span>' +
       (slot.privateSoft.length > 0 ? '<span class="popover-note">피하고 싶다는 표시가 있어요</span>' : '') +
-      (isOpen ? '<button class="popover-choose" data-action="choose-slot" data-slot-id="' + slot.id + '">이 시간 선택</button>' : '') +
+      (isOpen ? '<button class="popover-choose" data-action="' + chooseAction + '" data-slot-id="' + slot.id + '">이 시간 선택</button>' : '') +
       ''
     );
   }
@@ -2504,11 +2593,66 @@
     }
     if (action === "open-compose") {
       state.composeModalOpen = true;
+      state.composeStep = 1;
       render();
       return;
     }
     if (action === "close-compose") {
       state.composeModalOpen = false;
+      render();
+      return;
+    }
+    if (action === "compose-next") {
+      if (target.disabled) {
+        return;
+      }
+      state.composeStep = 2;
+      // 이전 화면(compare 등)에서 남은 격자 상태가 새 2단계에 새어 들어오지 않게 정리
+      state.activeSlotId = null;
+      state.openSlotId = null;
+      state.customSlot = null;
+      render();
+      return;
+    }
+    if (action === "compose-back") {
+      state.composeStep = 1;
+      render();
+      return;
+    }
+    if (action === "compose-pick-slot") {
+      var pickCellId = target.getAttribute("data-slot-id");
+      var pickedSlotId = pickCellId;
+      var isPickCell = target.getAttribute("data-pick-source") === "cell";
+      if (isPickCell) {
+        // 셀 클릭 — select-grid-slot과 같은 10분 스냅 로직을 그대로 복제
+        if (typeof target.getBoundingClientRect === "function" && event && typeof event.clientY === "number") {
+          var pickRect = target.getBoundingClientRect();
+          if (pickRect.height > 0) {
+            var pickFrac = (event.clientY - pickRect.top) / pickRect.height;
+            var pickMinutes = Math.min(50, Math.max(0, Math.round(pickFrac * 60 / 10) * 10));
+            if (pickMinutes > 0) {
+              var pickParts = pickCellId.split("-");
+              var pickCandidate = scoreSlot(pickParts[0], parseFloat(pickParts[1]) + pickMinutes / 60);
+              if (!pickCandidate.blockedByHours) {
+                state.customSlot = pickCandidate;
+                pickedSlotId = pickCandidate.id;
+              }
+            } else {
+              state.customSlot = null;
+            }
+          }
+        }
+        state.activeSlotId = pickCellId;
+        state.openSlotId = pickCellId;
+      } else {
+        // 팝오버 안 [이 시간 선택] 버튼 — 이미 셀 클릭이 계산해둔 정확한 id를 그대로 신뢰
+        // (choose-slot과 같은 원칙: 여기서 다시 좌표 스냅을 하면 버튼 자체의 rect로 재계산돼 어긋난다)
+        if (!state.customSlot || state.customSlot.id !== pickedSlotId) {
+          state.customSlot = null;
+        }
+        state.openSlotId = null;
+      }
+      state.tentativeSlotId = pickedSlotId;
       render();
       return;
     }
@@ -2545,7 +2689,10 @@
       }
       state.composePosted = true;
       state.composeModalOpen = false;
-      state.tentativeSlotId = currentFeatured().recommended.id;
+      // 2단계에서 카드/격자로 직접 고른 첫 제안이 있으면 그대로 존중 — 없을 때만 추천 1순위로 기본값
+      if (!state.tentativeSlotId) {
+        state.tentativeSlotId = currentFeatured().recommended.id;
+      }
       state.respondedReveal = false;
       state.toastVisible = true;
       state.toastFading = false;
@@ -3004,7 +3151,8 @@
       featuredSlots: currentFeatured,
       cardOrder: cardOrder,
       scoreAllSlots: scoreAllSlots,
-      render: render
+      render: render,
+      state: state
     };
   }
   render();
