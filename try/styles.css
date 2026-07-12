@@ -3866,3 +3866,41 @@ button.compose-step:hover {
 .compose-footer {
   gap: var(--space-2);
 }
+
+/* 2단계 상단 행 — 안내(좌) + 응답 기한(우), 기한이 가장 위 */
+.compose-step2-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.compose-step2-top .compose-step2-hint {
+  margin: 0;
+}
+
+.compose-step2-top .compose-chip-field {
+  flex: 0 0 auto;
+}
+
+/* 하단 전폭 게시 블록 — 체크박스 아래 [채널 | 메시지] 가로 배치 (사용자 스케치) */
+.compose-publish-wide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
+
+.compose-publish-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+@media (max-width: 920px) {
+  .compose-publish-grid {
+    grid-template-columns: 1fr;
+  }
+}

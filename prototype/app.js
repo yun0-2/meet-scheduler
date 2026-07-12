@@ -1546,39 +1546,41 @@
     var featured = currentFeatured();
     return (
       '<div class="schedule-card compose-card">' +
-        '<div class="compose-step2-intro">' +
+        '<div class="compose-step2-top">' +
           '<p class="compose-step2-hint">참석자들의 캘린더와 미리 표시해 둔 피하고 싶은 시간으로 계산했어요. 응답을 받으면 더 정확해져요.</p>' +
+          '<div class="compose-chip-field">' +
+            '<span class="compose-chip-label">응답 기한</span>' +
+            '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
+              ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
+                return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지 받기</option>';
+              }).join("") +
+            '</select></span>' +
+          '</div>' +
         '</div>' +
         '<div class="compose-step2-layout">' +
           '<div class="compose-decide-col">' +
             '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
-            '<div class="compose-chip-field">' +
-              '<span class="compose-chip-label">응답 기한</span>' +
-              '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
-                ["오늘 18시", "내일 12시", "내일 18시", "모레 12시"].map(function (opt) {
-                  return '<option value="' + opt + '"' + (state.replyBy === opt ? " selected" : "") + '>' + opt + '까지 받기</option>';
-                }).join("") +
-              '</select></span>' +
-            '</div>' +
-            '<div class="compose-publish' + (state.postToChannel ? '' : ' is-off') + '">' +
-              '<label class="compose-publish-toggle">' +
-                '<input type="checkbox" id="post-to-channel"' + (state.postToChannel ? ' checked' : '') + ' /> 채널에 보내기' +
-              '</label>' +
-              (state.postToChannel ? '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
-                ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
-                  return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
-                }).join("") +
-              '</select>' +
-              '<div class="ghost-wrap">' +
-                '<div class="ghost-mirror" id="ghost-message" aria-hidden="true"></div>' +
-                '<textarea class="compose-message-input" id="compose-message" rows="' + textareaRows(state.composeMessage || suggestedMessage(), 4) + '" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
-                '<button type="button" class="ghost-accept" id="ghost-accept-message" data-action="compose-accept-message">→ 그대로 쓰기</button>' +
-              '</div>' : '') +
-            '</div>' +
           '</div>' +
           '<section class="panel" aria-label="주간 격자">' +
             '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
           '</section>' +
+        '</div>' +
+        '<div class="compose-publish compose-publish-wide' + (state.postToChannel ? '' : ' is-off') + '">' +
+          '<label class="compose-publish-toggle">' +
+            '<input type="checkbox" id="post-to-channel"' + (state.postToChannel ? ' checked' : '') + ' /> 채널에 보내기' +
+          '</label>' +
+          (state.postToChannel ? '<div class="compose-publish-grid">' +
+            '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
+              ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
+                return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
+              }).join("") +
+            '</select>' +
+            '<div class="ghost-wrap">' +
+              '<div class="ghost-mirror" id="ghost-message" aria-hidden="true"></div>' +
+              '<textarea class="compose-message-input" id="compose-message" rows="' + textareaRows(state.composeMessage || suggestedMessage(), 3) + '" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
+              '<button type="button" class="ghost-accept" id="ghost-accept-message" data-action="compose-accept-message">→ 그대로 쓰기</button>' +
+            '</div>' +
+          '</div>' : '') +
         '</div>' +
         '<div class="compose-footer">' +
           '<button type="button" class="btn btn-secondary" data-action="compose-back">이전으로</button>' +
@@ -1603,9 +1605,6 @@
     });
     // 격자에서 30분 단위 등 카드 밖 시각을 골랐으면 그 시각으로 주 카드를 만든다
     var mainSlot = main ? main.slot : slotById(tentativeId);
-    var mainCopy = main
-      ? main.copy
-      : '필수 ' + mainSlot.requiredAvailable + '명, 선택 ' + mainSlot.optionalAvailable + '명이 가능한 시간이에요.';
     var alts = cards.filter(function (card) {
       return card.slot.id !== tentativeId;
     }).slice(0, 2);
@@ -1613,7 +1612,6 @@
       '<div class="recommend-card compose-pick-card is-selected is-main">' +
         '<span class="rank-label">보낼 제안</span>' +
         '<span class="card-time">' + displayTime(mainSlot) + '</span>' +
-        '<span class="card-copy">' + mainCopy + '</span>' +
         '<span class="metric-row">' +
           '<span class="metric-pill">필수 ' + mainSlot.requiredAvailable + '/' + requiredPeople().length + '</span>' +
           '<span class="metric-pill">선택 ' + mainSlot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
@@ -1629,9 +1627,7 @@
               '</button>'
             );
           }).join("")
-        : '') +
-      '<div class="compose-group-divider" aria-hidden="true"></div>' +
-      '<p class="compose-group-label">보내기 설정</p>'
+        : '')
     );
   }
 
