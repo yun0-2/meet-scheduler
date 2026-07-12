@@ -1599,22 +1599,16 @@ button {
   font-size: var(--text-13);
 }
 
-/* 상태를 필 뱃지로 — 모달 타이틀과 위계가 겹쳐 제목 두 개로 읽히지 않게 */
-.response-pill {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  background: var(--gray-100, #f2f4f6);
+/* 상태는 조용한 평문 한 줄 — 크기(13)·회색으로 제목과 경합을 피하고 숫자·시간만 세미볼드 */
+.response-line {
   color: var(--gray-600);
   font-size: var(--text-13);
-  font-weight: 600;
-  padding: 4px 10px;
-  white-space: nowrap;
+  line-height: 1.5;
 }
-
-.response-pill--sent {
-  background: var(--accent-soft, #e8f3ff);
-  color: var(--accent-strong, #2272eb);
+.response-line strong {
+  color: var(--gray-800, #333d4b);
+  font-weight: 600;
+  font-feature-settings: "tnum";
 }
 
 .remind-btn {
@@ -4219,18 +4213,31 @@ button.compose-step:hover {
   line-height: 1;
 }
 
-/* 푸터 선택 요약 — 격자 선택은 스트로크뿐이라, 무엇을 골랐는지는 CTA 옆에서 확인시킨다 */
+/* 푸터 선택 요약 — 한 덩어리 토널 필. 선택하면 CTA 옆에 나타나는 것 자체가 피드백이고,
+   반 단계짜리 타이포 차이 3개(라벨/시간/메타)로 쪼개 조잡하던 것을 단일 표면으로 */
 .footer-selection {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--gray-600);
+  border-radius: 999px;
+  background: var(--accent-soft, #e8f3ff);
+  color: var(--accent-strong, #2272eb);
   font-size: var(--text-13);
+  font-weight: 500;
+  padding: 8px 14px;
+  white-space: nowrap;
+  animation: footer-selection-in 160ms ease-out;
+}
+.footer-selection:empty {
+  display: none;
 }
 .footer-selection strong {
-  color: var(--gray-900);
-  font-weight: 600;
+  font-weight: 700;
   font-feature-settings: "tnum";
+}
+@keyframes footer-selection-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* 확정 예외 행 — 아바타·이름·뱃지 한 줄(설명 줄 폐지). 이름과 뱃지는 왼쪽에 붙이고 여백은 오른쪽 */
