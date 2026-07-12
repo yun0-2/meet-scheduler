@@ -1373,7 +1373,6 @@ h3 {
 .fact-strip {
   display: inline-block;
   margin: 0 0 var(--space-6);
-  margin-left: max(0px, calc((100% - var(--prose-width)) / 2));
   border: 1px solid var(--border);
   border-radius: var(--radius-8);
   background: var(--surface-muted);

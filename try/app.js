@@ -2009,7 +2009,7 @@
     });
 
     slotHours.forEach(function (hour) {
-      html += '<div class="grid-time">' + String(hour).padStart(2, "0") + ':00</div>';
+      html += '<div class="grid-time"><span>' + String(hour).padStart(2, "0") + ':00</span></div>';
       days.forEach(function (day) {
         var slot = slotById(slotId(day, hour));
         var selected = composeMode ? tentativeId === slot.id : state.selectedSlotId === slot.id;
