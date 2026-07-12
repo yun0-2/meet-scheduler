@@ -701,7 +701,7 @@ button {
 .input-guidance {
   margin: var(--space-2) 0 0;
   color: var(--gray-600);
-  font-size: var(--text-13);
+  font-size: var(--text-14);
   line-height: 1.45;
 }
 
@@ -1324,7 +1324,7 @@ button {
   border-top: 1px solid var(--border);
   color: var(--gray-700);
   padding-top: var(--space-2);
-  font-size: var(--text-12);
+  font-size: var(--text-13);
   line-height: 1.45;
 }
 
@@ -1405,7 +1405,7 @@ button {
   border-top: 1px solid var(--border);
   color: var(--gray-600);
   padding-top: var(--space-3);
-  font-size: var(--text-13);
+  font-size: var(--text-14);
 }
 
 .metric-pill .video-icon {
@@ -2550,7 +2550,7 @@ body.is-embed .web-dialog-close {
 .input-tentative {
   margin: 2px 0 var(--space-2);
   color: var(--gray-700);
-  font-size: var(--text-13);
+  font-size: var(--text-14);
   font-weight: 400;
   line-height: 1.5;
 }
@@ -3168,7 +3168,7 @@ body.is-embed .web-dialog-close {
 }
 .dm-answered-text {
   margin: 0;
-  font-size: var(--text-13);
+  font-size: var(--text-14);
   color: var(--grey-600, #6B7684);
   line-height: 1.5;
 }
@@ -3627,7 +3627,7 @@ button.compose-step:hover {
 .compose-step2-hint {
   margin: -4px 0 0;
   color: var(--gray-500, #8B95A1);
-  font-size: var(--text-12, 12px);
+  font-size: var(--text-14);
   line-height: 1.5;
 }
 
@@ -3862,7 +3862,7 @@ button.compose-step:hover {
   margin-top: calc(-1 * var(--space-2));
   margin-bottom: var(--space-4);
   color: var(--gray-500);
-  font-size: var(--text-13);
+  font-size: var(--text-14);
 }
 
 .confirm-room-label {
@@ -3953,7 +3953,7 @@ button.compose-step:hover {
 
 .compose-main-count {
   color: var(--gray-600);
-  font-size: var(--text-13);
+  font-size: var(--text-14);
   font-weight: 600;
 }
 
