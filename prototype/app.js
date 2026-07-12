@@ -1797,18 +1797,17 @@
   function renderInputGridModal(person, optional, optedOut) {
     return (
       '<div class="slack-modal-overlay" data-action="close-grid-backdrop">' +
-        '<div class="slack-modal" role="dialog" aria-modal="true" aria-label="피하고 싶은 시간 표시">' +
+        '<div class="slack-modal is-input" role="dialog" aria-modal="true" aria-label="' + meetingTitle() + ' 피하고 싶은 시간 표시">' +
           '<header class="slack-modal-head">' +
-            '<h2>피하고 싶은 시간 표시</h2>' +
+            '<h2>' + meetingTitle() + '</h2>' +
+            '<span class="head-badge">' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</span>' +
             '<button type="button" class="slack-modal-close" data-action="grid-back-dm" aria-label="닫기">✕</button>' +
           '</header>' +
           '<div class="slack-modal-body">' +
-            '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
-            '<p class="input-tentative">제안 시간은 격자에 표시했어요. 피하고 싶은 시간을 칠해주세요</p>' +
+            '<p class="input-tentative">제안 시간은 격자에 표시했어요. 피하고 싶은 시간을 칠해주세요. 누가 표시했는지는 주최자에게 보이지 않아요.</p>' +
             (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
-            '<p class="privacy-note">누가 표시했는지는 주최자에게 보이지 않아요</p>' +
             '<button class="btn btn-full" data-action="submit-response">제출</button>' +
             '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
           '</div>' +
@@ -2597,23 +2596,13 @@
       var pickedSlotId = pickCellId;
       var isPickCell = target.getAttribute("data-pick-source") === "cell";
       if (isPickCell) {
-        // 셀 클릭 — select-grid-slot과 같은 10분 스냅 로직을 그대로 복제
-        if (typeof target.getBoundingClientRect === "function" && event && typeof event.clientY === "number") {
-          var pickRect = target.getBoundingClientRect();
-          if (pickRect.height > 0) {
-            var pickFrac = (event.clientY - pickRect.top) / pickRect.height;
-            var pickMinutes = Math.min(50, Math.max(0, Math.round(pickFrac * 60 / 10) * 10));
-            if (pickMinutes > 0) {
-              var pickParts = pickCellId.split("-");
-              var pickCandidate = scoreSlot(pickParts[0], parseFloat(pickParts[1]) + pickMinutes / 60);
-              if (!pickCandidate.blockedByHours) {
-                state.customSlot = pickCandidate;
-                pickedSlotId = pickCandidate.id;
-              }
-            } else {
-              state.customSlot = null;
-            }
-          }
+        if (state.dragJustPicked) {
+          state.dragJustPicked = false;
+          return;
+        }
+        // 셀 클릭 = 정시. 10분 단위는 드래그 제스처가 담당 (select-grid-slot과 동일 원칙)
+        if (!state.customSlot || state.customSlot.id !== pickCellId) {
+          state.customSlot = null;
         }
         state.activeSlotId = pickCellId;
         state.openSlotId = pickCellId;
@@ -2728,27 +2717,17 @@
       render();
     }
     if (action === "select-grid-slot") {
-      // 클릭 위치를 10분 단위로 스냅 — 13:30, 16:30 같은 시간도 고를 수 있다 (구글 캘린더 문법)
-      var cellId = target.getAttribute("data-slot-id");
-      var pickedId = cellId;
-      if (typeof target.getBoundingClientRect === "function" && event && typeof event.clientY === "number") {
-        var rect = target.getBoundingClientRect();
-        if (rect.height > 0) {
-          var frac = (event.clientY - rect.top) / rect.height;
-          var minutes = Math.min(50, Math.max(0, Math.round(frac * 60 / 10) * 10));
-          if (minutes > 0) {
-            var parts = cellId.split("-");
-            var candidate = scoreSlot(parts[0], parseFloat(parts[1]) + minutes / 60);
-            if (!candidate.blockedByHours) {
-              state.customSlot = candidate;
-              pickedId = candidate.id;
-            }
-          } else {
-            state.customSlot = null;
-          }
-        }
+      // 드래그가 방금 픽을 커밋했으면 뒤따르는 클릭은 무시 (드래그 후 click 이벤트가 한 번 더 온다)
+      if (state.dragJustPicked) {
+        state.dragJustPicked = false;
+        return;
       }
-      state.selectedSlotId = pickedId;
+      // 클릭 = 정시 선택. 10분 단위 시각은 드래그 제스처(누르고 끌어서 놓기)가 담당
+      var cellId = target.getAttribute("data-slot-id");
+      if (!state.customSlot || state.customSlot.id !== cellId) {
+        state.customSlot = null;
+      }
+      state.selectedSlotId = cellId;
       state.activeSlotId = cellId;
       state.openSlotId = cellId;
       render();
@@ -3030,6 +3009,125 @@
       if (field && chip) {
         chip.style.display = field.value ? "none" : "";
       }
+    });
+  }
+
+  // ── 드래그로 10분 단위 시각 고르기 (구글 캘린더의 누르고-끌고-떼기 문법) ──
+  // 클릭은 정시, 드래그는 분 단위 — 클릭 위치 스냅보다 의도가 분명하고 더 섬세하다.
+  var gridDrag = null;
+
+  function dragPickCandidate(clientX, clientY) {
+    // 포인터 아래의 실제 셀에서 시각을 계산 — 점심 밴드 등 높이가 다른 행을 건너도 정확하다
+    var el = document.elementFromPoint ? document.elementFromPoint(clientX, clientY) : null;
+    var cell = el && el.closest ? el.closest('.slot-cell[data-slot-id]') : null;
+    if (!cell) {
+      return null;
+    }
+    var rect = cell.getBoundingClientRect();
+    if (rect.height <= 0) {
+      return null;
+    }
+    var parts = cell.getAttribute("data-slot-id").split("-");
+    var minutes = Math.min(50, Math.max(0, Math.round(((clientY - rect.top) / rect.height) * 60 / 10) * 10));
+    var start = parseFloat(parts[1]) + minutes / 60;
+    var candidate = scoreSlot(parts[0], start);
+    if (candidate.blockedByHours) {
+      return null;
+    }
+    return { slot: candidate, cellId: cell.getAttribute("data-slot-id"), cell: cell, rect: rect, frac: minutes / 60 };
+  }
+
+  function updateDragPreview(pick) {
+    if (!gridDrag || !gridDrag.grid) {
+      return;
+    }
+    var line = gridDrag.previewEl;
+    if (!line) {
+      line = document.createElement("div");
+      line.className = "drag-pick-line";
+      line.innerHTML = '<span class="slot-pick-chip"></span>';
+      gridDrag.grid.appendChild(line);
+      gridDrag.previewEl = line;
+    }
+    var gridRect = gridDrag.grid.getBoundingClientRect();
+    line.style.top = (pick.rect.top - gridRect.top + pick.rect.height * pick.frac) + "px";
+    line.style.left = (pick.rect.left - gridRect.left) + "px";
+    line.style.width = pick.rect.width + "px";
+    line.querySelector(".slot-pick-chip").textContent = formatClock(pick.slot.start);
+  }
+
+  app.addEventListener("mousedown", function (event) {
+    if (!event.target || !event.target.closest) {
+      return;
+    }
+    var cell = event.target.closest('.slot-cell[data-action="select-grid-slot"], .slot-cell[data-action="compose-pick-slot"]');
+    if (!cell) {
+      return;
+    }
+    var grid = cell.closest ? cell.closest(".schedule-grid") : null;
+    gridDrag = {
+      action: cell.getAttribute("data-action"),
+      grid: grid,
+      startY: event.clientY,
+      moved: false,
+      lastPick: null,
+      previewEl: null
+    };
+    // 드래그 중 텍스트 선택 방지
+    if (event.preventDefault) {
+      event.preventDefault();
+    }
+  });
+
+  if (document.addEventListener) {
+    document.addEventListener("mousemove", function (event) {
+      if (!gridDrag) {
+        return;
+      }
+      if (!gridDrag.moved && Math.abs(event.clientY - gridDrag.startY) < 5) {
+        return;
+      }
+      gridDrag.moved = true;
+      if (gridDrag.grid && gridDrag.grid.classList) {
+        gridDrag.grid.classList.add("is-dragging");
+      }
+      var pick = dragPickCandidate(event.clientX, event.clientY);
+      if (pick) {
+        gridDrag.lastPick = pick;
+        updateDragPreview(pick);
+      }
+    });
+
+    document.addEventListener("mouseup", function () {
+      if (!gridDrag) {
+        return;
+      }
+      var drag = gridDrag;
+      gridDrag = null;
+      if (drag.grid && drag.grid.classList) {
+        drag.grid.classList.remove("is-dragging");
+      }
+      if (drag.previewEl && drag.previewEl.parentNode) {
+        drag.previewEl.parentNode.removeChild(drag.previewEl);
+      }
+      if (!drag.moved || !drag.lastPick) {
+        return;
+      }
+      // 드래그 커밋 — 뒤따르는 click은 무시하게 표시
+      state.dragJustPicked = true;
+      var slot = drag.lastPick.slot;
+      var isWhole = slot.start === Math.floor(slot.start);
+      state.customSlot = isWhole ? null : slot;
+      if (drag.action === "compose-pick-slot") {
+        state.tentativeSlotId = slot.id;
+        state.activeSlotId = drag.lastPick.cellId;
+        state.openSlotId = drag.lastPick.cellId;
+      } else {
+        state.selectedSlotId = slot.id;
+        state.activeSlotId = drag.lastPick.cellId;
+        state.openSlotId = drag.lastPick.cellId;
+      }
+      render();
     });
   }
 

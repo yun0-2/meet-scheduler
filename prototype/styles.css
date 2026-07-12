@@ -2555,10 +2555,11 @@ body.is-embed .web-dialog-close {
 }
 
 .input-tentative {
-  margin: 2px 0 0;
-  color: var(--grey-800);
-  font-size: var(--text-12);
-  font-weight: 600;
+  margin: 2px 0 var(--space-2);
+  color: var(--gray-700);
+  font-size: var(--text-13);
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 /* ── 슬랙 네이티브 모달 문법 (무대 충실 모사) ── */
@@ -2614,7 +2615,7 @@ body.is-embed .web-dialog-close {
 .slack-modal-body {
   flex: 1 1 auto;
   min-height: 0;
-  padding: 8px 20px 0;
+  padding: 8px 20px 20px;
   overflow-y: auto;
 }
 
@@ -3679,4 +3680,49 @@ button.compose-step:hover {
 
 .slack-modal.is-compose .compose-footer {
   margin-top: auto;
+}
+
+/* 입력 모달: 섹션 사이 숨 쉴 간격 — 격자·제출·거절 링크가 서로 붙지 않게 */
+.slack-modal.is-input .mini-week-grid {
+  margin: var(--space-2) 0 var(--space-5);
+}
+
+.slack-modal.is-input .dm-decline-link {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-1);
+}
+
+/* 모달 제목 옆 참석 구분 뱃지 */
+.head-badge {
+  margin-left: var(--space-2);
+  margin-right: auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--gray-600);
+  font-size: var(--text-12);
+  font-weight: 600;
+  padding: 2px 8px;
+}
+
+/* 드래그 픽 — 격자 위 떠 있는 라인+시간 칩. 드래그 중엔 팝오버를 숨겨 시야 확보 */
+.schedule-grid {
+  position: relative;
+}
+
+.drag-pick-line {
+  position: absolute;
+  height: 0;
+  border-top: 2px solid var(--accent-strong);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.drag-pick-line .slot-pick-chip {
+  position: absolute;
+  top: -9px;
+  left: 4px;
+}
+
+.schedule-grid.is-dragging .slot-popover {
+  visibility: hidden !important;
 }

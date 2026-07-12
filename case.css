@@ -306,13 +306,6 @@ h3 {
   padding: var(--space-5);
 }
 
-.layer-card__number {
-  display: inline-block;
-  color: var(--accent);
-  font-size: var(--text-13);
-  font-weight: 600;
-}
-
 .stage__step {
   display: inline-flex;
   width: 28px;
@@ -337,6 +330,11 @@ h3 {
   font-size: var(--text-17);
   font-weight: 600;
   line-height: 1.4;
+}
+
+/* 넘버 제거로 h3가 카드 첫 요소가 됐으니 상단 여백 회수 */
+.layer-card h3 {
+  margin-top: 0;
 }
 
 .layer-card p,
@@ -534,10 +532,12 @@ h3 {
   font-weight: 600;
 }
 
+/* 인터뷰 인용: 받은 메시지 말풍선 — 발화라는 사실을 형태로 말한다 */
 .quote-list {
   max-width: var(--prose-width);
   display: grid;
-  gap: var(--space-8);
+  gap: var(--space-6);
+  justify-items: start;
   margin-left: auto;
   margin-right: auto;
   margin-top: var(--space-6);
@@ -549,15 +549,34 @@ h3 {
 }
 
 .quote-list p {
+  position: relative;
+  width: fit-content;
+  border-radius: 24px;
+  background: var(--gray-100);
   color: var(--gray-900);
-  font-size: var(--text-21);
+  font-size: var(--text-19);
   font-weight: 600;
-  line-height: 1.6;
+  line-height: 1.55;
+  padding: var(--space-4) var(--space-6);
+}
+
+/* 왼쪽 아래 꼬리: 같은 색 사각형을 살짝 기울여 겹친다 */
+.quote-list p::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  bottom: -4px;
+  width: 16px;
+  height: 16px;
+  background: var(--gray-100);
+  border-radius: 3px;
+  transform: rotate(56deg) skewX(18deg);
 }
 
 .quote-list cite {
   display: block;
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
+  padding-left: var(--space-4);
   color: var(--gray-400);
   font-size: var(--text-15);
   font-style: normal;
