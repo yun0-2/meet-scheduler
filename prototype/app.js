@@ -44,8 +44,6 @@
     respondedReveal: false,
     jiwooSoftSlots: {},
     tentativeSlotId: null,
-    scenarioSeen: {},
-    scenarioLastRoute: null,
     scenarioOverlayOpen: false,
     scenarioFocusReturn: null,
     toastVisible: false,
@@ -979,10 +977,6 @@
       renderEntry();
     }
     renderDemoNav();
-    if (state.route !== state.scenarioLastRoute) {
-      state.scenarioLastRoute = state.route;
-      renderScenarioCard(false);
-    }
     lockBackgroundScroll(state.composeModalOpen || state.myMarksOpen || state.inputStage === "grid");
     if (state.composeModalOpen) {
       syncGhosts();
@@ -1094,6 +1088,12 @@
     var isInputOptional = route === "input-optional";
     var jiwoo = getPerson("jiwoo");
     var inputPerson = isInputOptional ? getPerson("seyoung") : getPerson("haneul");
+    // 모달 화면에서는 패널이 모달 푸터 CTA(우하단)와 같은 자리라 푸터 위로 올린다.
+    // CSS :has()는 삽입 직후 스타일 재계산이 안 도는 환경이 있어(실측) 클래스로 명시.
+    var modalOpen = String(app.innerHTML || "").indexOf("slack-modal-overlay") !== -1;
+    if (nav.setAttribute) {
+      nav.setAttribute("class", modalOpen ? "is-lifted" : "");
+    }
     // 역할별 그룹: 주최자 저니(제안→추천→확정) 한 행, 참석자 저니(응답) 한 행.
     var hostGroup = { role: "주최자", steps: [
       { hash: "entry", person: jiwoo, label: "제안", active: route === "entry" },
@@ -1121,8 +1121,9 @@
       );
     }
 
-    // 우하단 고정 + 두 행(주최자/참석자) — 모달 푸터 CTA와 겹칠 수 있어 컨테이너는
-    // pointer-events:none, 행·필만 auto로 열어 클릭이 아래로 그대로 통과하게 한다.
+    // 우하단 고정 단일 패널 — 캡션·주최자 행·참석자 행이 같은 다크 배경 안에 쌓인다
+    // (세 조각으로 떠 보인다는 피드백 반영). 폭은 모달 푸터 CTA 텍스트를 가리지 않는
+    // 한도로 CSS에서 고정한다.
     nav.innerHTML =
       '<p class="demo-nav-caption">' + demoCaptionFor(route) + '</p>' +
       '<div class="demo-nav-row">' + renderGroup(hostGroup) + '</div>' +
@@ -1131,25 +1132,21 @@
       '</div>';
   }
 
-  // 시나리오 카드 — 데모 전체에서 첫 진입 1회만 뜨는 소개 카드(#app 밖 다크 오버레이).
-  // 장면별 설명은 리모컨 위 캡션이 맡으므로, 이 카드는 더 이상 장면별로 분기하지 않는다.
-  function renderScenarioCard(forceOpen) {
+  // 소개 카드 — 자동으로 띄우지 않는다. 리모컨 ? 버튼으로 열 때만 표시하고,
+  // 진입 즉시 제품 화면과 리모컨 캡션이 안내를 대신한다(첫인상에서 클릭 한 번 절약).
+  function renderScenarioCard() {
     if (isEmbedMode) {
       // 임베드에서는 상황 설명을 아티클 본문이 대신한다 — 카드 없이 바로 조작.
-      return;
-    }
-    if (!forceOpen && state.scenarioSeen.intro) {
       return;
     }
     var layer = getScenarioLayer();
     if (!layer) {
       return;
     }
-    state.scenarioSeen.intro = true;
     openScenarioOverlay(layer,
       '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="3분 데모">' +
         '<p class="scenario-eyebrow">3분 데모</p>' +
-        '<p class="scenario-body">슬랙에서 회의 시간을 정하는 흐름이에요. 주최자가 제안을 보내고, 참석자의 사정을 모아, 추천에서 골라 확정해요. 오른쪽 아래 리모컨으로 장면을 오갈 수 있어요.</p>' +
+        '<p class="scenario-body">슬랙에서 회의 시간을 정하는 흐름이에요. 주최자가 제안을 보내고, 참석자의 사정을 모아, 추천에서 골라 확정해요.</p>' +
         '<button type="button" class="scenario-start-btn" data-action="scenario-close">시작하기</button>' +
       '</div>');
   }
@@ -3273,7 +3270,7 @@
       }
       var replayTarget = event.target.closest("[data-action='scenario-replay']");
       if (replayTarget) {
-        renderScenarioCard(true);
+        renderScenarioCard();
       }
     });
   }

@@ -1820,65 +1820,8 @@ body.is-embed .schedule-grid {
   font-weight: 700;
 }
 
-.demo-nav-num {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.demo-nav-avatar {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--avatar);
-  color: var(--avatar-text);
-  font-size: 10px;
-  font-weight: 700;
-}
-
 .demo-nav-label {
   white-space: nowrap;
-}
-
-.demo-nav-subtoggle {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: 4px;
-  padding-left: 8px;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.demo-nav-subtoggle button {
-  border-radius: 999px;
-  padding: 4px 8px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: var(--text-12);
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.demo-nav-subtoggle button:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.demo-nav-subtoggle button[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.16);
-  color: white;
 }
 
 .demo-nav-help {
@@ -2001,61 +1944,7 @@ body.is-embed .schedule-grid {
   outline-offset: 2px;
 }
 
-/* 데모 리모컨 반응형 — 기본 규칙보다 뒤에 있어야 이긴다 (같은 특이성) */
 @media (max-width: 560px) {
-  #demo-nav {
-    bottom: 10px;
-    gap: 2px;
-    padding: 5px 6px;
-    max-width: calc(100vw - 16px);
-  }
-
-  .demo-nav-btn {
-    gap: 0;
-    padding: 4px 5px;
-  }
-
-  .demo-nav-label {
-    display: none;
-  }
-
-  .demo-nav-role-label {
-    display: none;
-  }
-
-  .demo-nav-group {
-    gap: 1px;
-    padding: 2px 3px;
-  }
-
-  .demo-nav-num {
-    width: 13px;
-    height: 13px;
-    font-size: 9px;
-  }
-
-  .demo-nav-avatar {
-    width: 18px;
-    height: 18px;
-    font-size: 9px;
-  }
-
-  .demo-nav-subtoggle {
-    margin-left: 0;
-    padding-left: 4px;
-  }
-
-  .demo-nav-subtoggle button {
-    padding: 3px 5px;
-    font-size: 11px;
-  }
-
-  .demo-nav-help {
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
-  }
-
   .scenario-card {
     padding: var(--space-4);
   }
@@ -4037,79 +3926,121 @@ button.compose-step:hover {
   color: var(--gray-600);
 }
 
-/* ===== 데모 리모콘·안내 개편 (2026-07-12) ===== */
-/* 하단 중앙은 모달 푸터 CTA(확정하러 가기 등)와 자주 겹친다 — 우하단으로 옮기고
-   두 행(주최자/참석자)으로 쌓는다. 컨테이너는 pointer-events:none으로 비워 두고
-   실제 필(행·캡션)만 auto로 열어, 겹치는 아래쪽 CTA 클릭이 항상 통과하게 한다.
-   추천·확정 모달(is-wide, 1000px)은 뷰포트 우측 여백이 좁아 필이 그대로면 모달
-   푸터 버튼과 겹친다 — 행·버튼 패딩을 압축해 실측으로 겹침을 없앴다(1280×800 확인). */
+/* ===== 데모 리모콘 단일 패널 (2026-07-13) ===== */
+/* 캡션·주최자 행·참석자 행이 제각각 떠 보인다는 피드백 → 한 장의 '프로토타입 플레이어
+   컨트롤' 패널로 병합. 반투명 다크 + 블러로 아래 화면이 비치게(플레이어 오버레이 문법),
+   내부는 전부 왼쪽 정렬, 강조는 활성 칩(흰 배경) 하나뿐. */
 #demo-nav {
   left: auto;
   right: 16px;
-  bottom: 12px;
+  bottom: 16px;
   transform: none;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  background: none;
-  padding: 0;
-  box-shadow: none;
-  pointer-events: none;
+  align-items: stretch;
+  gap: 0;
+  width: 316px;
+  max-width: calc(100vw - 32px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-16);
+  background: rgba(23, 27, 35, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  /* 모달이 열리면 푸터 CTA 위로 비켜난다(아래 :has 규칙) — 그 이동을 부드럽게 */
+  transition: bottom 200ms ease-out;
+}
+
+/* 장면 캡션 — 최대 2줄. 장면마다 패널 높이가 출렁이지 않게 2줄 높이로 고정하고,
+   아래 헤어라인으로 컨트롤 영역과 구분한다. */
+.demo-nav-caption {
+  min-height: 47px; /* 2줄(12px × 1.5 × 2) + 아래 패딩 10 + 헤어라인 1 — border-box 기준 */
+  margin: 0 0 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
 }
 
 .demo-nav-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  border-radius: 999px;
-  background: var(--gray-900);
-  padding: 5px 8px;
-  box-shadow: var(--shadow-pop);
-  pointer-events: auto;
+  gap: 4px;
 }
 
-.demo-nav-row .demo-nav-group {
-  gap: 2px;
-  padding: 1px 4px;
+.demo-nav-row + .demo-nav-row {
+  margin-top: 8px;
 }
 
-.demo-nav-row .demo-nav-role-label {
+/* 역할 라벨 고정폭 — 두 행의 칩 x 시작점을 '주최자' 기준으로 맞춘다 */
+.demo-nav-group {
+  gap: 4px;
+  border-radius: 0;
+  background: none;
   padding: 0;
-  font-size: 9px;
 }
 
-.demo-nav-row .demo-nav-btn {
-  padding: 4px 6px;
+.demo-nav-role-label {
+  width: 40px;
+  flex: none;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  font-weight: 600;
 }
 
-.demo-nav-row .demo-nav-help {
-  margin-left: 0;
-}
-
-/* 장면 설명 — 리모컨 위 캡션 한 줄, 비블로킹·항상 표시. 리모컨과 같은 다크 톤의 작은 말풍선 */
-.demo-nav-caption {
-  max-width: min(320px, calc(100vw - 32px));
-  margin: 0;
-  border-radius: var(--radius-12);
-  background: var(--gray-900);
+/* 장면 칩 — 강조는 활성(흰 배경) 하나만, 나머지는 톤으로 물러난다 */
+.demo-nav-btn {
+  gap: 0;
+  border-radius: var(--radius-8);
+  padding: 4px 10px;
   color: rgba(255, 255, 255, 0.85);
-  padding: 6px 12px;
-  font-size: var(--text-12);
-  line-height: 1.4;
-  text-align: right;
-  box-shadow: var(--shadow-pop);
-  pointer-events: auto;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.demo-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.demo-nav-btn[aria-current="page"] {
+  background: #fff;
+  color: #191f28;
+  font-weight: 700;
+}
+
+/* ? 버튼도 같은 칩 문법(radius 8, 같은 톤) — 폭만 정사각 느낌 */
+.demo-nav-help {
+  width: 26px;
+  height: 26px;
+  margin-left: 0;
+  border-radius: var(--radius-8);
+  background: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.demo-nav-help:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 추천·확정 등 모달 화면에서는 패널이 모달 푸터 CTA(우하단)를 가린다 —
+   그 화면들에서만 푸터 위로 올린다. 패널 폭(316)으로는 우측 여백(140)에
+   못 들어가므로, 수평 회피 대신 수직 회피가 유일한 해법(1280×800 실측).
+   클래스는 renderDemoNav가 모달 존재 여부로 토글한다(:has 재계산 이슈 회피). */
+#demo-nav.is-lifted {
+  bottom: 104px;
 }
 
 @media (max-width: 560px) {
   #demo-nav {
     right: 10px;
     bottom: 10px;
-  }
-
-  .demo-nav-caption {
-    font-size: 11px;
-    padding: 5px 10px;
+    padding: 10px 12px;
   }
 }
 
