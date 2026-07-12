@@ -1590,9 +1590,31 @@ button {
 
 /* 미응답 대응 (자기 사례 000-6): 응답 현황 줄 + 점선(미확정) 아바타 */
 .response-line {
-  margin: var(--space-2) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
   color: var(--gray-600);
   font-size: var(--text-13);
+}
+
+/* 상태를 필 뱃지로 — 모달 타이틀과 위계가 겹쳐 제목 두 개로 읽히지 않게 */
+.response-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--gray-100, #f2f4f6);
+  color: var(--gray-600);
+  font-size: var(--text-13);
+  font-weight: 600;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.response-pill--sent {
+  background: var(--accent-soft, #e8f3ff);
+  color: var(--accent-strong, #2272eb);
 }
 
 .remind-btn {
@@ -2435,13 +2457,7 @@ body.is-embed .schedule-grid {
   border: 1.5px dashed var(--gray-300);
 }
 
-.slot-avatar.is-unresponded {
-  /* 미응답 = 캘린더 기준 추정 — 점선(미확정 문법) + 반투명 + 색도 회색빛으로 뮤트.
-     불참(유령 흰 배경)과는 여전히 구분된다. 카드 아바타와 동일 */
-  opacity: 0.6;
-  filter: grayscale(0.55);
-  border: 1.5px dashed var(--gray-400);
-}
+
 
 /* 참석자 DM 진입 화면 */
 .dm-body {
@@ -3829,10 +3845,10 @@ button.compose-step:hover {
 }
 
 /* 미응답자는 캘린더 기준 추정일 뿐 — 팝오버 아바타와 완전 동일 문법(점선+반투명) */
-.card-attendees .card-avatar.is-unresponded {
-  opacity: 0.6;
-  filter: grayscale(0.55);
-  border: 1.5px dashed var(--gray-400);
+/* 미응답 = 정상 아바타 + ? presence 배지(고유 문법). 점선은 부재(is-away)와만 안 겹치게 뗀다 */
+.card-attendees .card-avatar.is-unresponded,
+.slot-avatar.is-unresponded {
+  position: relative;
 }
 
 /* 카드·팝오버의 핀 아이콘 회의실 필 — 텍스트 라벨과 같은 톤(중립), 강조는 안 함 */
@@ -4200,4 +4216,23 @@ button.compose-step:hover {
 .sort-toggle-wrap:has(.rank-info-btn:focus-visible) .rank-info-pop {
   visibility: visible;
   opacity: 1;
+}
+
+/* 미응답 presence 배지 — 아바타 우하단에 얹는 작은 ? 원. 부재(유령)와 확실히 구분되고,
+   호버 시 아바타 title("응답 전 — 캘린더 기준")이 툴팁으로 뜬다 */
+.presence-q {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--gray-500, #8b95a1);
+  color: #fff;
+  border: 1.5px solid var(--surface, #fff);
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
 }

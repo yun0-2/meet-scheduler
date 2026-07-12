@@ -2114,8 +2114,9 @@
         sr = item.person.name + " 아직 응답 전 — 캘린더 기준";
       }
       return (
-        '<span class="' + cls + '" title="' + item.person.name + '"' + avatarVars(item.person) + '>' +
+        '<span class="' + cls + '" title="' + item.person.name + (item.unresponded ? ' · 응답 전 — 캘린더 기준' : '') + '"' + avatarVars(item.person) + '>' +
           '<span aria-hidden="true">' + initials(item.person.name) + '</span>' +
+          (item.unresponded ? '<span class="presence-q" aria-hidden="true">?</span>' : '') +
           '<span class="sr-only">' + sr + '</span>' +
         '</span>'
       );
@@ -2166,7 +2167,7 @@
       return !item.away;
     });
     return '<span class="card-attendees">' + going.map(function (item) {
-      return '<span class="card-avatar' + (item.unresponded ? ' is-unresponded' : '') + '" title="' + item.person.name + (item.unresponded ? ' · 응답 전 — 캘린더 기준' : '') + '"' + avatarVars(item.person) + '>' + initials(item.person.name) + '</span>';
+      return '<span class="card-avatar' + (item.unresponded ? ' is-unresponded' : '') + '" title="' + item.person.name + (item.unresponded ? ' · 응답 전 — 캘린더 기준' : '') + '"' + avatarVars(item.person) + '>' + initials(item.person.name) + (item.unresponded ? '<span class="presence-q" aria-hidden="true">?</span>' : '') + '</span>';
     }).join('') + '</span>';
   }
 
