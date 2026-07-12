@@ -85,6 +85,7 @@ body {
 
 /* 제목은 줄 길이를 균형 있게(고아 단어·짧은 끝줄 방지) */
 .hero h1,
+.section h1,
 .section h2,
 .article-subhead {
   text-wrap: balance;
@@ -942,6 +943,11 @@ h3 {
 
 .sample-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+/* 직접 인터뷰가 아닌 행(같은 사람의 과거 경험, 건너 들은 이야기)은 톤을 낮춰 성격을 구분 */
+.sample-table tr.row-indirect td {
+  color: var(--gray-400);
 }
 
 .method-box {
