@@ -186,8 +186,6 @@
     map[day] = index;
     return map;
   }, {});
-  state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
-
   function cloneList(items) {
     return JSON.parse(JSON.stringify(items));
   }
@@ -351,7 +349,7 @@
     state.windowStart = Math.min(state.windowAnchor, dom);
     state.windowEnd = Math.max(state.windowAnchor, dom);
     state.windowAnchor = null;
-    state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
+    state.selectedSlotId = null;
     render();
   }
 
@@ -2081,7 +2079,7 @@
       var rank = state.sortMode === "availability" ? card.availableRank : card.recommendedRank;
       return (
         '<article class="recommend-card ' + (state.selectedSlotId === slot.id ? "is-selected" : "") + '" data-card-id="' + slot.id + '">' +
-          '<button class="card-summary" data-action="toggle-card" data-card-id="' + card.key + '" aria-expanded="' + String(isOpen) + '">' +
+          '<button class="card-summary" data-action="toggle-card" data-card-id="' + card.key + '" data-slot-id="' + slot.id + '" aria-expanded="' + String(isOpen) + '">' +
             '<span class="rank-label">' + rank + '</span>' +
             '<span class="card-time">' + displayTime(slot) + '</span>' +
             '<span class="card-copy">' + card.copy + '</span>' +
@@ -2093,7 +2091,7 @@
             renderCardBusyPeople(slot) +
           '</div>' +
           (isOpen ? '<p class="recommend-detail">' + card.detail + '</p>' : '') +
-          '<button class="card-button' + (index > 0 ? " is-secondary" : "") + (state.selectedSlotId === slot.id ? " is-chosen" : "") + '" data-action="choose-slot" data-slot-id="' + slot.id + '">' + (state.selectedSlotId === slot.id ? "✓ 선택됨" : "이 시간 선택") + '</button>' +
+          '<button class="card-button' + (index > 0 ? " is-secondary" : "") + '" data-action="choose-slot" data-slot-id="' + slot.id + '">이 시간 선택</button>' +
         '</article>'
       );
     }).join("");
@@ -2117,7 +2115,7 @@
   }
 
   function renderConfirm() {
-    var slot = slotById(state.selectedSlotId);
+    var slot = slotById(state.selectedSlotId || currentFeatured().recommended.id);
     app.innerHTML =
       '<section class="screen">' +
         '<div class="screen-inner confirm-single">' +
@@ -2686,6 +2684,15 @@
     if (action === "toggle-card") {
       var cardId = target.getAttribute("data-card-id");
       state.openCardId = state.openCardId === cardId ? null : cardId;
+      // 카드 클릭 = 그 시간을 고르는 행위 — 격자 링·하단 상태줄이 함께 따라온다
+      var cardSlotId = target.getAttribute("data-slot-id");
+      if (cardSlotId) {
+        state.selectedSlotId = cardSlotId;
+        state.activeSlotId = cardSlotId;
+        if (!state.customSlot || state.customSlot.id !== cardSlotId) {
+          state.customSlot = null;
+        }
+      }
       render();
     }
     if (action === "choose-slot") {
@@ -2700,6 +2707,10 @@
       setRoute("confirm");
     }
     if (action === "post-confirm") {
+      // 선택 없이 확정 화면에 직행(데모 내비)한 경우 화면이 보여주던 추천 1순위로 확정
+      if (!state.selectedSlotId) {
+        state.selectedSlotId = currentFeatured().recommended.id;
+      }
       state.posted = true;
       // 확정은 채널 카드의 업데이트다 — 작성을 건너뛴 자유 탐색에서도 카드가 존재해야 한다
       state.composePosted = true;
