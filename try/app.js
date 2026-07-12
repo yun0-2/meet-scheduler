@@ -1268,7 +1268,7 @@
                         '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
                         '<div>' +
                           '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">오전 10:04</span></div>' +
-                          '<p class="bot-intro-text">참석자들에게 초대를 보냈어요. 응답 현황은 여기서 볼 수 있어요.</p>' +
+                          '<p class="bot-intro-text">참석자들에게 초대를 보냈어요.</p>' +
                           renderPostedCard() +
                         '</div>' +
                       '</article>'
@@ -1513,6 +1513,7 @@
               '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="초대할 사람 추가" aria-label="참석자 검색" autocomplete="off" />' +
               '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
             '</div>' +
+            '<p class="compose-prefill-note">함께 일한 이력으로 미리 담았어요 · 빼거나 바꿀 수 있어요</p>' +
             '<div class="compose-list">' + renderOrganizerRow(jiwoo) + addedRows + '</div>' +
           '</div>' +
         '</div>' +
@@ -1822,8 +1823,8 @@
             '<button type="button" class="slack-modal-close" data-action="grid-back-dm" aria-label="닫기">✕</button>' +
           '</header>' +
           '<div class="slack-modal-body">' +
-            '<p class="input-tentative">제안 시간은 격자에 표시했어요. 피하고 싶은 시간을 칠해주세요. 누가 표시했는지는 주최자에게 보이지 않아요.</p>' +
-            (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
+            '<p class="input-tentative">어려운 시간을 눌러서 표시해주세요. 누가 표시했는지는 주최자에게 보이지 않아요.</p>' +
+            (optional ? '<p class="input-guidance">선택 참석이라 어려우면 \'참석 어려움\'을 눌러도 돼요. 정해지면 결과를 공유해요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
             '<div class="compose-footer compose-footer-split">' +
@@ -1840,7 +1841,7 @@
     return (
       '<div class="opt-out-control">' +
         '<button class="btn btn-secondary opt-out-button ' + (optedOut ? "is-active" : "") + '" data-action="toggle-opt-out" aria-pressed="' + String(optedOut) + '">참석 어려움</button>' +
-        (optedOut ? '<p class="opt-out-message">정해지면 결과를 공유해드릴게요</p>' : '') +
+        (optedOut ? '<p class="opt-out-message">정해지면 결과를 공유해요</p>' : '') +
       '</div>'
     );
   }

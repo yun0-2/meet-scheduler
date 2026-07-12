@@ -4112,3 +4112,10 @@ button.compose-step:hover {
     padding: 5px 10px;
   }
 }
+
+/* ===== 라이팅 정비 (2026-07-13) ===== */
+.compose-prefill-note {
+  margin: 4px 0 0;
+  color: var(--gray-500);
+  font-size: var(--text-12);
+}

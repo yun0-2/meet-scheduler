@@ -168,7 +168,7 @@ h3 {
   margin-left: auto;
   margin-right: auto;
   margin-top: var(--space-4);
-  color: var(--gray-600);
+  color: var(--gray-700);
   font-size: var(--text-17);
   line-height: 1.7;
 }
@@ -338,14 +338,15 @@ h3 {
   font-weight: 600;
 }
 
+/* 보조 블록의 제목은 모두 같은 단계로: 15px·700·g900 (갈림길·스펙트럼·장면 캡션 공통) */
 .decision-item h3,
 .screen-card h3,
 .principle-list h3,
 .stage figcaption h3 {
   margin-top: var(--space-4);
   color: var(--gray-900);
-  font-size: var(--text-17);
-  font-weight: 600;
+  font-size: var(--text-15);
+  font-weight: 700;
   line-height: 1.4;
 }
 
@@ -354,7 +355,7 @@ h3 {
 .principle-list p,
 .stage figcaption p {
   margin-top: var(--space-2);
-  color: var(--gray-600);
+  color: var(--gray-700);
   font-size: var(--text-15);
   line-height: 1.6;
 }
@@ -599,7 +600,7 @@ h3 {
 }
 
 .absent-list .absent-item {
-  color: var(--gray-800);
+  color: var(--gray-700);
   font-size: var(--text-15);
   line-height: 1.5;
 }
@@ -609,7 +610,7 @@ h3 {
   border-radius: 999px;
   background: var(--surface);
   color: var(--gray-500);
-  font-size: var(--text-12);
+  font-size: var(--text-13);
   font-weight: 600;
   padding: var(--space-1) var(--space-3);
 }
@@ -637,7 +638,7 @@ h3 {
   border-radius: var(--radius-16);
   padding: var(--space-5);
   font-size: var(--text-15);
-  line-height: 1.65;
+  line-height: 1.6;
 }
 
 .path-finding {
@@ -647,7 +648,7 @@ h3 {
 
 .path-decision {
   background: var(--accent-soft);
-  color: var(--gray-800);
+  color: var(--gray-700);
 }
 
 .path-finding p,
@@ -668,8 +669,8 @@ h3 {
 }
 
 .path-quote p {
-  color: var(--gray-800);
-  font-size: var(--text-16);
+  color: var(--gray-900);
+  font-size: var(--text-15);
   font-weight: 600;
 }
 
@@ -734,7 +735,7 @@ h3 {
 .stage figcaption p {
   font-size: var(--text-14);
   color: var(--gray-500);
-  line-height: 1.62;
+  line-height: 1.6;
 }
 
 .principle-list--three {
@@ -895,7 +896,7 @@ h3 {
 .article-subhead {
   max-width: var(--prose-width);
   font-size: var(--text-22);
-  line-height: 1.45;
+  line-height: 1.4;
   font-weight: 600;
   color: var(--gray-900);
   margin: var(--space-12) auto var(--space-4);
@@ -1086,10 +1087,10 @@ h3 {
 
 .spectrum__cell h4 {
   margin: 0 0 var(--space-2);
-  font-size: var(--text-14);
-  font-weight: 600;
-  color: var(--gray-700);
-  line-height: 1.5;
+  font-size: var(--text-15);
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1.4;
 }
 
 .spectrum__cell p {
@@ -1348,7 +1349,7 @@ h3 {
 .fact-strip {
   max-width: var(--prose-width);
   margin: 0 auto var(--space-6);
-  font-size: var(--text-14);
+  font-size: var(--text-13);
   font-weight: 600;
   color: var(--gray-500);
 }
