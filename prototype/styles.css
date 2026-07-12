@@ -4074,8 +4074,11 @@ button.compose-step:hover {
   color: var(--gray-700);
   border-color: var(--gray-400);
 }
-.screen-subtitle {
+.sort-toggle-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .rank-info-pop {
   position: absolute;

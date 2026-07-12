@@ -1902,27 +1902,15 @@
     app.innerHTML =
       '<div class="dialog-backdrop" aria-hidden="true" inert>' + entryMarkup() + '</div>' +
       '<div class="slack-modal-overlay">' +
-        '<div class="slack-modal is-compose is-wide" role="dialog" aria-modal="true" aria-label="추천 시간">' +
+        '<div class="slack-modal is-compose is-wide" role="dialog" aria-modal="true" aria-label="' + meetingTitle() + ' 시간 확정하기">' +
         '<header class="slack-modal-head">' +
-          '<h2>추천 시간</h2>' +
+          '<h2>' + meetingTitle() + ' 시간 확정하기</h2>' +
           '<button type="button" class="slack-modal-close" data-action="go-entry" aria-label="닫기">✕</button>' +
         '</header>' +
         '<div class="slack-modal-body">' +
         '<div class="screen-inner">' +
           '<header class="compare-header">' +
             '<div>' +
-              '<p class="eyebrow">' + meetingTitle() + '</p>' +
-              '<p class="screen-subtitle">캘린더 충돌과 피하고 싶다는 표시가 적은 순서로 정리했어요.' +
-                '<button type="button" class="rank-info-btn" data-action="toggle-rank-info" aria-expanded="' + String(Boolean(state.rankInfoOpen)) + '" aria-label="순위 기준 설명">i</button>' +
-                (state.rankInfoOpen
-                  ? '<span class="rank-info-pop" role="note">' +
-                      '<strong>순위는 이렇게 매겨요</strong>' +
-                      '<span>필수 참석자가 안 되는 시간은 후보에서 빠져요.</span>' +
-                      '<span>남은 후보는 캘린더 충돌과 피하고 싶다는 표시가 적은 순서예요. 모두 가능한 시간이라도 부담 표시가 있으면 순위가 내려가요.</span>' +
-                      '<span>인원수로 보고 싶으면 \'가능한 사람 많은 순\'으로 바꿀 수 있어요.</span>' +
-                    '</span>'
-                  : '') +
-              '</p>' +
               renderResponseLine() +
             '</div>' +
           '</header>' +
@@ -1939,7 +1927,7 @@
         '</div>' +
         '</div>' +
         '<div class="compose-footer">' +
-          '<button class="btn compose-send-btn" data-action="go-confirm"' + (state.selectedSlotId ? '' : ' disabled') + '>확정하러 가기</button>' +
+          '<button class="btn compose-send-btn" data-action="go-confirm"' + (state.selectedSlotId ? '' : ' disabled') + '>미팅 확정</button>' +
         '</div>' +
         '</div>' +
       '</div>' +
@@ -1965,19 +1953,27 @@
     }).join(", ");
     return (
       '<p class="response-line">' +
-        respondedCount + '명 응답 · ' + waitingNames + ' 답 기다리는 중 · 캘린더 기준으로 먼저 계산했어요 ' +
-        (state.reminderSent
-          ? '<span class="remind-done">리마인드를 보냈어요</span>'
-          : '<button class="remind-btn" data-action="send-reminder">리마인드 보내기</button>') +
+        respondedCount + '명 응답 · ' + waitingNames + ' 답 기다리는 중 · 캘린더 기준으로 먼저 계산했어요' +
       '</p>'
     );
   }
 
   function renderSortToggle() {
     return (
-      '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
-        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">추천순</button>' +
-        '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
+      '<div class="sort-toggle-wrap">' +
+        '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
+          '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">추천순</button>' +
+          '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
+        '</div>' +
+        '<button type="button" class="rank-info-btn" data-action="toggle-rank-info" aria-expanded="' + String(Boolean(state.rankInfoOpen)) + '" aria-label="순위 기준 설명">i</button>' +
+        (state.rankInfoOpen
+          ? '<span class="rank-info-pop" role="note">' +
+              '<strong>순위는 이렇게 매겨요</strong>' +
+              '<span>필수 참석자가 안 되는 시간은 후보에서 빠져요.</span>' +
+              '<span>남은 후보는 캘린더 충돌과 피하고 싶다는 표시가 적은 순서예요. 모두 가능한 시간이라도 부담 표시가 있으면 순위가 내려가요.</span>' +
+              '<span>인원수로 보고 싶으면 \'가능한 사람 많은 순\'으로 바꿀 수 있어요.</span>' +
+            '</span>'
+          : '') +
       '</div>'
     );
   }
