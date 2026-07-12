@@ -1804,7 +1804,7 @@
                     '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
                     '<div>' +
                       '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
-                      '<p class="bot-intro-text">응답 받았어요. 시간이 정해지면 여기로 알려드릴게요.</p>' +
+                      '<p class="bot-intro-text">' + ((state.answerCount || 1) > 1 ? '답변을 바꿨어요. 바뀐 응답으로 반영할게요.' : '응답 받았어요. 시간이 정해지면 여기로 알려드릴게요.') + '</p>' +
                     '</div>' +
                   '</article>'
                 : '') +
@@ -2554,6 +2554,7 @@
     if (action === "dm-all-ok" || action === "submit-response") {
       // 피드백은 토스트가 아니라 대화 안에서: 카드가 응답 완료 상태로 바뀌고,
       // 봇이 한 줄짜리 확인 메시지를 보낸다 (슬랙 실물: chat.update + 짧은 메시지)
+      state.answerCount = (state.answerCount || 0) + 1;
       state.inputStage = "done";
       render();
       return;
