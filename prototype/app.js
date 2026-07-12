@@ -1511,16 +1511,17 @@
   function renderComposeStep1(jiwoo) {
     var addedCount = composeCandidates().filter(isComposeAdded).length;
     var addedRows = composeCandidates().filter(isComposeAdded).map(renderAddedRow).join("");
-    // 구글 캘린더 빠른 생성 문법 차용: 제목이 최상단 대형 언더라인, 시간 요소는 회색 칩 한 행,
-    // 왼쪽 아이콘 컬럼이 라벨을 대신, 주 액션은 우측 정렬 푸터. (접힌 행은 미채택 — 프리필이 있어서)
+    // 구글 캘린더 빠른 생성 문법 차용: 제목이 최상단 대형 언더라인, 시간 요소는 회색 칩 한 행.
+    // 왼쪽은 아이콘 대신 텍스트 라벨 컬럼(제목·일정·참석자·설명) — 장식이 아니라 정보가 되게.
     return (
       '<div class="schedule-card compose-card">' +
+        '<div class="compose-step1-col">' +
         '<div class="compose-row-icon">' +
-          '<span class="compose-icon" aria-hidden="true"></span>' +
+          '<span class="compose-row-label">제목</span>' +
           '<input class="compose-title-input" id="compose-title" type="text" value="' + escapeAttr(meetingTitle()) + '" placeholder="회의 이름" aria-label="회의 이름" />' +
         '</div>' +
         '<div class="compose-row-icon">' +
-          '<span class="compose-icon" aria-hidden="true">' + ICONS.clock + '</span>' +
+          '<span class="compose-row-label">일정</span>' +
           '<div class="compose-chip-row">' +
             '<div class="compose-chip-field">' +
               '<span class="compose-chip-label">후보 날짜</span>' +
@@ -1542,9 +1543,8 @@
           '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +
-          '<span class="compose-icon" aria-hidden="true">' + ICONS.people + '</span>' +
+          '<span class="compose-row-label">참석자</span>' +
           '<div class="compose-row-body">' +
-            '<span class="compose-chip-label">참석자</span>' +
             '<div class="compose-search-wrap">' +
               '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="초대할 사람 추가" aria-label="참석자 검색" autocomplete="off" />' +
               '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
@@ -1553,7 +1553,7 @@
           '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +
-          '<span class="compose-icon" aria-hidden="true">' + ICONS.lines + '</span>' +
+          '<span class="compose-row-label">설명</span>' +
           '<div class="compose-row-body">' +
             '<div class="ghost-wrap">' +
               '<div class="ghost-mirror" id="ghost-context" aria-hidden="true"></div>' +
@@ -1561,6 +1561,7 @@
               '<button type="button" class="ghost-accept" id="ghost-accept-context" data-action="accept-description">→ 그대로 쓰기</button>' +
             '</div>' +
           '</div>' +
+        '</div>' +
         '</div>' +
         '<div class="compose-footer">' +
           '<button class="btn compose-send-btn" data-action="compose-next"' + (addedCount === 0 ? " disabled" : "") + '>제안 시간 보기</button>' +

@@ -3018,11 +3018,21 @@ body.is-embed .schedule-grid {
 /* 왼쪽 아이콘 컬럼 행 */
 .compose-row-icon {
   display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: var(--space-3);
-  /* 아이콘은 첫 줄 상단에 고정 — 본문이 여러 줄(참석자 스택·설명)로 길어져도
-     아이콘이 본문 중앙으로 내려가지 않게 (구글 캘린더 게스트 아이콘 문법) */
+  /* 라벨은 첫 줄 상단에 고정 — 본문이 여러 줄(참석자 스택·설명)로 길어져도
+     라벨이 본문 중앙으로 내려가지 않게 */
   align-items: start;
+}
+
+/* 왼쪽 텍스트 라벨 컬럼 — 아이콘 대신 정보. 첫 줄 텍스트와 시각 정렬 */
+.compose-row-label {
+  padding-top: 12px;
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 .compose-icon {
   display: flex;
@@ -3615,11 +3625,15 @@ button.compose-step:hover {
   flex-direction: column;
 }
 
-/* 1단계: 프레임은 넓게, 내용은 원래 폭으로 가운데 */
-.slack-modal.is-compose:not(.is-wide) .compose-card {
+/* 1단계: 프레임은 넓게, 내용 컬럼만 가운데 — 푸터는 카드 전폭이라
+   두 단계의 주 버튼 x좌표가 동일하다(푸터 위치 통일) */
+.compose-step1-col {
   width: 100%;
-  max-width: 680px;
+  max-width: 728px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
 }
 
 /* 제목 입력 위쪽 숨 — 헤더 경계에 붙지 않게 */
@@ -3733,8 +3747,9 @@ button.compose-step:hover {
   }
 }
 
-/* 2단계 와이드 모달에선 카드 폭 제한 해제 — 격자가 패널 밖으로 넘치던 원인 */
-.slack-modal.is-wide .compose-card {
+/* 작성 모달에선 카드 폭 제한 해제(두 단계 공통) — 푸터가 프레임 전폭을 차지해
+   주 버튼 x좌표가 단계 간 동일해진다. 1단계 내용 폭은 compose-step1-col이 담당 */
+.slack-modal.is-compose .compose-card {
   max-width: none;
 }
 

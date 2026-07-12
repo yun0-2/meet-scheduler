@@ -713,6 +713,24 @@ h3 {
   font-size: var(--text-13);
 }
 
+/* 왼쪽 상자가 인용일 때(01 문제 섹션) — 말을 조금 더 또렷하게 */
+.path-quote {
+  margin: 0;
+}
+
+.path-quote p {
+  color: var(--gray-800);
+  font-size: var(--text-16);
+  font-weight: 600;
+}
+
+/* 오른쪽 상자의 인사이트 한 줄 punchline */
+.path-point {
+  color: var(--gray-900);
+  font-weight: 600;
+  margin-bottom: var(--space-2) !important;
+}
+
 .path-arrow {
   align-self: center;
   justify-self: center;
