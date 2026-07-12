@@ -1877,14 +1877,34 @@ body.is-embed .slack-modal-overlay {
   overflow: visible;
 }
 
+/* 모달이 열리면 그 장면은 모달로 전환된다 — 채널 화면은 숨겨 순차 흐름으로 읽히게 */
+body.is-embed #app:has(> .slack-modal-overlay) > .screen {
+  display: none;
+}
+
 body.is-embed .slack-modal,
 body.is-embed .slack-modal.is-compose,
 body.is-embed .slack-modal.is-wide,
 body.is-embed .slack-modal.is-input {
-  width: 100%;
   height: auto;
   max-height: none;
+  margin: 0 auto;
+  border: 1px solid var(--grey-200);
   box-shadow: none;
+}
+
+/* 폭은 각 모달의 설계 폭 유지(100%로 늘리면 내부 여백이 무너진다) */
+body.is-embed .slack-modal {
+  width: min(560px, 100%);
+}
+
+body.is-embed .slack-modal.is-compose,
+body.is-embed .slack-modal.is-wide {
+  width: min(1000px, 100%);
+}
+
+body.is-embed .slack-modal.is-input {
+  width: min(720px, 100%);
 }
 
 body.is-embed .slack-modal-body,
@@ -4084,4 +4104,21 @@ button.compose-step:hover {
 
 .slack-modal-body .screen-inner {
   width: 100%;
+}
+
+/* ===== 다이얼로그 푸터·팝오버 버그 수정 (2026-07-12) ===== */
+/* 푸터가 모달 직계 자식일 때(추천·확정): 음수 마진은 body 패딩 상쇄용이라
+   여기선 모달 밖으로 삐져나온다 — 마진 없이 모달 바닥에 밀착시키고 모서리를 맞춘다 */
+.slack-modal > .compose-footer {
+  position: static;
+  margin: 0;
+  flex: 0 0 auto;
+  border-radius: 0 0 8px 8px;
+}
+
+/* 클릭으로 연 팝오버가 있는 동안엔 다른 셀의 호버 팝오버를 띄우지 않는다 — 한 번에 하나만 */
+.schedule-grid:has(.slot-cell.is-open) .slot-cell:hover:not(.is-open) .slot-popover {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }

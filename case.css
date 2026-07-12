@@ -316,24 +316,11 @@ h3 {
   padding: var(--space-5) var(--space-6);
 }
 
-.layer-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-6);
-}
-
-.layer-card,
 .decision-item,
 .screen-card,
 .principle-list article {
   border-radius: var(--radius-16);
   background: var(--surface-muted);
-}
-
-.layer-card {
-  min-height: 210px;
-  padding: var(--space-5);
 }
 
 .stage__step {
@@ -350,7 +337,6 @@ h3 {
   font-weight: 600;
 }
 
-.layer-card h3,
 .decision-item h3,
 .screen-card h3,
 .principle-list h3,
@@ -362,12 +348,6 @@ h3 {
   line-height: 1.4;
 }
 
-/* 넘버 제거로 h3가 카드 첫 요소가 됐으니 상단 여백 회수 */
-.layer-card h3 {
-  margin-top: 0;
-}
-
-.layer-card p,
 .decision-item p,
 .screen-card p,
 .principle-list p,
@@ -564,38 +544,6 @@ h3 {
 
 /* 인터뷰 인용: 받은 메시지 말풍선. 발화라는 사실을 형태로 말한다 */
 /* 인용은 발견→결정 박스와 같은 카드 문법 — 회색 카드에 발화, 아래 조용한 출처 */
-.quote-list {
-  max-width: var(--prose-width);
-  display: grid;
-  gap: var(--space-3);
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: var(--space-6);
-}
-
-.quote-list blockquote {
-  margin: 0;
-  border-radius: var(--radius-16);
-  background: var(--surface-muted);
-  padding: var(--space-5);
-}
-
-.quote-list p {
-  color: var(--gray-800);
-  font-size: var(--text-17);
-  font-weight: 600;
-  line-height: 1.6;
-}
-
-.quote-list cite {
-  display: block;
-  margin-top: var(--space-3);
-  color: var(--gray-400);
-  font-size: var(--text-13);
-  font-style: normal;
-  font-weight: 500;
-}
-
 .research-lead {
   max-width: var(--prose-width);
   margin-left: auto;
@@ -868,7 +816,6 @@ h3 {
   }
 
   .section__head--inline,
-  .layer-grid,
   .decision-list,
   .screen-grid,
   .lifecycle,
@@ -877,7 +824,6 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  .layer-card,
   .decision-item,
   .screen-card,
   .principle-list article {
@@ -1028,13 +974,7 @@ h3 {
   white-space: nowrap;
 }
 
-/* 흐린 행 안에서는 뱃지도 더 조용하게 */
-.row-indirect .badge-indirect {
-  background: transparent;
-  color: var(--gray-400);
-  padding-left: 0;
-  padding-right: 0;
-}
+
 
 .method-box {
   border-radius: var(--radius-16);
@@ -1127,12 +1067,9 @@ h3 {
   margin: var(--space-6) 0 0;
 }
 
-/* 타깃이 아닌 양 끝 카드는 흰 박스 + 회색 스트로크로 물러나게 두고,
-   가운데 타깃만 파란 채움으로 뜨게 한다. */
 .spectrum__cell {
-  border: 1px solid var(--border);
   border-radius: var(--radius-16);
-  background: var(--surface);
+  background: var(--surface-muted);
   padding: var(--space-5);
 }
 
@@ -1153,7 +1090,6 @@ h3 {
 
 .spectrum__cell--target {
   background: var(--accent-soft);
-  border-color: var(--accent-soft);
 }
 
 .spectrum__cell--target h4 {
@@ -1327,7 +1263,6 @@ h3 {
 .article-subhead,
 .problem-summary,
 .research-lead,
-.quote-list,
 .trace-list,
 .table-note {
   margin-left: 0;
