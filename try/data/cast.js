@@ -196,15 +196,6 @@ window.CAST = {
           "type": "soft",
           "visibility": "private",
           "rule": {
-            "avoidStartAt": 13
-          },
-          "label": "점심 직후 부담",
-          "source": "비공개 입력 — 화면에는 k-익명 집계로만 노출 (displayRules.kAnonymity 참조)"
-        },
-        {
-          "type": "soft",
-          "visibility": "private",
-          "rule": {
             "unavailableAfter": 17
           },
           "label": "17시 이후 피하고 싶음",

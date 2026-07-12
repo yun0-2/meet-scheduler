@@ -795,9 +795,9 @@ button {
 .mini-slot.is-soft::after {
   content: "";
   position: absolute;
-  inset: 6px;
+  inset: 2px;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0L10 10M10 0L0 10' stroke='%23E5A24A' stroke-opacity='0.7' stroke-width='1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0L10 10M10 0L0 10' stroke='%23E7BE86' stroke-width='1.6' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }

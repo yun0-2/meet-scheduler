@@ -334,12 +334,11 @@
     return map[meetingDuration()] || "1시간";
   }
 
-  // 회의가 점심시간(12–13)이나 근무 종료(18시)를 침범하면 그 시작 시각은 불가
+  // 회의 시작이 조직 점심창(12–13, 두 칸) 안이거나 근무 종료(18시)를 넘기면 후보에서 제외.
+  // 점심은 추천에서 빼되(하드), 입력 격자에는 바꿀 수 있는 앰버로 미리 칠한다(lunchDefaultSoft).
   function slotBlockedByHours(start) {
-    // 점심(12시)은 조직 전체가 비우는 시간 — 소프트 회피 표시로는 추천·후보에 계속
-    // 섞여 나와 혼란을 줬다. 근무 종료와 같은 등급의 하드 차단으로 되돌림.
     var end = start + meetingDuration();
-    return end > data.meeting.workHours.end || start === data.meeting.workHours.lunch[0];
+    return end > data.meeting.workHours.end || data.meeting.workHours.lunch.indexOf(start) >= 0;
   }
 
   // 하드 차단 사유 라벨 — "왜 안 되는지"를 말할 때 쓴다
@@ -409,7 +408,7 @@
     if (Object.prototype.hasOwnProperty.call(map, key)) {
       return false;
     }
-    if (start === data.meeting.workHours.lunch[0]) {
+    if (data.meeting.workHours.lunch.indexOf(start) >= 0) {
       return true;
     }
     return (person.constraints || []).some(function (constraint) {
