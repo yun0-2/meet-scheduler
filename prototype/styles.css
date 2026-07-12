@@ -3817,3 +3817,29 @@ button.compose-step:hover {
   font-size: var(--text-12);
   white-space: nowrap;
 }
+
+/* 확정 화면 회의실 — 강조 덜: 시간 아래 조용한 라벨 + 인라인 셀렉트 */
+.confirm-room {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-4);
+  color: var(--gray-500);
+  font-size: var(--text-13);
+}
+
+.confirm-room-label {
+  font-weight: 600;
+}
+
+.confirm-room-select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-8);
+  background: var(--surface);
+  color: var(--gray-800);
+  font: inherit;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+}

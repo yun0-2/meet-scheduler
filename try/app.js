@@ -58,6 +58,7 @@
     meetingTitle: null,
     meetingContext: "",
     channelName: "pm-admin-dashboard",
+    meetingRoom: "미팅룸 6",
     replyBy: "내일 18시",
     durationHours: 1,
     composeQuery: "",
@@ -1688,6 +1689,7 @@
           '<span class="fact-pill">' + durationLabel() + '</span>' +
           '<span class="fact-pill">' + windowLabel() + ' 중</span>' +
           '<span class="fact-pill">참석자 ' + activePeople().length + '명</span>' +
+          (state.posted ? '<span class="fact-pill">' + state.meetingRoom + '</span>' : '') +
         '</div>' +
         (state.posted
           ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '처음 제안한 시간과 달라요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
@@ -2169,6 +2171,14 @@
           '<h1 class="screen-title">이 시간으로 정할까요?</h1>' +
           '<section class="confirm-panel">' +
             '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>' + durationLabel() + ' · ' + meetingTitle() + '</span></div>' +
+            '<label class="confirm-room">' +
+              '<span class="confirm-room-label">회의실</span>' +
+              '<select id="confirm-room" class="confirm-room-select" aria-label="회의실">' +
+                ["미팅룸 6", "미팅룸 4", "포커스룸 A", "화상으로 진행"].map(function (room) {
+                  return '<option value="' + room + '"' + (state.meetingRoom === room ? " selected" : "") + '>' + room + '</option>';
+                }).join("") +
+              '</select>' +
+            '</label>' +
             '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
             '<div class="button-row">' +
               '<button class="btn btn-full" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "확정하고 #" + state.channelName + " 채널에 알리기") + '</button>' +
@@ -2349,6 +2359,11 @@
     if (sel && sel.id === "compose-duration") {
       state.durationHours = parseFloat(sel.value);
       render();
+      return;
+    }
+    if (sel && sel.id === "confirm-room") {
+      state.meetingRoom = sel.value;
+      return;
     }
   });
 
