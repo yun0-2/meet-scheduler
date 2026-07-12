@@ -723,8 +723,18 @@ h3 {
   padding: var(--space-4);
 }
 
+/* 장면 캡션은 본문(17px·gray-700)과 뚜렷이 구분되는 보조 위계로:
+   제목은 작은 라벨(15px·700), 설명은 14px 회색. 길어도 본문처럼 읽히지 않게. */
 .stage figcaption h3 {
   margin-top: var(--space-4);
+  font-size: var(--text-15);
+  font-weight: 700;
+}
+
+.stage figcaption p {
+  font-size: var(--text-14);
+  color: var(--gray-500);
+  line-height: 1.62;
 }
 
 .principle-list--three {

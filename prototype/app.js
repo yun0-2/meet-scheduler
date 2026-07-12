@@ -54,7 +54,6 @@
     composePosted: false,
     composeAdded: {},
     attendanceOverride: {},
-    course: null,
     meetingTitle: null,
     meetingContext: "",
     channelName: "pm-admin-dashboard",
@@ -67,45 +66,17 @@
     bannerOpen: false
   };
 
-  // 시나리오 카드 카피 — 상황 설명은 제품 화면(#app) 밖, 이 데모 레이어에서만.
-  // 데모는 역할별 코스 2개: 주최자(요청→추천→확정), 참석자(입력→반영 확인).
-  var scenarioByCourse = {
-    host: {
-      entry: {
-        eyebrow: "1/3 · 주최자",
-        body: "당신은 회의를 잡아야 하는 주최자예요.",
-        mission: "'회의 개최'를 눌러 정보를 채우고 채널에 보내보세요."
-      },
-      compare: {
-        eyebrow: "2/3 · 주최자",
-        body: "응답 기한이 지났어요. 그동안 온 표시가 반영돼 있어요.",
-        mission: "왜 이 시간이 1순위인지 이유를 눌러 확인해보세요."
-      },
-      confirm: {
-        eyebrow: "3/3 · 주최자",
-        body: "이제 확정하고 채널에 알릴 차례예요.",
-        mission: "확정 후 채널 카드가 어떻게 바뀌는지 보세요."
-      }
-    },
-    guest: {
-      input: {
-        eyebrow: "참석자",
-        body: "봇이 DM으로 물어봐요. 캘린더가 모르는 사정이 있죠.",
-        mission: "카드에서 응답해보세요. 피하고 싶은 시간을 칠해도 되고, 언제든 괜찮다고 해도 돼요."
-      },
-      "input-optional": {
-        eyebrow: "선택 참석자",
-        body: "선택 참석자에게는 다른 선택지가 하나 더 있어요.",
-        mission: "'참석 어려움'도 눌러보세요."
-      }
-    }
+  // 장면별 설명 — 리모컨 위 비블로킹 캡션 한 줄(항상 표시). 파생 라우트는 기준 라우트와 같은 캡션.
+  var demoCaptionByRoute = {
+    entry: "주최자가 채널에서 회의를 열어요. 제목·참석자·문안은 미리 채워져 있어요.",
+    input: "참석자가 DM으로 초대를 받았어요. 어려운 시간이 있으면 표시하고, 없으면 그대로 둬도 돼요.",
+    compare: "기한이 지나 응답이 모였어요. 걸리는 게 적은 순서로 후보를 비교해 골라요.",
+    confirm: "시간을 정하면 채널 카드가 확정으로 바뀌고 알림이 가요."
   };
 
-  function scenarioContentFor(route) {
-    if (state.course && scenarioByCourse[state.course][route]) {
-      return scenarioByCourse[state.course][route];
-    }
-    return null;
+  function demoCaptionFor(route) {
+    var key = route === "input-optional" ? "input" : route;
+    return demoCaptionByRoute[key] || demoCaptionByRoute.entry;
   }
 
   state.meetingTitle = data.meeting.title;
@@ -1010,7 +981,7 @@
     renderDemoNav();
     if (state.route !== state.scenarioLastRoute) {
       state.scenarioLastRoute = state.route;
-      renderScenarioCard(state.route, false);
+      renderScenarioCard(false);
     }
     lockBackgroundScroll(state.composeModalOpen || state.myMarksOpen || state.inputStage === "grid");
     if (state.composeModalOpen) {
@@ -1123,17 +1094,15 @@
     var isInputOptional = route === "input-optional";
     var jiwoo = getPerson("jiwoo");
     var inputPerson = isInputOptional ? getPerson("seyoung") : getPerson("haneul");
-    // 역할별 코스 구조: 주최자 저니(요청→추천→확정) 한 묶음, 참석자 저니(입력) 한 묶음.
-    var groups = [
-      { role: "주최자", steps: [
-        { num: 1, hash: "entry", person: jiwoo, label: "요청", active: route === "entry" },
-        { num: 2, hash: "compare", person: jiwoo, label: "추천", active: route === "compare" },
-        { num: 3, hash: "confirm", person: jiwoo, label: "확정", active: route === "confirm" }
-      ] },
-      { role: "참석자", steps: [
-        { num: 1, hash: isInputOptional ? "input-optional" : "input", person: inputPerson, label: "입력", active: route === "input" || isInputOptional }
-      ] }
-    ];
+    // 역할별 그룹: 주최자 저니(제안→추천→확정) 한 행, 참석자 저니(응답) 한 행.
+    var hostGroup = { role: "주최자", steps: [
+      { hash: "entry", person: jiwoo, label: "제안", active: route === "entry" },
+      { hash: "compare", person: jiwoo, label: "추천", active: route === "compare" },
+      { hash: "confirm", person: jiwoo, label: "확정", active: route === "confirm" }
+    ] };
+    var guestGroup = { role: "참석자", steps: [
+      { hash: isInputOptional ? "input-optional" : "input", person: inputPerson, label: "응답", active: route === "input" || isInputOptional }
+    ] };
 
     function renderStepButton(step) {
       return (
@@ -1143,54 +1112,44 @@
       );
     }
 
-    var buttonsHtml = groups.map(function (group) {
+    function renderGroup(group) {
       return (
         '<div class="demo-nav-group" role="group" aria-label="' + group.role + ' 단계">' +
           '<span class="demo-nav-role-label" aria-hidden="true">' + group.role + '</span>' +
           group.steps.map(renderStepButton).join("") +
         '</div>'
       );
-    }).join('<span class="demo-nav-divider" aria-hidden="true"></span>');
+    }
 
-    // 필수/선택 서브토글 제거 — 거절 행동은 둘 다 같아 시나리오는 하나로(사용자 결정).
-    // 선택 참석 개념은 추천 카드(선택 2/2)와 확정 화면이 이어서 보여준다.
-    var subToggleHtml = "";
-
+    // 우하단 고정 + 두 행(주최자/참석자) — 모달 푸터 CTA와 겹칠 수 있어 컨테이너는
+    // pointer-events:none, 행·필만 auto로 열어 클릭이 아래로 그대로 통과하게 한다.
     nav.innerHTML =
-      '<div class="demo-nav-track">' + buttonsHtml + '</div>' + subToggleHtml +
-      '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="지금 단계 안내 다시 보기">?</button>';
+      '<p class="demo-nav-caption">' + demoCaptionFor(route) + '</p>' +
+      '<div class="demo-nav-row">' + renderGroup(hostGroup) + '</div>' +
+      '<div class="demo-nav-row">' + renderGroup(guestGroup) +
+        '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="지금 단계 안내 다시 보기">?</button>' +
+      '</div>';
   }
 
-  // 시나리오 카드 — 각 단계 첫 진입 시 1회만, #app 밖(다크 오버레이)에 상황 설명을 띄운다.
-  // forceOpen이 없으면 이미 본 단계는 조용히 건너뛴다(memory-only, localStorage 미사용).
-  function renderScenarioCard(route, forceOpen) {
+  // 시나리오 카드 — 데모 전체에서 첫 진입 1회만 뜨는 소개 카드(#app 밖 다크 오버레이).
+  // 장면별 설명은 리모컨 위 캡션이 맡으므로, 이 카드는 더 이상 장면별로 분기하지 않는다.
+  function renderScenarioCard(forceOpen) {
     if (isEmbedMode) {
       // 임베드에서는 상황 설명을 아티클 본문이 대신한다 — 카드 없이 바로 조작.
       return;
     }
-    // 코스 미선택 상태의 첫 진입 → 코스 선택 카드부터
-    if (!state.course) {
-      renderCourseChooser(forceOpen);
-      return;
-    }
-    var content = scenarioContentFor(route);
-    if (!content) {
-      return;
-    }
-    var seenKey = state.course + ":" + route;
-    if (!forceOpen && state.scenarioSeen[seenKey]) {
+    if (!forceOpen && state.scenarioSeen.intro) {
       return;
     }
     var layer = getScenarioLayer();
     if (!layer) {
       return;
     }
-    state.scenarioSeen[seenKey] = true;
+    state.scenarioSeen.intro = true;
     openScenarioOverlay(layer,
-      '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="' + content.eyebrow + '">' +
-        '<p class="scenario-eyebrow">' + content.eyebrow + '</p>' +
-        '<p class="scenario-body">' + content.body + '</p>' +
-        '<p class="scenario-mission">' + content.mission + '</p>' +
+      '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="3분 데모">' +
+        '<p class="scenario-eyebrow">3분 데모</p>' +
+        '<p class="scenario-body">슬랙에서 회의 시간을 정하는 흐름이에요. 주최자가 제안을 보내고, 참석자의 사정을 모아, 추천에서 골라 확정해요. 오른쪽 아래 리모컨으로 장면을 오갈 수 있어요.</p>' +
         '<button type="button" class="scenario-start-btn" data-action="scenario-close">시작하기</button>' +
       '</div>');
   }
@@ -1212,45 +1171,10 @@
       ? document.activeElement
       : null;
     layer.innerHTML = '<div class="scenario-overlay">' + cardHtml + '</div>';
-    var focusBtn = layer.querySelector ? layer.querySelector(".scenario-start-btn, .course-btn") : null;
+    var focusBtn = layer.querySelector ? layer.querySelector(".scenario-start-btn") : null;
     if (focusBtn && focusBtn.focus) {
       focusBtn.focus();
     }
-  }
-
-  // 게시 직후 시간 점프 카드 — 채널에서 보낸 걸 확인한 뒤 추천으로
-  function showPostedScenario() {
-    var layer = getScenarioLayer();
-    if (!layer) {
-      return;
-    }
-    openScenarioOverlay(layer,
-      '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="채널에 올라갔어요">' +
-        '<p class="scenario-eyebrow">주최자</p>' +
-        '<p class="scenario-body">채널에 올라갔어요. 응답은 ' + state.replyBy + '까지 모여요.</p>' +
-        '<p class="scenario-mission">기한이 지났다고 치고, 카드의 \'추천 보기\'를 눌러보세요.</p>' +
-        '<button type="button" class="scenario-start-btn" data-action="scenario-close">확인</button>' +
-      '</div>');
-  }
-
-  function renderCourseChooser(forceOpen) {
-    if (!forceOpen && state.scenarioSeen["course-chooser"]) {
-      return;
-    }
-    var layer = getScenarioLayer();
-    if (!layer) {
-      return;
-    }
-    state.scenarioSeen["course-chooser"] = true;
-    openScenarioOverlay(layer,
-      '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="데모 코스 선택">' +
-        '<p class="scenario-eyebrow">3분 데모</p>' +
-        '<p class="scenario-body">회의 시간을 정하는 두 입장을 각각 체험할 수 있어요.</p>' +
-        '<div class="course-buttons">' +
-          '<button type="button" class="course-btn" data-action="choose-course" data-course="host">주최자로 체험하기<span class="course-sub">요청 만들기 → 추천 → 확정</span></button>' +
-          '<button type="button" class="course-btn" data-action="choose-course" data-course="guest">참석자로 체험하기<span class="course-sub">DM 받고 응답 보내기</span></button>' +
-        '</div>' +
-      '</div>');
   }
 
   function closeScenarioCard() {
@@ -2687,6 +2611,13 @@
     if (action === "open-compose") {
       state.composeModalOpen = true;
       state.composeStep = 1;
+      // 데모 프리필: 제품 주장은 "참석자·문안까지 미리 채워진다" — 빈 작성 창에서
+      // 5번 클릭하게 두지 않고, 처음 여는 순간부터 그 상태로 시작한다.
+      if (!state.composePosted && !composeHasSelection()) {
+        ["taeho", "minjun", "haneul", "sua", "seyoung"].forEach(function (id) {
+          state.composeAdded[id] = true;
+        });
+      }
       render();
       return;
     }
@@ -3341,7 +3272,7 @@
       }
       var replayTarget = event.target.closest("[data-action='scenario-replay']");
       if (replayTarget) {
-        renderScenarioCard(state.route, true);
+        renderScenarioCard(true);
       }
     });
   }
@@ -3355,19 +3286,6 @@
   }
   if (scenarioLayer) {
     scenarioLayer.addEventListener("click", function (event) {
-      var courseBtn = event.target.closest ? event.target.closest("[data-action='choose-course']") : null;
-      if (courseBtn) {
-        state.course = courseBtn.getAttribute("data-course");
-        closeScenarioCard();
-        var target = state.course === "guest" ? "input" : "entry";
-        if (("#" + target) === window.location.hash) {
-          render();
-          renderScenarioCard(target, false);
-        } else {
-          setRoute(target);
-        }
-        return;
-      }
       var closeBtn = event.target.closest ? event.target.closest("[data-action='scenario-close']") : null;
       if (closeBtn) {
         closeScenarioCard();

@@ -1774,12 +1774,6 @@ body.is-embed .schedule-grid {
   display: none;
 }
 
-.demo-nav-track {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 /* 주최자→참석자→주최자 왕복 구조를 역할 구간으로 묶어 보여준다 */
 .demo-nav-group {
   display: flex;
@@ -1796,14 +1790,6 @@ body.is-embed .schedule-grid {
   font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
-}
-
-.demo-nav-divider {
-  flex: none;
-  width: 1px;
-  height: 16px;
-  margin: 0 4px;
-  background: rgba(255, 255, 255, 0.18);
 }
 
 .demo-nav-btn {
@@ -2021,10 +2007,6 @@ body.is-embed .schedule-grid {
     max-width: calc(100vw - 16px);
   }
 
-  .demo-nav-track {
-    gap: 1px;
-  }
-
   .demo-nav-btn {
     gap: 0;
     padding: 4px 5px;
@@ -2041,10 +2023,6 @@ body.is-embed .schedule-grid {
   .demo-nav-group {
     gap: 1px;
     padding: 2px 3px;
-  }
-
-  .demo-nav-divider {
-    margin: 0 2px;
   }
 
   .demo-nav-num {
@@ -2079,44 +2057,6 @@ body.is-embed .schedule-grid {
     padding: var(--space-4);
   }
 }
-
-/* 코스 선택 카드 — 데모 레이어(다크 문법) */
-.course-buttons {
-  display: grid;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.course-btn {
-  display: block;
-  width: 100%;
-  border-radius: var(--radius-12);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 12px 16px;
-  text-align: left;
-  font-size: var(--text-14);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.course-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.course-btn:focus-visible {
-  outline: 3px solid var(--accent-ring);
-  outline-offset: 2px;
-}
-
-.course-sub {
-  display: block;
-  margin-top: 2px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: var(--text-12);
-  font-weight: 500;
-}
-
 
 /* ── 작성 카드: 텍스트필드 + 검색 (슬랙 모달 문법의 필드 배치) ── */
 .compose-title-input,
@@ -4092,4 +4032,80 @@ button.compose-step:hover {
 .confirm-preview p + p {
   margin-top: 4px;
   color: var(--gray-600);
+}
+
+/* ===== 데모 리모콘·안내 개편 (2026-07-12) ===== */
+/* 하단 중앙은 모달 푸터 CTA(확정하러 가기 등)와 자주 겹친다 — 우하단으로 옮기고
+   두 행(주최자/참석자)으로 쌓는다. 컨테이너는 pointer-events:none으로 비워 두고
+   실제 필(행·캡션)만 auto로 열어, 겹치는 아래쪽 CTA 클릭이 항상 통과하게 한다.
+   추천·확정 모달(is-wide, 1000px)은 뷰포트 우측 여백이 좁아 필이 그대로면 모달
+   푸터 버튼과 겹친다 — 행·버튼 패딩을 압축해 실측으로 겹침을 없앴다(1280×800 확인). */
+#demo-nav {
+  left: auto;
+  right: 16px;
+  bottom: 12px;
+  transform: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  background: none;
+  padding: 0;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.demo-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: var(--gray-900);
+  padding: 5px 8px;
+  box-shadow: var(--shadow-pop);
+  pointer-events: auto;
+}
+
+.demo-nav-row .demo-nav-group {
+  gap: 2px;
+  padding: 1px 4px;
+}
+
+.demo-nav-row .demo-nav-role-label {
+  padding: 0;
+  font-size: 9px;
+}
+
+.demo-nav-row .demo-nav-btn {
+  padding: 4px 6px;
+}
+
+.demo-nav-row .demo-nav-help {
+  margin-left: 0;
+}
+
+/* 장면 설명 — 리모컨 위 캡션 한 줄, 비블로킹·항상 표시. 리모컨과 같은 다크 톤의 작은 말풍선 */
+.demo-nav-caption {
+  max-width: min(320px, calc(100vw - 32px));
+  margin: 0;
+  border-radius: var(--radius-12);
+  background: var(--gray-900);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 6px 12px;
+  font-size: var(--text-12);
+  line-height: 1.4;
+  text-align: right;
+  box-shadow: var(--shadow-pop);
+  pointer-events: auto;
+}
+
+@media (max-width: 560px) {
+  #demo-nav {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .demo-nav-caption {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
 }
