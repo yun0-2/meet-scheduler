@@ -4060,24 +4060,15 @@ button.compose-step:hover {
 .rank-info-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: 6px;
-  vertical-align: -2px;
-  border: 1px solid var(--border-strong, #d1d6db);
-  border-radius: 50%;
-  background: var(--surface);
-  color: var(--gray-500);
-  font-size: 10px;
-  font-style: italic;
-  font-weight: 700;
-  font-family: Georgia, serif;
+  margin-left: 5px;
+  color: var(--gray-400);
   cursor: pointer;
 }
 .rank-info-btn:hover {
-  color: var(--gray-700);
-  border-color: var(--gray-400);
+  color: var(--gray-600);
+}
+.rank-info-btn svg {
+  display: block;
 }
 .sort-toggle-wrap {
   position: relative;
@@ -4118,7 +4109,7 @@ button.compose-step:hover {
   opacity: 0.55;
 }
 
-/* 확정 화면 카드의 '보낸 시간' 표지 — 참석자들이 이미 본 그 시간임을 카드가 말한다 */
+/* 확정 화면 카드의 '보낸 제안' 표지 — 참석자들이 이미 본 그 시간임을 카드가 말한다 */
 .card-sent-flag {
   display: inline-block;
   margin-left: 6px;
@@ -4133,4 +4124,22 @@ button.compose-step:hover {
 .response-sent {
   color: var(--gray-800, #333d4b);
   font-weight: 700;
+}
+
+/* 확정 격자의 보낸 제안 칸 — 점선(아직 확정 아님 문법)으로 위치만 표시 */
+.slot-cell.is-sent::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1.5px dashed var(--accent);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.slot-cell.is-selected.is-sent::before {
+  border-color: rgba(255, 255, 255, 0.85);
+}
+.legend-swatch.is-sent {
+  margin-left: 12px;
+  background: transparent;
+  border: 1.5px dashed var(--accent);
 }

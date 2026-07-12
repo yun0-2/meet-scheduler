@@ -393,12 +393,23 @@ h3 {
 }
 
 .decision-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .decision-item {
-  min-height: 132px;
   padding: var(--space-5);
+}
+
+/* 언제 검토했나: 카드 제목 아래 작은 순서 라벨 (판단 여정을 시간순으로) */
+.decision-when {
+  margin-top: var(--space-2);
+  color: var(--gray-400);
+  font-size: var(--text-13);
+  font-weight: 600;
+}
+
+.decision-when + p {
+  margin-top: var(--space-2);
 }
 
 .screen-grid {

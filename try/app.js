@@ -1920,7 +1920,7 @@
               '<div class="recommend-list">' + renderRecommendCards() + '</div>' +
             '</aside>' +
             '<section class="panel" aria-label="주간 격자">' +
-              '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>가능한 시간</div>' +
+              '<div class="legend legend-mini"><span class="legend-swatch is-viable" aria-hidden="true"></span>가능한 시간<span class="legend-swatch is-sent" aria-hidden="true"></span>보낸 제안</div>' +
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
             '</section>' +
           '</div>' +
@@ -1963,10 +1963,11 @@
     return (
       '<div class="sort-toggle-wrap">' +
         '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
-          '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">추천순</button>' +
+          '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">추천순' +
+            '<span class="rank-info-btn" role="button" tabindex="0" data-action="toggle-rank-info" aria-expanded="' + String(Boolean(state.rankInfoOpen)) + '" aria-label="순위 기준 설명"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>' +
+          '</button>' +
           '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
         '</div>' +
-        '<button type="button" class="rank-info-btn" data-action="toggle-rank-info" aria-expanded="' + String(Boolean(state.rankInfoOpen)) + '" aria-label="순위 기준 설명">i</button>' +
         (state.rankInfoOpen
           ? '<span class="rank-info-pop" role="note">' +
               '<strong>순위는 이렇게 매겨요</strong>' +
@@ -2035,6 +2036,8 @@
               : (slot.id === tentativeId ? "제안 시간" : null))
           : (rankIndex >= 0 ? (rankIndex + 1) + "순위" : null);
         var rankClass = composeMode && slot.id === tentativeId ? "rank-tag is-tonal" : "rank-tag";
+        // 확정 격자에서 보낸 제안 칸은 점선 테두리로 — 텍스트 뱃지 없이 위치만 표시(범례가 해독)
+        var isSent = !composeMode && slot.id === tentativeId;
         // 10분 단위 선택: 정시가 아닌 시각을 고르면 그 셀 안에 라인+시간 칩으로 표시
         var pick = state.customSlot && state.customSlot.day === day && Math.floor(state.customSlot.start) === hour
           ? state.customSlot
@@ -2043,8 +2046,8 @@
           selected = true;
         }
         html +=
-          '<div class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
-          'role="button" tabindex="0" data-pick-source="cell" data-action="' + pickAction + '" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
+          '<div class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + (isSent ? " is-sent" : "") + '" ' +
+          'role="button" tabindex="0" data-pick-source="cell" data-action="' + pickAction + '" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + (isSent ? ', 보낸 제안' : '') + '">' +
             (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '') +
             (pick ? '<span class="slot-pick" style="top:' + Math.round((pick.start - hour) * 100) + '%"><span class="slot-pick-chip">' + formatClock(pick.start) + '</span></span>' : '') +
             '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot, open, opts) + '</span>' +
