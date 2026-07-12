@@ -1540,7 +1540,7 @@
     return (
       '<div class="schedule-card compose-card">' +
         '<div class="compose-step2-top">' +
-          '<p class="compose-step2-hint">참석자들의 캘린더와 미리 표시해 둔 피하고 싶은 시간으로 계산했어요. 응답을 받으면 더 정확해져요.</p>' +
+          '<p class="compose-step2-hint">캘린더와 미리 표시된 피하고 싶은 시간으로 계산했어요. 응답이 오면 더 정확해져요.</p>' +
         '</div>' +
         '<div class="compose-step2-layout">' +
           '<div class="compose-decide-col">' +
