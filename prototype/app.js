@@ -1145,10 +1145,10 @@
       return;
     }
     openScenarioOverlay(layer,
-      '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="데모 안내">' +
-        '<p class="scenario-eyebrow">데모 안내</p>' +
-        '<p class="scenario-body">슬랙에서 회의 시간을 정하는 흐름을 담은 챌린지 제출용 프로토타입입니다. 주최자와 참석자, 두 입장을 오가며 제안부터 확정까지 체험하실 수 있습니다.</p>' +
-        '<p class="scenario-note">참석자와 보낼 메시지처럼 실제 제품에서는 함께 일한 이력으로 자동 추천되는 정보는, 흐름에 집중하실 수 있도록 미리 채워 두었습니다. 오른쪽 아래 리모컨으로 장면을 오갈 수 있습니다.</p>' +
+      '<div class="scenario-card" role="dialog" aria-modal="true" aria-label="3분 데모">' +
+        '<p class="scenario-eyebrow">3분 데모</p>' +
+        '<p class="scenario-body">슬랙에서 회의 시간을 정하는 흐름이에요. 주최자가 제안을 보내고, 참석자의 사정을 모아, 추천에서 골라 확정해요.</p>' +
+        '<p class="scenario-note">일부 정보는 흐름에 집중하실 수 있도록 미리 채워 두었습니다.</p>' +
         '<button type="button" class="scenario-start-btn" data-action="scenario-close">시작하기</button>' +
       '</div>');
   }

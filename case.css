@@ -573,6 +573,7 @@ h3 {
   grid-template-columns: 1fr;
   gap: var(--space-16);
   margin-top: var(--space-8);
+  margin-bottom: var(--space-12);
 }
 
 /* 장면 임베드는 프로즈 컬럼 밖으로 넓게(추천 화면 2단 유지 → 세로 급감).
@@ -721,8 +722,14 @@ h3 {
   width: 100%;
 }
 
+/* 장면 캡션: 제목(왼쪽 열) · 설명(오른쪽 열)을 수평 정렬 */
 .stage figcaption {
   max-width: var(--prose-width);
+  margin-top: var(--space-4);
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
 }
 
 .stage__frame {
@@ -742,12 +749,13 @@ h3 {
 /* 장면 캡션은 본문(17px·gray-700)과 뚜렷이 구분되는 보조 위계로:
    제목은 작은 라벨(15px·700), 설명은 14px 회색. 길어도 본문처럼 읽히지 않게. */
 .stage figcaption h3 {
-  margin-top: var(--space-4);
+  margin-top: 0;
   font-size: var(--text-15);
   font-weight: 700;
 }
 
 .stage figcaption p {
+  margin-top: 0;
   font-size: var(--text-14);
   color: var(--gray-500);
   line-height: 1.6;
@@ -850,6 +858,12 @@ h3 {
   .screen-card,
   .principle-list article {
     min-height: auto;
+  }
+
+  /* 좁은 화면: 장면 캡션은 제목·설명을 세로로 쌓는다 */
+  .stage figcaption {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
   }
 
   .screen-grid {
@@ -1140,7 +1154,7 @@ h3 {
    CSS border의 dashed는 대시 크기를 못 정해서, SVG 배경으로 큰 대시를 그린다. */
 .spectrum__cell--ideal {
   background-color: var(--surface);
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23D1D6DB' stroke-width='2' stroke-dasharray='2,8' stroke-linecap='round'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23C4CBD4' stroke-width='3' stroke-linecap='round' pathLength='200' stroke-dasharray='0.1,1.9'/%3e%3c/svg%3e");
 }
 
 .stage__try {
