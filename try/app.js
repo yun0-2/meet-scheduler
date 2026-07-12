@@ -1681,7 +1681,7 @@
           (state.posted ? '<span class="fact-pill">' + state.meetingRoom + '</span>' : '') +
         '</div>' +
         (state.posted
-          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '처음 제안한 시간과 달라요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
+          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '보낸 시간과 달라요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
           : '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>응답이 없으면 이대로 확정돼요 · ' + state.replyBy + '까지</span></div>') +
         // 주최자도 참석자와 대칭으로 자기 캘린더 표시를 남길 수 있게 — 조용한 링크 한 줄(과설명 금지)
         '<p class="posted-mark-note"><button type="button" class="compose-note-link" data-action="open-my-marks">나도 피하고 싶은 시간 표시하기</button></p>' +
@@ -1943,9 +1943,10 @@
   }
 
   function renderResponseLine() {
+    var sent = '<strong class="response-sent">보낸 시간 ' + tentativeLabel() + '</strong>';
     var waiting = unrespondedPeople();
     if (waiting.length === 0) {
-      return '<p class="response-line">' + activePeople().length + '명 모두 응답했어요</p>';
+      return '<p class="response-line">' + sent + ' · ' + activePeople().length + '명 모두 응답했어요</p>';
     }
     var respondedCount = activePeople().length - waiting.length;
     var waitingNames = waiting.map(function (person) {
@@ -1953,7 +1954,7 @@
     }).join(", ");
     return (
       '<p class="response-line">' +
-        respondedCount + '명 응답 · ' + waitingNames + ' 답 기다리는 중 · 캘린더 기준으로 먼저 계산했어요' +
+        sent + ' · ' + respondedCount + '명 응답 · ' + waitingNames + '은 응답이 없어 캘린더 기준이에요' +
       '</p>'
     );
   }
@@ -2026,10 +2027,14 @@
         var privateBurden = !unavailable && slot.privateSoft.length > 0;
         // 카드와 같은 번호 언어(1·2·3순위)를 격자에도 — 카드↔격자 연결(사용성 테스트 006 P1)
         var rankIndex = rankOrderIds.indexOf(slot.id);
-        var rankLabel = rankIndex >= 0
-          ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 제안 시간" : "")
-          : (slot.id === tentativeId ? "제안 시간" : null);
-        var rankClass = slot.id === tentativeId ? "rank-tag is-tonal" : "rank-tag";
+        // compose(현재의 제안을 고르는 중)에서만 '제안 시간' 뱃지 — 확정 화면에서는 같은 말이
+        // '지금 제안되는 시간'으로 오독돼 순위만 남기고, 보낸 시간은 상태줄·카드가 말한다.
+        var rankLabel = composeMode
+          ? (rankIndex >= 0
+              ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 제안 시간" : "")
+              : (slot.id === tentativeId ? "제안 시간" : null))
+          : (rankIndex >= 0 ? (rankIndex + 1) + "순위" : null);
+        var rankClass = composeMode && slot.id === tentativeId ? "rank-tag is-tonal" : "rank-tag";
         // 10분 단위 선택: 정시가 아닌 시각을 고르면 그 셀 안에 라인+시간 칩으로 표시
         var pick = state.customSlot && state.customSlot.day === day && Math.floor(state.customSlot.start) === hour
           ? state.customSlot
@@ -2132,7 +2137,7 @@
       return (
         '<article class="recommend-card ' + (selected ? "is-selected" : "") + '" data-card-id="' + slot.id + '">' +
           '<button class="card-summary" data-action="toggle-card" data-card-id="' + card.key + '" data-slot-id="' + slot.id + '" aria-expanded="' + String(isOpen) + '">' +
-            '<span class="rank-label">' + rank + '</span>' +
+            '<span class="rank-label">' + rank + (slot.id === tentativeSlot().id ? '<span class="card-sent-flag">보낸 시간</span>' : '') + '</span>' +
             '<span class="card-time">' + displayTime(slot) + '</span>' +
             '<span class="card-copy">' + card.copy + '</span>' +
           '</button>' +
@@ -2194,7 +2199,7 @@
           '</div>' +
           (hasPrivateBurden(slot) ? '<p class="confirm-soft-note">이 시간은 피하고 싶다는 표시가 있어요. 누가 표시했는지는 보이지 않아요.</p>' : '') +
           // 보낸 잠정안과 지금 확정하려는 시간이 다르면 — 확정 뒤 재확인이 필요하다는 걸 미리 말한다
-          (tentativeSlot().id !== slot.id ? '<p class="confirm-soft-note">처음 제안한 시간(' + displayTime(tentativeSlot()) + ')과 달라요. 확정하면 바뀐 시간으로 한 번 더 물어봐요.</p>' : '') +
+          (tentativeSlot().id !== slot.id ? '<p class="confirm-soft-note">보낸 시간(' + displayTime(tentativeSlot()) + ')과 달라요. 확정하면 바뀐 시간으로 한 번 더 물어봐요.</p>' : '') +
           '<div class="compose-row-icon">' +
             '<span class="compose-row-label">참석자</span>' +
             '<div class="compose-row-body">' + renderConfirmAttendeeSection(slot) + '</div>' +

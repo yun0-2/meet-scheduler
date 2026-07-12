@@ -1057,6 +1057,12 @@ h3 {
   line-height: 1.6;
 }
 
+/* 좌우 열 이름: 어느 쪽이 잘못된 질문인지 한눈에 */
+.probe-list .probe-head span {
+  color: var(--gray-400);
+  font-weight: 600;
+}
+
 .probe-bad {
   color: var(--gray-400);
   text-decoration: line-through;
@@ -1273,6 +1279,11 @@ h3 {
   .probe-list li {
     grid-template-columns: 1fr;
     gap: var(--space-1);
+  }
+
+  /* 세로로 쌓이면 열 이름이 무의미해진다 */
+  .probe-list .probe-head {
+    display: none;
   }
 }
 

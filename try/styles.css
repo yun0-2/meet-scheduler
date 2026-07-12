@@ -4112,3 +4112,20 @@ button.compose-step:hover {
 .mini-slot.is-soft.is-preset::after {
   opacity: 0.55;
 }
+
+/* 확정 화면 카드의 '보낸 시간' 표지 — 참석자들이 이미 본 그 시간임을 카드가 말한다 */
+.card-sent-flag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft, #E8F3FF);
+  color: var(--accent, #3182F6);
+  font-size: var(--text-11, 11px);
+  font-weight: 700;
+  vertical-align: 1px;
+}
+.response-sent {
+  color: var(--gray-800, #333d4b);
+  font-weight: 700;
+}

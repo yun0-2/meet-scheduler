@@ -7,9 +7,9 @@
     <title>리서치 부록 · Product Designer Challenge 2026_장윤영</title>
     <meta
       name="description"
-      content="WhenWorks 케이스의 리서치 부록입니다. 발견이 설계로 이어진 경로와 여섯 조직 표본, 가설 채점, 진행 방법을 담았어요."
+      content="리서치 부록입니다. 표본과 모집 방법, 가설이 수정된 과정, 발견이 설계로 이어진 근거, 사용성 테스트 기록을 담았어요."
     >
-    <link rel="stylesheet" href="../case.css?v=c6b7560">
+    <link rel="stylesheet" href="../case.css?v=3ba1b81">
     <style>
       .appendix-toc {
         display: flex;
@@ -56,180 +56,23 @@
             <h1 id="appendix-title">여섯 조직을 어떻게 보고, 무엇을 확인했는지의 전체 기록이에요.</h1>
           </div>
           <p class="article-lead">
-            발견이 어떤 설계로 이어졌는지의 경로와, 그 판단의 근거가 된 표들을 담았어요. 실명과 사명은 싣지 않고 업종·직무·분량까지만 적어요. 직접 확인하지 않은 간접 사례는 따로 표기하고 인터뷰 전문은 게시하지 않아요.
+            인터뷰와 사용성 테스트의 표본, 질문 방식, 가설이 수정된 과정, 그리고 각 발견이 설계에 반영된 근거를 정리했어요. 실명과 회사명은 싣지 않고 업종·직무·조직 환경까지만 남겨요. 직접 확인하지 않은 간접 사례는 따로 표시하고, 인터뷰 전문은 게시하지 않아요.
           </p>
           <p class="fact-strip">직접 인터뷰 5명 · 8개 조직 경험 비교 · 간접 사례 2건 · 사용성 테스트 3회</p>
 
           <nav class="appendix-toc" aria-label="부록 목차">
+            <a href="#sample">표본</a>
+            <a href="#method">모집과 질문</a>
+            <a href="#environment">환경 비교</a>
+            <a href="#scoring">가설 수정</a>
             <a href="#insights">발견과 설계</a>
             <a href="#usability">사용성 테스트</a>
-            <a href="#sample">표본 전체</a>
-            <a href="#environment">환경 비교</a>
-            <a href="#scoring">가설 채점</a>
-            <a href="#spectrum">스펙트럼</a>
-            <a href="#method">방법</a>
+            <a href="#spectrum">타깃 경계</a>
           </nav>
 
-          <h3 class="article-subhead" id="insights">1. 발견이 설계가 된 경로</h3>
+          <h3 class="article-subhead" id="sample">1. 표본</h3>
           <p class="article-body">
-            리서치의 쓸모는 발견의 개수가 아니라 발견이 결정을 바꿨는지로 재요. 핵심 발견 여섯 개가 각각 어떤 설계로 이어졌는지 직결로 적었어요. 이어진 결정은 전부 프로토타입에서 확인할 수 있어요.
-          </p>
-          <ul class="path-list" aria-label="발견과 설계 결정의 연결">
-            <li class="path-item">
-              <div class="path-finding">
-                <p>미응답의 의미는 사전 협의가 있었는지에 따라 갈려요. 미리 물었을 땐 무응답도 신호가 되고, 안 물었을 땐 그냥 침묵이에요.</p>
-                <span class="path-source">테크, 전통 대기업</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>첫 제안을 먼저 보내고 응답 기한을 붙였어요. 침묵이 신호가 되는 조건을 흐름으로 만든 거예요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>기록 의지가 있어도 공식 도구가 불편하면 팀은 위키로 갈아타요. 문화 이전에 도구 비용의 문제였어요.</p>
-                <span class="path-source">테크 중견</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>새 앱을 만들지 않고 이미 쓰는 메신저 안에 설치했어요. 사정 표시는 DM에서 바로 끝나요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>피하고 싶은 시간을 미리 캘린더에 올려 두는 관행이 실제로 있었고, 겪어 본 사람은 그걸 그리워했어요.</p>
-                <span class="path-source">커머스</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>피하고 싶은 시간 표시를 핵심 입력으로 삼았어요. 다만 전면 공개 대신 이름과 분리된 집계로 바꿔 표시의 부담을 낮췄어요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>시간 선호는 취향이 아니라 위험 관리였어요. 회의가 길어지면 퇴근에 걸리니까 4시 이후를 피해요.</p>
-                <span class="path-source">테크 중견</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>안 되는 시간과 피하고 싶은 시간을 다른 신호로 분리했어요. 주간 시간표에서도 회색(불가)과 앰버(회피)로 다르게 읽혀요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>초대 알림은 잘 안 읽혀요. 메신저 공지에 육성 공지까지 겹쳐야 전달되는 조직도 있었어요.</p>
-                <span class="path-source">금융 대기업</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>결과를 알림에 맡기지 않았어요. 사람들이 이미 보는 채널의 카드가 잠정에서 확정으로 바뀌어요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>필수와 선택은 직급이 아니라 안건과의 관계로 갈렸고, 이 구분은 구두로 다 물을 수 없는 규모부터 필요해졌어요.</p>
-                <span class="path-source">엔터 중견, 테크, 전통 대기업, 테크 중견</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>주최자가 안건 기준으로 필수·선택을 지정하고, 추천 계산이 필수 참석을 우선하게 했어요.</p>
-              </div>
-            </li>
-          </ul>
-
-          <h3 class="article-subhead" id="usability">2. 사용성 테스트에서 본 것과 고친 것</h3>
-          <p class="article-body">
-            프로토타입 테스트는 세 번 했어요. 첫 번째는 마지막 인터뷰를 겸해 22분간 대면으로 지켜봤고, 두 번째와 세 번째는 처음 보는 사람이 원격으로 직접 써본 뒤 채팅으로 피드백했어요. 원격 테스터 두 명은 프로필을 수집하지 않아 표본에는 세지 않았어요. 잘 되는 것보다 막히는 것을 찾는 자리였고, 고친 것과 남긴 숙제를 그대로 적었어요.
-          </p>
-          <ul class="path-list" aria-label="사용성 테스트 관찰과 조치">
-            <li class="path-item">
-              <div class="path-finding">
-                <p>추천 화면에서 후보 시간이 색으로만 구분되니 헷갈려 했어요. “색이 다 똑같나요? 뭘 의미하는지 모르겠어요.”</p>
-                <span class="path-source">테스트 1 · 대면 관찰</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>주간 시간표 위에 1·2·3순위 칩을 붙이고 색 단계의 대비를 키웠어요. 추천 카드와 시간표가 같은 후보를 가리킨다는 게 바로 보여요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>피하고 싶은 시간을 보내고도 제출됐는지 확신하지 못했어요. 문구 한 줄로는 부족했어요.</p>
-                <span class="path-source">테스트 1 · 대면 관찰</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>응답하면 초대 카드가 그 자리에서 응답 상태로 바뀌게 했어요. 시스템 문구 대신 “피하고 싶은 시간 2개를 표시했어요”처럼 내가 한 답을 돌려줘요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>“회의 시기”는 무슨 뜻인지 되묻게 했고, “첫 제안”은 몇 번 써보고서야 개념이 잡혔어요.</p>
-                <span class="path-source">테스트 2 · 원격</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>화면 속 개념어를 사용자의 말로 바꿨어요. 회의 시기는 “후보 날짜”로, 첫 제안은 “제안 시간”으로요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>작성 폼에서 회의 정보와 응답 기한이 한 줄에 섞여 있어, 회의에 대한 정보인지 이 폼의 기한인지 헷갈려 했어요.</p>
-                <span class="path-source">테스트 2 · 원격</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>1단계는 회의 정보만 받게 하고, 응답 기한은 제안 시간을 고르는 2단계로 옮겼어요. 추천을 먼저 보고 기한을 정하는 게 순서에도 맞았어요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>주최자 본인의 선호를 반영하는 기능이 이미 있는데도 못 찾고 “기능이 없다”고 인식했어요.</p>
-                <span class="path-source">테스트 2 · 원격</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>채널의 ‘내 캘린더 표시’ 버튼과 작성 1단계 안내로 진입점을 늘렸어요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>회의실 예약이 없는 걸 알아챘어요. 주제를 흐릴까 봐 뺀 걸 짐작하면서도, 요소가 아예 없으니 생각 못 한 것처럼 보인다고 했어요.</p>
-                <span class="path-source">테스트 2 · 원격</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>확정 단계에 장소를 저강조로 넣었어요. 기본값이 채워져 있어 그냥 지나칠 수 있지만, 존재는 해요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>제안 시간을 고르는 격자에서 누가 되는지는 칸에 마우스를 올려야만 보였어요. “맨땅에서 가능한 시간을 처음부터 다 훑는 느낌”이라고 했어요.</p>
-                <span class="path-source">테스트 3 · 원격</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>남은 숙제예요. 누가 언제 되는지 한눈에 보는 건 필요하지만, 팀즈식 테이블을 그대로 주면 캘린더가 진실이라는 깨진 전제로 돌아가요. 캘린더 기준 추정임이 보이는 선에서 개괄을 주는 방법을 찾고 있어요.</p>
-              </div>
-            </li>
-            <li class="path-item">
-              <div class="path-finding">
-                <p>“참가자를 단순히 되는 시간·안 되는 시간으로 고려하는 게 아니라, 정치적으로나 전략적으로나 타이밍적으로나, 사전에 고려된 다음 진행되면 좋겠어요.”</p>
-                <span class="path-source">테스트 3 · 원격</span>
-              </div>
-              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
-              <div class="path-decision">
-                <p>캘린더 밖 맥락이 문제라는 정의를 실사용자의 말로 다시 확인했어요. 다만 이분이 기대한 형태는 우리가 버린 겹쳐보기였어요. 문제 인식은 같은데 기대한 화면이 다르다는 이 간극이 다음 설계 과제예요.</p>
-              </div>
-            </li>
-          </ul>
-          <p class="article-body">
-            세 번을 겹쳐 보면 같은 계열이 반복돼요. 작성 창의 회색 자동 제안(첫 번째), 주최자 표시 진입점(두 번째), 격자에서 누가 되는지(세 번째) 모두 기능은 있는데 한 번 알아채야 보이는 정보였어요. 그래서 발견성은 요소 하나씩이 아니라 시스템 차원의 점검 항목으로 올렸어요. 데모를 단순하게 하려고 뺀 것들이 고민 안 한 것으로 읽힐 수 있다는 것도 두 번 확인했어요. 회의실은 확정 단계에 저강조로 되살렸고, 조직마다 다른 점심시간은 실제 제품에서 반영할 항목으로만 적어 뒀어요.
-          </p>
-
-          <h3 class="article-subhead" id="sample">3. 표본 전체</h3>
-          <p class="article-body">
-            직접 인터뷰 5명과, 간접 사례 2건이에요. 한 분은 세 조직을 옮겨 다니며 겪은 분이라, 합치면 조직 경험 8개가 나왔어요. 핵심 가설 검증에는 본선 세 조직을 썼고 나머지는 타깃의 경계를 긋는 데 썼어요. 마지막 인터뷰는 첫 사용성 테스트를 겸했고, 이후 원격 테스트 두 번을 더 했어요. 원격 테스터는 표본에 세지 않았어요.
+            직접 인터뷰 5명과, 참여자를 통해 전해 들은 간접 사례 2건이에요. 이직 경험자가 있어 비교할 수 있었던 조직 경험은 모두 8개예요. 핵심 문제는 이 중 세 조직에서 반복해 확인했고, 나머지 사례는 타깃의 경계를 긋는 데 썼어요. 사용성 테스트는 세 번 했어요. 첫 번째는 마지막 인터뷰가 겸했고, 원격으로 진행한 두 번은 참가자의 조직 프로필을 수집하지 않아 인터뷰 표본에는 포함하지 않았어요.
           </p>
           <p class="table-hint">표는 옆으로 넘겨 볼 수 있어요.</p>
           <div class="table-scroll">
@@ -252,7 +95,7 @@
                   <td>자율출퇴근, 코어타임 11~15시, 재택 있음</td>
                   <td>사내 협업 중심</td>
                   <td>공식 일정만 기록</td>
-                  <td>본선 검증</td>
+                  <td>핵심 문제 검증</td>
                 </tr>
                 <tr>
                   <td>테크</td>
@@ -260,7 +103,7 @@
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td>해외팀 협업, 오전 7시·9시 미팅 존재</td>
                   <td>공식 일정만, 캘린더 겹쳐보기 활용</td>
-                  <td>본선 검증</td>
+                  <td>핵심 문제 검증</td>
                 </tr>
                 <tr>
                   <td>전통 대기업</td>
@@ -268,7 +111,7 @@
                   <td>자율출퇴근, 7~10시 출근</td>
                   <td>전 권역(미주·남미·유럽·아시아) 시차 협업</td>
                   <td>공식 일정만, 연차 미표시</td>
-                  <td>본선 검증</td>
+                  <td>핵심 문제 검증</td>
                 </tr>
                 <tr>
                   <td>테크 중견</td>
@@ -300,7 +143,7 @@
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
                   <td>개인 일정까지 기록</td>
-                  <td>스펙트럼 확장</td>
+                  <td>타깃 경계 확인</td>
                 </tr>
                 <tr class="row-indirect">
                   <td>테크<span class="badge-indirect">간접 사례</span></td>
@@ -313,9 +156,24 @@
               </tbody>
             </table>
           </div>
-          <p class="table-note">묻지 않았거나 답에 없던 칸은 비워 뒀어요. 금융 대기업과 엔터 대기업은 한 분이 옮겨 다니며 겪은 조직이에요. 간접 사례는 직접 인터뷰가 아니라 참여자를 통해 전해 들은 사례예요.</p>
+          <p class="table-note">빈칸(·)은 묻지 않았거나 답에 없던 항목이고, 간접 사례 행의 빈칸은 전해 들은 범위 밖이라 확인하지 못한 항목이에요. 금융 대기업과 엔터 대기업은 한 분이 옮겨 다니며 겪은 조직이에요.</p>
 
-          <h3 class="article-subhead" id="environment">4. 환경 비교: 조율을 결정하는 변수들</h3>
+          <h3 class="article-subhead" id="method">2. 모집과 질문 방식</h3>
+          <p class="article-body">모집은 2분짜리 스크리너 폼으로 했어요. 핵심 문항은 하나예요.</p>
+          <blockquote class="method-quote">“최근 1개월 안에, 3명 이상이 모이는 회의의 ‘시간을 정하는 과정’에 참여한 적이 있나요? 주최였나요, 참석자였나요?”</blockquote>
+          <p class="article-body">
+            선정에는 쿼터를 뒀어요. 주니어와 리더를 섞고 비IT 조직을 2곳 이상, 회의를 직접 잡아본 사람을 2명 이상, 같은 디자인 직군은 2명 이하로요. 위계와 도구 환경이 다른 조직을 일부러 겹치지 않게 골랐어요.
+          </p>
+          <p class="article-body">
+            진행에서는 유도 질문을 막는 데 가장 신경 썼어요. 우리 가설의 단어를 먼저 말하지 않고 “보통 어떠세요?” 대신 “가장 최근에 언제였어요?”를 물었어요. 실제로 저지른 실수를 가드로 만들어 다음 세션에서 고쳤어요.
+          </p>
+          <ul class="probe-list">
+            <li class="probe-head" aria-hidden="true"><span>피하려던 질문</span><span>실제로 쓴 질문</span></li>
+            <li><span class="probe-bad">“높은 사람이라 말 못하고 이런 건 없어요?”</span><span class="probe-good">“그때 어떻게 했어요?”</span></li>
+            <li><span class="probe-bad">“그런 건 캘린더에 표시가 안 되는 편이죠?”</span><span class="probe-good">“그 사정은 다른 사람들이 어떻게 알아요?”</span></li>
+            <li><span class="probe-bad">“재택 같은 건 없죠?”</span><span class="probe-good">“근무 형태가 어떻게 돼요?”</span></li>
+          </ul>
+          <h3 class="article-subhead" id="environment">3. 환경 비교: 조율을 결정하는 변수들</h3>
           <p class="article-body">
             여덟 조직 경험을 같은 변수로 나란히 놓은 표예요. 메신저와 캘린더 도구가 아니라, 캘린더에 무엇까지 적는지와 회의를 어떻게 결정하는지가 조율의 모양을 갈랐어요.
           </p>
@@ -402,14 +260,14 @@
             </table>
           </div>
 
-          <h3 class="article-subhead" id="scoring">5. 가설 채점: 무엇이 살아남고 무엇이 버려졌는지</h3>
+          <h3 class="article-subhead" id="scoring">4. 가설이 어떻게 수정됐는지</h3>
           <p class="article-body">
-            처음 세운 가설을 인터뷰마다 채점했어요. 지지만 모은 게 아니라 반박과 기각도 그대로 남겼고 이 수정 이력이 지금 문제 정의를 믿는 근거예요.
+            처음 세운 가설을 인터뷰마다 대조했어요. 지지만 모은 게 아니라 일부 지지, 범위 축소, 수정도 그대로 남겼어요. 이 수정 이력이 지금 문제 정의의 근거예요.
           </p>
           <p class="table-hint">표는 옆으로 넘겨 볼 수 있어요.</p>
           <div class="table-scroll">
             <table class="sample-table table-wide">
-              <caption class="sr-only">가설 채점 누적</caption>
+              <caption class="sr-only">가설별 인터뷰 대조 결과</caption>
               <thead>
                 <tr>
                   <th scope="col">가설·신호</th>
@@ -431,7 +289,7 @@
                   <td>변형 지지 (기록은 위키에)</td>
                   <td>극단 지지 (기록 부재)</td>
                   <td>반례 (위생 강하면 약해짐)</td>
-                  <td>본선 3곳 모두 지지, 경계 양쪽과 표면 이탈 변형까지 확인</td>
+                  <td>핵심 세 조직 모두 지지, 경계 양쪽과 표면 이탈 변형까지 확인</td>
                 </tr>
                 <tr>
                   <td>재조율이 잦다</td>
@@ -461,7 +319,7 @@
                   <td>반박 (애매하면 거절)</td>
                   <td>극단 (조율 소멸)</td>
                   <td><span aria-hidden="true">·</span><span class="sr-only">기록 없음</span></td>
-                  <td>기각. 위계는 우선순위로 작동한다고 재정의했어요</td>
+                  <td>일부 지지. 단독 설명으로는 부족해, 침묵보다 우선순위를 뒤집는 힘으로 작동한다고 수정했어요</td>
                 </tr>
                 <tr>
                   <td>필수·선택은 안건과의 관계로 갈린다</td>
@@ -507,39 +365,182 @@
             </table>
           </div>
 
-          <h3 class="article-subhead" id="spectrum">6. 캘린더 기록 문화 스펙트럼과 타깃의 자리</h3>
+          <h3 class="article-subhead" id="insights">5. 발견이 설계로 이어진 근거</h3>
           <p class="article-body">
-            여덟 조직 경험은 캘린더에 무엇까지 적는지의 스펙트럼 위에 흩어져 있었어요. 본선 세 조직이 모두 가운데에 있었고 그곳이 이 제품의 타깃이에요.
+            발견 여섯 개가 각각 어떤 설계로 이어졌는지 적었어요. 판단에 남은 위험이 있으면 함께 남겼어요. 이어진 결정은 전부 프로토타입에서 확인할 수 있어요.
+          </p>
+          <ul class="path-list" aria-label="발견과 설계 결정의 연결">
+            <li class="path-item">
+              <div class="path-finding">
+                <p>미응답의 의미는 사전 협의가 있었는지에 따라 갈려요. 미리 물었을 땐 무응답도 신호가 되고, 안 물었을 땐 그냥 침묵이에요.</p>
+                <span class="path-source">테크, 전통 대기업</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>첫 제안을 먼저 보내고 응답 기한을 붙였어요. 침묵이 신호가 되는 조건을 흐름으로 만든 거예요. 다만 침묵을 동의로 잘못 읽을 위험이 남아, 추천 화면에서는 직접 응답과 캘린더 기준 추정을 구분해 보여줘요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>기록 의지가 있어도 공식 도구의 입력 비용이 높으면 팀이 다른 도구로 이탈했어요. 한 조직에서 팀 전체가 위키로 갈아탄 사례를 봤어요.</p>
+                <span class="path-source">테크 중견</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>새 앱을 만들지 않고 이미 쓰는 메신저 안에 설치했어요. 사정 표시는 DM에서 바로 끝나요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>피하고 싶은 시간을 미리 캘린더에 올려 두는 관행이 실제로 있었고, 겪어 본 사람은 그걸 그리워했어요.</p>
+                <span class="path-source">커머스 · 간접 사례</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>피하고 싶은 시간 표시를 핵심 입력으로 삼았어요. 다만 전면 공개 대신 이름과 분리된 집계로 바꿔 표시의 부담을 낮췄어요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>한 참여자에게 늦은 오후를 피하는 선호는 취향보다, 회의가 길어져 퇴근이 늦어질 위험을 줄이려는 선택에 가까웠어요.</p>
+                <span class="path-source">테크 중견</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>안 되는 시간과 피하고 싶은 시간을 다른 신호로 분리했어요. 주간 시간표에서도 회색(불가)과 앰버(회피)로 다르게 읽혀요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>일부 조직에서는 캘린더 초대만으로 전달됐다고 보기 어려웠어요. 메신저 공지에 육성 공지까지 겹쳐야 전달되는 곳도 있었어요.</p>
+                <span class="path-source">금융 대기업</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>결과를 알림에 맡기지 않았어요. 사람들이 이미 보는 채널의 카드가 잠정에서 확정으로 바뀌어요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>필수와 선택은 직급이 아니라 안건과의 관계로 갈렸고, 이 구분은 구두로 다 물을 수 없는 규모부터 필요해졌어요.</p>
+                <span class="path-source">엔터 중견, 테크, 전통 대기업, 테크 중견</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>주최자가 안건 기준으로 필수·선택을 지정하고, 추천 계산이 필수 참석을 우선하게 했어요.</p>
+              </div>
+            </li>
+          </ul>
+
+          <h3 class="article-subhead" id="usability">6. 사용성 테스트에서 본 것과 고친 것</h3>
+          <p class="article-body">
+            프로토타입 테스트는 세 번 했어요. 첫 번째는 마지막 인터뷰를 겸해 22분간 대면으로 지켜봤고, 두 번째와 세 번째는 처음 보는 사람이 원격으로 직접 써본 뒤 채팅으로 피드백했어요. 잘 되는 것보다 막히는 것을 찾는 자리였고, 고친 것과 반영하지 않은 것을 함께 적었어요.
+          </p>
+          <ul class="path-list" aria-label="사용성 테스트 관찰과 조치">
+            <li class="path-item">
+              <div class="path-finding">
+                <p>“색이 다 똑같나요? 뭘 의미하는지 모르겠어요.” 추천 카드와 시간표가 같은 후보를 가리킨다는 관계가 전달되지 않은 것으로 읽었어요.</p>
+                <span class="path-source">테스트 1 · 대면 관찰</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>두 화면에 같은 1·2·3순위 표시를 붙이고, 카드는 추천 이유를 설명하고 시간표는 근거를 보여주도록 역할을 나눴어요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>피하고 싶은 시간을 보내고도 제출됐는지 확신하지 못했어요. 문구 한 줄로는 부족했어요.</p>
+                <span class="path-source">테스트 1 · 대면 관찰</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>응답하면 초대 카드가 그 자리에서 응답 상태로 바뀌게 했어요. 시스템 문구 대신 “피하고 싶은 시간 2개를 표시했어요”처럼 내가 한 답을 돌려줘요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>“회의 시기”는 무슨 뜻인지 되묻게 했고, “첫 제안”은 몇 번 써보고서야 개념이 잡혔어요.</p>
+                <span class="path-source">테스트 2 · 원격</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>화면 속 개념어를 사용자의 말로 바꿨어요. 회의 시기는 “후보 날짜”로, 첫 제안은 “제안 시간”으로요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>작성 폼에서 회의 정보와 응답 기한이 한 줄에 섞여 있어, 회의에 대한 정보인지 이 폼의 기한인지 헷갈려 했어요.</p>
+                <span class="path-source">테스트 2 · 원격</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>1단계는 회의 정보만 받게 하고, 응답 기한은 제안 시간을 고르는 2단계로 옮겼어요. 추천을 먼저 보고 기한을 정하는 게 순서에도 맞았어요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>주최자 본인의 선호를 반영하는 기능이 이미 있는데도 못 찾고 “기능이 없다”고 인식했어요.</p>
+                <span class="path-source">테스트 2 · 원격</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>채널의 ‘내 캘린더 표시’ 버튼과 작성 1단계 안내로 진입점을 늘렸어요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>회의실 예약이 없는 걸 알아챘어요. 주제를 흐릴까 봐 뺀 걸 짐작하면서도, 요소가 아예 없으니 생각 못 한 것처럼 보인다고 했어요.</p>
+                <span class="path-source">테스트 2 · 원격</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>확정 단계에 장소를 저강조로 넣었어요. 기본값이 채워져 있어 그냥 지나칠 수 있지만, 존재는 해요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>제안 시간을 고르는 격자에서 누가 되는지는 칸에 마우스를 올려야만 보였어요. “맨땅에서 가능한 시간을 처음부터 다 훑는 느낌”이라고 했어요.</p>
+                <span class="path-source">테스트 3 · 원격</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>참석자별 가용성을 한눈에 보고 싶다는 요구는 유효해요. 다만 일정표를 그대로 얹으면 캘린더가 실제 가능 시간을 다 반영하는 것처럼 보일 수 있어 바로 반영하지 않았어요. 캘린더 기준 추정임이 보이는 개괄 방식을 찾는 게 남은 숙제예요.</p>
+              </div>
+            </li>
+            <li class="path-item">
+              <div class="path-finding">
+                <p>“참가자를 단순히 되는 시간·안 되는 시간으로 고려하는 게 아니라, 정치적으로나 전략적으로나 타이밍적으로나, 사전에 고려된 다음 진행되면 좋겠어요.”</p>
+                <span class="path-source">테스트 3 · 원격</span>
+              </div>
+              <span class="path-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4 11.5 8 6 12Z" fill="currentColor"/></svg></span>
+              <div class="path-decision">
+                <p>캘린더 밖 맥락이 문제라는 정의를 실사용자의 말로 다시 확인했어요. 다만 이분이 기대한 형태는 우리가 버린 겹쳐보기였어요. 문제 인식은 같은데 기대한 화면이 다르다는 이 간극이 다음 설계 과제예요.</p>
+              </div>
+            </li>
+          </ul>
+          <p class="article-body">
+            세 테스트에서 서로 다른 기능이 발견되지 않는 문제가 반복됐어요. 작성 창의 회색 자동 제안, 주최자 표시 진입점, 격자의 가용성 표시는 모두 기능이 없어서가 아니라 처음 화면에서 드러나지 않아 놓쳤어요. 그래서 발견성은 화면 하나씩 고치는 문제가 아니라 제품 전체를 훑는 점검 기준으로 넣었어요. 데모를 단순하게 하려고 뺀 것들이 고민 안 한 것으로 읽힐 수 있다는 것도 두 번 확인했어요. 회의실은 확정 단계에 저강조로 되살렸고, 조직마다 다른 점심시간은 반영하지 않기로 하고 실제 제품의 과제로만 적어 뒀어요.
+          </p>
+
+          <h3 class="article-subhead" id="spectrum">7. 타깃의 경계</h3>
+          <p class="article-body">
+            여덟 조직 경험을 캘린더에 무엇까지 적는지 기준으로 나눴어요. 핵심 문제를 확인한 세 조직이 모두 가운데 그룹이었고, 그곳이 이 제품의 타깃이에요.
           </p>
           <div class="spectrum" role="img" aria-label="캘린더 기록 문화 스펙트럼과 타깃 위치">
             <div class="spectrum__cell">
-              <h4>기록 문화가 없는 조직</h4>
+              <h4>캘린더 기반 조율이 없는 조직</h4>
               <p>금융 대기업과 엔터 대기업이 여기 있었어요. 캘린더 불신이 아니라 캘린더 부재라, 문제가 다른 층에 있어 범위에서 뺐어요. 통보형 위계 조직은 조율 행위 자체가 없어 마찬가지로 범위 밖이에요.</p>
             </div>
             <div class="spectrum__cell spectrum__cell--target">
-              <h4>캘린더를 쓰지만, 다 믿지는 못하는 조직</h4>
-              <p>본선 세 조직(엔터 중견·테크·전통 대기업)이 모두 여기 있었어요. 메신저로 협의해 회의를 잡는 팀, 이 제품의 타깃이에요.</p>
+              <h4>공식 일정만 기록하는 조직</h4>
+              <p>핵심 문제를 확인한 세 조직(엔터 중견·테크·전통 대기업)이 모두 여기 있었어요. 메신저로 협의해 회의를 잡는 팀, 이 제품의 타깃이에요.</p>
             </div>
             <div class="spectrum__cell spectrum__cell--ideal">
-              <h4>개인 일정까지 캘린더에 적는 조직</h4>
-              <p>이런 조직은 드물어요. 장치가 없어서가 아니라 적는 문화가 없고 품이 들기 때문이에요. 그래서 사정을 공식 시스템 안에 쓰기 편하게 두는 걸 설계 방향으로 잡았어요.</p>
+              <h4>개인 일정까지 공유하는 조직</h4>
+              <p>이번 표본에서는 간접 사례 두 곳에서만 확인했어요. 도구가 없어서가 아니라 적는 문화가 없고 품이 들기 때문이에요. 그래서 사정을 공식 시스템 안에 쓰기 편하게 두는 걸 설계 방향으로 잡았어요.</p>
             </div>
           </div>
 
-          <h3 class="article-subhead" id="method">7. 어떻게 묻고 골랐는지</h3>
-          <p class="article-body">모집은 2분짜리 스크리너 폼으로 했어요. 핵심 문항은 하나예요.</p>
-          <blockquote class="method-quote">“최근 1개월 안에, 3명 이상이 모이는 회의의 ‘시간을 정하는 과정’에 참여한 적이 있나요? 주최였나요, 참석자였나요?”</blockquote>
-          <p class="article-body">
-            선정에는 쿼터를 뒀어요. 주니어와 리더를 섞고 비IT 조직을 2곳 이상, 회의를 직접 잡아본 사람을 2명 이상, 같은 디자인 직군은 2명 이하로요. 위계와 도구 환경이 다른 조직을 일부러 겹치지 않게 골랐어요.
-          </p>
-          <p class="article-body">
-            진행에서는 유도 질문을 막는 데 가장 신경 썼어요. 우리 가설의 단어를 먼저 말하지 않고 “보통 어떠세요?” 대신 “가장 최근에 언제였어요?”를 물었어요. 실제로 저지른 실수를 가드로 만들어 다음 세션에서 고쳤어요.
-          </p>
-          <ul class="probe-list">
-            <li><span class="probe-bad">“높은 사람이라 말 못하고 이런 건 없어요?”</span><span class="probe-good">“그때 어떻게 했어요?”</span></li>
-            <li><span class="probe-bad">“그런 건 캘린더에 표시가 안 되는 편이죠?”</span><span class="probe-good">“그 사정은 다른 사람들이 어떻게 알아요?”</span></li>
-            <li><span class="probe-bad">“재택 같은 건 없죠?”</span><span class="probe-good">“근무 형태가 어떻게 돼요?”</span></li>
-          </ul>
         </div>
       </section>
     </main>
