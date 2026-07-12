@@ -1109,9 +1109,12 @@ h3 {
   margin: var(--space-6) 0 0;
 }
 
+/* 타깃이 아닌 양 끝 카드는 흰 박스 + 회색 스트로크로 물러나게 두고,
+   가운데 타깃만 파란 채움으로 뜨게 한다. */
 .spectrum__cell {
+  border: 1px solid var(--border);
   border-radius: var(--radius-16);
-  background: var(--surface-muted);
+  background: var(--surface);
   padding: var(--space-5);
 }
 
@@ -1132,6 +1135,7 @@ h3 {
 
 .spectrum__cell--target {
   background: var(--accent-soft);
+  border-color: var(--accent-soft);
 }
 
 .spectrum__cell--target h4 {

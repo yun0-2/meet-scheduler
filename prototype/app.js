@@ -1713,7 +1713,7 @@
         '</div>' +
         (state.posted
           ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '처음 제안한 시간과 달라요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
-          : '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
+          : '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>응답이 없으면 이대로 확정돼요 · ' + state.replyBy + '까지</span></div>') +
         // 주최자도 참석자와 대칭으로 자기 캘린더 표시를 남길 수 있게 — 조용한 링크 한 줄(과설명 금지)
         '<p class="posted-mark-note"><button type="button" class="compose-note-link" data-action="open-my-marks">나도 피하고 싶은 시간 표시하기</button></p>' +
         '<div class="participant-grid">' + renderParticipantRows() + '</div>' +
@@ -1806,7 +1806,7 @@
               '<span class="fact-pill">' + durationLabel() + '</span>' +
               '<span class="fact-pill">' + (effectiveAttendance(person) === "required" ? "필수 참석" : "선택 참석") + '</span>' +
             '</div>' +
-            '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>괜찮으면 그대로 확정돼요 · 어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
+            '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>응답이 없으면 이대로 확정돼요 · ' + state.replyBy + '까지</span></div>' +
             (state.inputStage === "done"
               ? '<div class="dm-answered is-ok">' +
                   '<p class="dm-answered-check">✓ ' + (inputMarkCount(person) > 0 ? '피하고 싶은 시간 ' + inputMarkCount(person) + '개를 표시했어요' : '언제든 괜찮다고 답했어요') + '</p>' +
