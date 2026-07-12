@@ -1103,7 +1103,13 @@ h3 {
   padding: var(--space-5);
 }
 
+/* 제목을 2줄 높이로 통일하고 세로 중앙 정렬 — 셀마다 제목 줄 수가 달라도
+   본문 시작 높이가 맞는다(1줄짜리 제목은 가운데로 내려온다). */
 .spectrum__cell h4 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 2.8em;
   margin: 0 0 var(--space-2);
   font-size: var(--text-15);
   font-weight: 700;
@@ -1285,6 +1291,11 @@ h3 {
 
   .absent-list {
     grid-template-columns: 1fr;
+  }
+
+  /* 1열에선 셀이 세로로 쌓여 제목 높이 통일이 불필요 */
+  .spectrum__cell h4 {
+    min-height: 0;
   }
 
   .probe-list li {
