@@ -2361,7 +2361,7 @@ body.is-embed .schedule-grid {
 
 .slack-modal-head h2 {
   margin: 0;
-  font-size: var(--text-18);
+  font-size: var(--text-20);
   font-weight: 700;
 }
 
@@ -2909,10 +2909,42 @@ body.is-embed .schedule-grid {
 
 /* 엔트리 봇 홈 버튼 행 — gap 누락 수정 */
 .bot-intro-actions {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-3);
+}
+
+/* 첫 진입 코치마크 — '어디서 시작하지'에 답한다. 회의 개최 버튼 아래 말풍선, 위 화살표 */
+.start-coach {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 6px;
+  z-index: 20;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--gray-900, #101827);
+  color: #fff;
+  font-size: var(--text-13);
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+  animation: start-coach-in 220ms ease-out;
+}
+.start-coach::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 34px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  transform: rotate(45deg);
+}
+@keyframes start-coach-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
 }
 
 

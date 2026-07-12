@@ -32,6 +32,7 @@
     inputStage: "dm",
     declined: false,
     myMarksOpen: false,
+    startCoachDismissed: false,
     windowStart: 20,
     windowEnd: 24,
     customSlot: null,
@@ -1312,6 +1313,7 @@
           '<div class="bot-intro-actions">' +
             '<button type="button" class="slack-btn slack-btn-primary" data-action="open-compose">회의 개최</button>' +
             '<button type="button" class="slack-btn" data-action="open-my-marks">내 캘린더 표시</button>' +
+            ((!isEmbedMode && !state.startCoachDismissed && !state.composePosted) ? '<div class="start-coach" role="note">여기서 회의를 열어 시작해요</div>' : '') +
           '</div>' +
         '</div>' +
       '</article>'
@@ -2622,6 +2624,7 @@
       return;
     }
     if (action === "open-compose") {
+      state.startCoachDismissed = true;
       state.composeModalOpen = true;
       state.composeStep = 1;
       // 데모 프리필: 제품 주장은 "참석자·문안까지 미리 채워진다" — 빈 작성 창에서
