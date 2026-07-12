@@ -3304,8 +3304,11 @@ body.is-embed .mobile-stage {
   background: var(--gray-900, #101827);
 }
 
-/* 범위 시작일 — 첫 클릭이 즉시 보여야 한다 (리팩터링 때 유실됐던 규칙 복원) */
-.wcal-day.is-anchor {
+/* 범위 시작일 — 첫 클릭이 즉시 보여야 한다. 호버 밴드 규칙(:not 포함, 특이도 0,3,0)보다
+   우선하도록 겹침 조합까지 명시 */
+.wcal-day.is-anchor,
+.wcal-day.is-anchor.is-hover-week,
+.wcal-day.is-anchor.is-hover-start {
   background: var(--accent, #3182F6);
   color: #fff;
   font-weight: 700;
