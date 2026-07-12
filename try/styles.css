@@ -516,7 +516,7 @@ button {
 
 /* 게시된 곁들임 메시지 — 앱 카드 위 일반 메시지 텍스트 */
 .posted-message-text {
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-2);
   color: var(--gray-800);
   font-size: var(--text-14);
   white-space: pre-wrap;
@@ -4278,4 +4278,60 @@ button.compose-step:hover {
 }
 .confirm-attendee-row .confirm-attendee-status {
   margin-left: 0;
+}
+
+/* ===== 리모컨 접기 (2026-07-14) ===== */
+/* 펼침 패널의 접기 버튼(›) — 우상단, ? 왼쪽 */
+.demo-nav-collapse {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-8);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+}
+.demo-nav-collapse:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.9);
+}
+.demo-nav-collapse .demo-nav-chevron {
+  font-size: 15px;
+  line-height: 1;
+}
+/* 접힘 상태: 패널 대신 우하단 작은 손잡이만 */
+#demo-nav.is-collapsed {
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.demo-nav-reopen {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 999px;
+  background: rgba(23, 27, 35, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 600;
+}
+.demo-nav-reopen:hover {
+  color: #fff;
+}
+.demo-nav-reopen .demo-nav-chevron {
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.6);
 }

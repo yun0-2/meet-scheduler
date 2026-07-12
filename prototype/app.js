@@ -33,6 +33,7 @@
     declined: false,
     myMarksOpen: false,
     startCoachDismissed: false,
+    demoNavCollapsed: false,
     windowStart: 20,
     windowEnd: 24,
     customSlot: null,
@@ -118,7 +119,6 @@
       lines.push("");
       lines.push(context);
     }
-    lines.push("");
     lines.push("시간은 아래 카드에서 확인하고, 어려우면 표시해주세요.");
     return lines.join("\n");
   }
@@ -1095,7 +1095,12 @@
     // CSS :has()는 삽입 직후 스타일 재계산이 안 도는 환경이 있어(실측) 클래스로 명시.
     var modalOpen = String(app.innerHTML || "").indexOf("slack-modal-overlay") !== -1;
     if (nav.setAttribute) {
-      nav.setAttribute("class", modalOpen ? "is-lifted" : "");
+      nav.setAttribute("class", (modalOpen ? "is-lifted" : "") + (state.demoNavCollapsed ? " is-collapsed" : ""));
+    }
+    // 접힘: 우하단에 손잡이만 남긴다(안 거슬리게). 클릭하면 펼친다.
+    if (state.demoNavCollapsed) {
+      nav.innerHTML = '<button type="button" class="demo-nav-reopen" data-action="demo-nav-expand" aria-label="데모 안내 리모컨 펼치기"><span class="demo-nav-chevron" aria-hidden="true">‹</span>안내</button>';
+      return;
     }
     // 역할별 그룹: 주최자 저니(제안→추천→확정) 한 행, 참석자 저니(응답) 한 행.
     var hostGroup = { role: "주최자", steps: [
@@ -1128,6 +1133,7 @@
     // (세 조각으로 떠 보인다는 피드백 반영). 폭은 모달 푸터 CTA 텍스트를 가리지 않는
     // 한도로 CSS에서 고정한다.
     nav.innerHTML =
+      '<button type="button" class="demo-nav-collapse" data-action="demo-nav-collapse" aria-label="리모컨 접기"><span class="demo-nav-chevron" aria-hidden="true">›</span></button>' +
       '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="데모 안내 다시 보기">?</button>' +
       '<p class="demo-nav-caption">' + demoCaptionFor(route) + '</p>' +
       '<div class="demo-nav-row">' + renderGroup(hostGroup) + '</div>' +
@@ -3289,6 +3295,16 @@
       var replayTarget = event.target.closest("[data-action='scenario-replay']");
       if (replayTarget) {
         renderScenarioCard();
+        return;
+      }
+      if (event.target.closest("[data-action='demo-nav-collapse']")) {
+        state.demoNavCollapsed = true;
+        renderDemoNav();
+        return;
+      }
+      if (event.target.closest("[data-action='demo-nav-expand']")) {
+        state.demoNavCollapsed = false;
+        renderDemoNav();
       }
     });
   }
