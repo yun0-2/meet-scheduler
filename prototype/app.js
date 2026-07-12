@@ -1720,9 +1720,12 @@
               '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 캘린더 충돌과 피하고 싶다는 표시가 가장 적은 순서로 정리했어요.</p>' +
               renderResponseLine() +
             '</div>' +
-            renderSortToggle() +
           '</header>' +
           '<div class="desktop-layout">' +
+            '<aside class="decide-col">' +
+              renderSortToggle() +
+              '<div class="recommend-list">' + renderRecommendCards() + '</div>' +
+            '</aside>' +
             '<section class="panel" aria-label="주간 격자">' +
               '<header class="panel-header">' +
                 '<h2>주간 격자</h2>' +
@@ -1731,9 +1734,6 @@
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
               renderActiveSlotDetail() +
             '</section>' +
-            '<aside>' +
-              '<div class="recommend-list">' + renderRecommendCards() + '</div>' +
-            '</aside>' +
           '</div>' +
         '</div>' +
       '</section>' +
@@ -1787,8 +1787,10 @@
   }
 
   function renderScheduleGrid(featured) {
-    // 격자 표면 뱃지는 '보낸 잠정안' 하나만 — 순위는 카드의 몫
     var tentativeId = state.tentativeSlotId || featured.recommended.id;
+    // 현재 정렬 기준의 1~3위를 격자에도 찍는다 — 뱃지를 뺐더니 카드와 격자가
+    // 이어져 보이지 않는다는 실사용 피드백(006)으로 복원. 번호 언어는 카드와 동일.
+    var rankOrderIds = cardOrder(state.sortMode).map(function (slot) { return slot.id; });
     var days = activeDays();
     var html = '<div class="grid-corner">시간</div>';
     days.forEach(function (day) {
@@ -1816,7 +1818,11 @@
         // 세모는 본인이 직접 남긴 표시(privateSoft)만 — 추론·통념까지 그리면
         // 후보마다 전부 표시가 붙는 부조리가 된다. 약한 신호는 카드 문장의 몫.
         var privateBurden = !unavailable && slot.privateSoft.length > 0;
-        var rankLabel = slot.id === tentativeId ? "첫 제안" : null;
+        // 카드와 같은 번호 언어(1·2·3순위)를 격자에도 — 카드↔격자 연결(사용성 테스트 006 P1)
+        var rankIndex = rankOrderIds.indexOf(slot.id);
+        var rankLabel = rankIndex >= 0
+          ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 첫 제안" : "")
+          : (slot.id === tentativeId ? "첫 제안" : null);
         html +=
           '<button class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
           'data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
@@ -2543,6 +2549,15 @@
   window.addEventListener("pointercancel", endSoftDrag);
 
   app.addEventListener("mouseover", function (event) {
+    // 추천 카드에 호버하면 격자의 해당 셀을 강조 — 카드↔격자 연결(006)
+    var hoverCard = event.target.closest ? event.target.closest(".recommend-card") : null;
+    if (hoverCard) {
+      var linked = document.querySelector('.slot-cell[data-slot-id="' + hoverCard.getAttribute("data-card-id") + '"]');
+      var prev = document.querySelectorAll(".slot-cell.is-card-hover");
+      for (var p = 0; p < prev.length; p += 1) { prev[p].classList.remove("is-card-hover"); }
+      if (linked) { linked.classList.add("is-card-hover"); }
+      return;
+    }
     // 회의 시기 캘린더: 평일에 호버하면 그 주(월~금)를 통째로 미리보기 하이라이트
     var wcalDay = event.target.closest ? event.target.closest(".wcal-day[data-week]") : null;
     if (wcalDay) {
@@ -2573,6 +2588,15 @@
   });
 
   app.addEventListener("mouseout", function (event) {
+    // 추천 카드에서 나가면 격자 강조 해제
+    var outCard = event.target.closest ? event.target.closest(".recommend-card") : null;
+    if (outCard) {
+      var rel = event.relatedTarget && event.relatedTarget.closest ? event.relatedTarget.closest(".recommend-card") : null;
+      if (!rel || rel !== outCard) {
+        var marked = document.querySelectorAll(".slot-cell.is-card-hover");
+        for (var m = 0; m < marked.length; m += 1) { marked[m].classList.remove("is-card-hover"); }
+      }
+    }
     // 캘린더 밖으로 나가면 주 호버 하이라이트 해제
     var wcalDay = event.target.closest ? event.target.closest(".wcal-day[data-week]") : null;
     if (!wcalDay) {

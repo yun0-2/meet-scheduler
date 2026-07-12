@@ -95,9 +95,9 @@
   --button-shadow: none;
   --slot-unavailable: var(--grey-200);
   --slot-unavailable-border: var(--grey-300);
-  --slot-available-low: #F0F6FF;
-  --slot-available-mid: #DFEBFF;
-  --slot-available-high: #C6DCFF;
+  --slot-available-low: #F2F7FE;
+  --slot-available-mid: #D3E4FC;
+  --slot-available-high: #A9CBF8;
   --slot-available-hover: #B0CFFF;
 
   color-scheme: light;
@@ -897,7 +897,7 @@ button {
 
 .desktop-layout {
   display: grid;
-  grid-template-columns: minmax(650px, 1fr) 390px;
+  grid-template-columns: 400px minmax(0, 1fr);
   gap: var(--space-6);
   align-items: start;
   margin-top: var(--space-6);
@@ -3148,4 +3148,21 @@ body.is-embed .mobile-stage {
   line-height: 1;
   padding: 2px 4px;
   border-radius: 4px;
+}
+
+/* ===== 추천 화면 재배치 (2026-07-12, 사용성 테스트 006 반영) ===== */
+.decide-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.decide-col .sort-toggle,
+.decide-col [role="group"] {
+  align-self: stretch;
+}
+/* 카드 호버 → 격자 셀 강조 */
+.slot-cell.is-card-hover {
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 14px rgba(49, 130, 246, 0.25);
+  z-index: 2;
 }
