@@ -1012,9 +1012,17 @@
       return;
     }
     var send = function () {
-      // body.scrollHeight만 쓴다 — documentElement.scrollHeight는 iframe 뷰포트 높이 이상으로
-      // 잡혀서 콘텐츠보다 큰 값이 나온다(빈 공간 발생).
+      // 모달은 position:fixed라 body.scrollHeight에 안 잡힌다(뒤 화면 높이만 잡혀
+      // iframe이 배경 높이로 붕괴 → 모달이 잘린다). 모달이 열려 있으면 카드 높이 +
+      // 오버레이 상하 padding(64)을 써서 모달이 딤 여백 안에 딱 들어가게 한다.
       var h = document.body ? document.body.scrollHeight : 0;
+      var modal = document.querySelector(".slack-modal-overlay .slack-modal");
+      if (modal) {
+        var needed = Math.ceil(modal.getBoundingClientRect().height + 64);
+        if (needed > h) {
+          h = needed;
+        }
+      }
       if (h) {
         window.parent.postMessage({ type: "ww-embed-height", route: state.route, height: h }, "*");
       }
@@ -2154,7 +2162,6 @@
       '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
       '<span class="popover-avatar-stack">' + avatars + '</span>' +
       (slot.privateSoft.length > 0 ? '<span class="popover-note">피하고 싶다는 표시가 있어요</span>' : '') +
-      (isOpen ? '<button class="popover-choose" data-action="' + chooseAction + '" data-slot-id="' + slot.id + '">이 시간 선택</button>' : '') +
       ''
     );
   }
@@ -2228,6 +2235,7 @@
                 }).join("") +
               '</select>' +
             '</label>' +
+            (hasPrivateBurden(slot) ? '<p class="confirm-soft-note">이 시간은 피하고 싶다는 표시가 있어요. 누가 표시했는지는 보이지 않아요.</p>' : '') +
             '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
           '</section>' +
         '</div>' +
@@ -2255,7 +2263,7 @@
       var canAttend = !hardConflict;
       // 미응답자는 초록 '참석'으로 단정하지 않는다 — 캘린더 기준 추정임을 배지에도 반영 (F-004)
       var pending = person.responded === false && canAttend;
-      var badge = pending ? "참석 예정" : canAttend ? "참석" : (attendance === "optional" ? "결과 공유" : "다른 시간 필요");
+      var badge = pending ? "캘린더로는 가능" : canAttend ? "참석 가능" : (attendance === "optional" ? "결과 공유" : "다른 시간 필요");
       var badgeClass = pending ? "is-pending" : (!canAttend && attendance === "optional" ? "replace" : "");
       var detail = attendance === "required" ? "필수" : "선택";
       if (pending) {
@@ -2818,7 +2826,7 @@
       }
       state.selectedSlotId = cellId;
       state.activeSlotId = cellId;
-      state.openSlotId = cellId;
+      state.posted = false;
       render();
     }
     if (action === "send-reminder") {

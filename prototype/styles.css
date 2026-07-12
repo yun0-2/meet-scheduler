@@ -1836,87 +1836,39 @@ body.is-embed .mobile-stage {
   min-height: 0;
 }
 
-/* 추천(compare)은 원래 fixed 오버레이 + 내부 스크롤 모달이라 문서 흐름 높이에 안 잡힌다.
-   임베드에서는 오버레이를 풀어 인라인 화면으로 편다 → body 높이에 들어와 정확히 맞춰진다. */
-body.is-embed .compare-stage {
-  position: static;
-  display: block;
-  padding: 0;
-  background: none;
-}
+/* 임베드: 다이얼로그는 실제 앱처럼 모달로 뜬다 — 딤 배경 위에 카드가 뜨고 뒤 화면이 비친다.
+   iframe 높이(시드)가 고정이라 100dvh=iframe이므로 무한 성장 루프가 없고, 오버레이가 정확히 채운다.
+   내부 스크롤만 없애면 되니 뷰포트 기준 max-height 캡과 100vh 고정 높이만 콘텐츠 기준으로 푼다.
+   오버레이·딤 배경·그림자·폭·가운데 정렬은 원래 모달 그대로 둔다(모달 느낌 유지). */
 
-body.is-embed .dialog-backdrop {
-  display: none;
-}
-
-body.is-embed .web-dialog {
-  width: 100%;
-  max-height: none;
-  overflow-y: visible;
-  box-shadow: none;
-  padding: 0;
-}
-
-body.is-embed .web-dialog-close {
-  display: none;
-}
-
-/* 임베드에서 iframe이 좁아지면 주간 시간표만 자체 가로 스크롤(페이지 잘림 방지) */
-body.is-embed .schedule-grid {
-  overflow-x: auto;
-}
-
-/* 회의 잡기·격자 입력 모달(slack-modal)도 임베드에선 오버레이를 풀어 인라인으로 편다.
-   fixed 오버레이 + 내부 스크롤이던 걸 문서 흐름에 넣어, 모달 전체가 잘림 없이 보이고
-   부모 iframe이 그 높이까지 자란다. 연속 조작(다음 단계 모달)에서도 스크롤이 안 생긴다. */
-body.is-embed .slack-modal-overlay {
-  position: static;
-  display: block;
-  padding: 0;
-  background: none;
-  overflow: visible;
-}
-
-/* 모달이 열리면 그 장면은 모달로 전환된다 — 채널 화면은 숨겨 순차 흐름으로 읽히게 */
-body.is-embed #app:has(> .slack-modal-overlay) > .screen {
-  display: none;
-}
-
+/* 슬랙 모달(회의 잡기·격자 입력) */
 body.is-embed .slack-modal,
 body.is-embed .slack-modal.is-compose,
 body.is-embed .slack-modal.is-wide,
 body.is-embed .slack-modal.is-input {
   height: auto;
   max-height: none;
-  margin: 0 auto;
-  border: 1px solid var(--grey-200);
-  box-shadow: none;
-}
-
-/* 폭은 각 모달의 설계 폭 유지(100%로 늘리면 내부 여백이 무너진다) */
-body.is-embed .slack-modal {
-  width: min(560px, 100%);
-}
-
-body.is-embed .slack-modal.is-compose,
-body.is-embed .slack-modal.is-wide {
-  width: min(1000px, 100%);
-}
-
-body.is-embed .slack-modal.is-input {
-  width: min(720px, 100%);
 }
 
 body.is-embed .slack-modal-body,
 body.is-embed .slack-modal.is-compose .slack-modal-body {
-  height: auto;
   max-height: none;
   overflow-y: visible;
 }
 
-/* 뷰포트 기준(100vh/100%) 높이는 임베드에서 무한 성장 루프를 만든다 → 콘텐츠 높이로 */
 body.is-embed .slack-modal.is-compose .compose-card {
   min-height: 0;
+}
+
+/* 웹 다이얼로그(추천·확정) */
+body.is-embed .web-dialog {
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* 임베드에서 iframe이 좁아지면 주간 시간표만 자체 가로 스크롤(페이지 잘림 방지) */
+body.is-embed .schedule-grid {
+  overflow-x: auto;
 }
 
 #demo-nav {
@@ -4121,4 +4073,52 @@ button.compose-step:hover {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
+}
+
+/* 확정 화면: 회피 표시 익명 집계 한 줄 — 옛 renderSummary의 문장을 slack-modal 확정으로 복원 */
+.confirm-soft-note {
+  margin: var(--space-3) 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-8);
+  background: #FFF7E1;
+  color: #8A6D1D;
+  font-size: var(--text-13);
+}
+
+/* ===== 작성 다이얼로그 정돈 (2026-07-12 사용자 검토) ===== */
+/* 주최자 '필수' 캡: 컨트롤이 아니라 상태 표시라 가볍게, 세그먼트 폭 중앙에 */
+.organizer-cap {
+  text-align: center;
+  font-weight: 500;
+}
+
+/* 팝오버·확정 노트: 격자의 앰버 세모를 문장 앞에 재사용 — 범례 없이 자기 설명 */
+.popover-note::before,
+.confirm-soft-note::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid var(--amber-line);
+  margin-right: 6px;
+}
+
+/* 채널에 보내기: 게시 여부를 정하는 스위치라 본문 톤으로 승격 — 꺼짐도 읽히는 회색까지만 */
+.compose-publish-toggle {
+  font-size: var(--text-14);
+  color: var(--gray-800, #333d4b);
+}
+.compose-publish-toggle input {
+  width: 18px;
+  height: 18px;
+}
+.compose-publish.is-off .compose-publish-toggle {
+  color: var(--gray-500, #8b95a1);
+}
+
+/* 제목 라벨: 제목 인풋만 위 마진과 큰 행높이로 첫 줄이 낮게 앉아, 라벨도 같이 내린다 */
+.compose-step1-col > *:has(.compose-title-input) .compose-row-label {
+  padding-top: 22px;
 }

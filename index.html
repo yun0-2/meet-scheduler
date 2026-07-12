@@ -9,7 +9,7 @@
       name="description"
       content="토스 프로덕트 디자이너 챌린지 케이스입니다. 6명의 회의 시간을 잡는 과제에서 캘린더 밖의 사정이라는 문제를 확인하고, 그 사정을 모아 확정까지 가는 조율을 설계한 과정을 담았어요."
     >
-    <link rel="stylesheet" href="./case.css?v=e35d7c9">
+    <link rel="stylesheet" href="./case.css?v=118366c">
   </head>
   <body>
     <a class="skip-link" href="#main">본문으로 바로가기</a>
@@ -193,7 +193,7 @@
           </p>
 
           <div class="lifecycle">
-            <figure class="stage" data-embed-src="prototype/index.html?embed#entry" data-embed-height="640">
+            <figure class="stage" data-embed-src="prototype/index.html?embed#entry" data-embed-height="380">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-1-compose.png" alt="슬랙 작성 창에서 회의를 만드는 화면" loading="lazy" />
               </div>
@@ -203,7 +203,7 @@
               </figcaption>
             </figure>
 
-            <figure class="stage" data-embed-src="prototype/index.html?embed#input" data-embed-height="1200">
+            <figure class="stage" data-embed-src="prototype/index.html?embed#input" data-embed-height="620">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-2-dm.png" alt="참석자가 봇 DM으로 초대 카드를 받은 화면" loading="lazy" />
               </div>
@@ -213,7 +213,7 @@
               </figcaption>
             </figure>
 
-            <figure class="stage" data-embed-src="prototype/index.html?embed#compare" data-embed-height="1280">
+            <figure class="stage" data-embed-src="prototype/index.html?embed#compare" data-embed-height="900">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-3-compare.png" alt="추천 화면: 주간 시간표와 후보 카드" loading="lazy" />
               </div>
@@ -223,7 +223,7 @@
               </figcaption>
             </figure>
 
-            <figure class="stage stage--narrow" data-embed-src="prototype/index.html?embed#confirm" data-embed-height="760">
+            <figure class="stage stage--narrow" data-embed-src="prototype/index.html?embed#confirm" data-embed-height="800">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-4-confirmed.png" alt="확정된 채널 카드" loading="lazy" />
               </div>
@@ -374,11 +374,30 @@
         if (!h) {
           return;
         }
+        // 첫 측정은 자유롭게 맞춘다(seed가 실제보다 크면 줄여서 빈 공간 제거).
+        // 그 뒤엔 커질 때만 반영 — 모달을 닫아도 줄지 않아 화면이 출렁이지 않는다.
         var cur = parseFloat(frame.dataset.fittedHeight || "0");
-        if (!cur || h > cur) {
-          frame.dataset.fittedHeight = h;
-          frame.style.height = Math.ceil(h) + "px";
+        if (frame.dataset.settled !== "1") {
+          frame.dataset.settled = "1";
+        } else if (h <= cur) {
+          return;
         }
+        frame.dataset.fittedHeight = h;
+        frame.style.height = Math.ceil(h) + "px";
+      }
+
+      // 모달은 position:fixed라 scrollHeight에 안 잡힌다. 열려 있으면 카드 높이 +
+      // 오버레이 상하 padding(64)을 써서 iframe이 모달에 딱 맞게 한다.
+      function contentHeight(doc) {
+        var h = doc.body.scrollHeight;
+        var modal = doc.querySelector(".slack-modal-overlay .slack-modal");
+        if (modal) {
+          var needed = Math.ceil(modal.getBoundingClientRect().height + 64);
+          if (needed > h) {
+            h = needed;
+          }
+        }
+        return h;
       }
 
       function attachAutoHeight(frame) {
@@ -386,7 +405,7 @@
           try {
             var doc = frame.contentDocument;
             if (doc && doc.body) {
-              setFrameHeight(frame, doc.body.scrollHeight);
+              setFrameHeight(frame, contentHeight(doc));
             }
           } catch (e) { /* cross-origin이면 불가(같은 도메인이라 발생하지 않음) */ }
         };
