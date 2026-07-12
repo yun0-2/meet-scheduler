@@ -1343,3 +1343,27 @@ h3 {
     height: 200px;
   }
 }
+
+/* 지표 스트립: 리서치 밀도를 한 줄로(히어로·부록 머리) */
+.fact-strip {
+  max-width: var(--prose-width);
+  margin: 0 auto var(--space-6);
+  font-size: var(--text-14);
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+/* 좁은 화면에서만 보이는 표 스크롤 안내 */
+.table-hint {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .table-hint {
+    display: block;
+    max-width: var(--prose-width);
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-13);
+    color: var(--gray-400);
+  }
+}

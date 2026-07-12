@@ -800,13 +800,16 @@ button {
   box-shadow: inset 0 0 0 1px #EFDCA8;
 }
 
-/* 색만으론 약하니 '회피' 의미를 옅은 × 로 보강 (배경 앰버와 저대비) */
+/* 색만으론 약하니 '회피' 의미를 셀 모서리를 잇는 옅은 대각선 ×로 보강 (배경 앰버와 저대비).
+   글자 ×는 셀 크기와 무관하게 가운데 떠 보여서, 칸 자체를 지운 인상이 나도록 전면 대각선으로 */
 .mini-slot.is-soft::after {
-  content: "×";
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  color: rgba(151, 116, 44, 0.55);
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to top right, transparent calc(50% - 0.7px), rgba(151, 116, 44, 0.5) calc(50% - 0.7px), rgba(151, 116, 44, 0.5) calc(50% + 0.7px), transparent calc(50% + 0.7px)),
+    linear-gradient(to top left, transparent calc(50% - 0.7px), rgba(151, 116, 44, 0.5) calc(50% - 0.7px), rgba(151, 116, 44, 0.5) calc(50% + 0.7px), transparent calc(50% + 0.7px));
 }
 
 .mini-slot.is-hard {
