@@ -2828,8 +2828,8 @@ body.is-embed .mobile-stage {
   background: var(--gray-100, #f1f5f9);
   color: var(--gray-700, #334155);
 }
-/* 개별 셀 호버 배경 제거 — 주 단위 하이라이트만 남긴다 */
-.wcal-day:hover:not(.is-disabled):not(.is-weekend) {
+/* 개별 셀 호버 배경 제거 — 단 시작일(앵커)은 예외 (클릭 직후 마우스가 셀 위에 있어도 파랗게) */
+.wcal-day:hover:not(.is-disabled):not(.is-weekend):not(.is-anchor) {
   background: transparent;
 }
 .wcal-note {
