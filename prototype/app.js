@@ -2045,8 +2045,9 @@
         html +=
           '<div class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + (isSent ? " is-sent" : "") + '" ' +
           'role="button" tabindex="0" data-pick-source="cell" data-action="' + pickAction + '" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + (isSent ? ', 보낸 제안' : '') + '">' +
-            (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '') +
-            (isSent ? '<span class="slot-sent-flag">보낸 제안</span>' : '') +
+            (isSent
+              ? '<span class="slot-tags">' + (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '') + '<span class="slot-sent-flag">보낸 제안</span></span>'
+              : (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '')) +
             (pick ? '<span class="slot-pick" style="top:' + Math.round((pick.start - hour) * 100) + '%"><span class="slot-pick-chip">' + formatClock(pick.start) + '</span></span>' : '') +
             '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot, open, opts) + '</span>' +
           '</div>';

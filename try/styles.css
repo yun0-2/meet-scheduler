@@ -2436,8 +2436,10 @@ body.is-embed .schedule-grid {
 }
 
 .slot-avatar.is-unresponded {
-  /* 미응답 = 캘린더 기준 추정 — 점선(미확정 문법) + 반투명. 카드 아바타와 동일 */
+  /* 미응답 = 캘린더 기준 추정 — 점선(미확정 문법) + 반투명 + 색도 회색빛으로 뮤트.
+     불참(유령 흰 배경)과는 여전히 구분된다. 카드 아바타와 동일 */
   opacity: 0.6;
+  filter: grayscale(0.55);
   border: 1.5px dashed var(--gray-400);
 }
 
@@ -3829,6 +3831,7 @@ button.compose-step:hover {
 /* 미응답자는 캘린더 기준 추정일 뿐 — 팝오버 아바타와 완전 동일 문법(점선+반투명) */
 .card-attendees .card-avatar.is-unresponded {
   opacity: 0.6;
+  filter: grayscale(0.55);
   border: 1.5px dashed var(--gray-400);
 }
 
@@ -4157,10 +4160,6 @@ button.compose-step:hover {
 /* 확정 격자의 보낸 제안 칸 — 점선(아직 확정 아님 문법)으로 위치만 표시 */
 /* 보낸 제안 칸 — 왼쪽 카드의 [보낸 제안] 칩과 동일한 accent-soft 토널 (rank-tag 아래) */
 .slot-sent-flag {
-  position: absolute;
-  top: 22px;
-  left: 4px;
-  z-index: 1;
   border-radius: 999px;
   padding: 1px 6px;
   background: var(--accent-soft, #E8F3FF);
@@ -4168,6 +4167,19 @@ button.compose-step:hover {
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
+}
+/* 순위 뱃지 + 보낸 제안 칩을 좌상단 가로 한 줄로 */
+.slot-tags {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.slot-tags .rank-tag {
+  position: static;
 }
 /* 선택(파랑 필)과 겹치면 흰 배경 칩으로 반전 */
 .slot-cell.is-selected .slot-sent-flag {
