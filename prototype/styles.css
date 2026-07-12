@@ -2794,9 +2794,6 @@ body.is-embed .mobile-stage {
   color: var(--gray-300, #cbd5e1);
   cursor: default;
 }
-.wcal-day.is-today {
-  box-shadow: inset 0 0 0 1.5px var(--accent, #46516d);
-}
 /* 선택된 주 = 균일한 연결 밴드 (경계 없음). 양끝만 둥글게 */
 .wcal-day.is-range,
 .wcal-day.is-hover-week {

@@ -1349,7 +1349,6 @@
         if (dow === "월" || dom === state.windowStart) cls.push("is-range-start");
         if (dow === "금" || dom === state.windowEnd) cls.push("is-range-end");
       }
-      if (dom === TODAY_DOM) cls.push("is-today");
       // 선택 가능한 평일엔 그 주 월요일을 데이터로 — 호버 시 주 전체 하이라이트에 사용
       var weekAttr = selectable ? ' data-week="' + weekMondayDom(dom) + '"' : '';
       var attrs = selectable
