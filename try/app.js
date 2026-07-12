@@ -721,14 +721,14 @@
     if (slot.totalAvailable === activePeople().length && slot.start < 16) {
       return "6명이 낮에 다 올 수 있는 시간이에요.";
     }
-    return "필수 참석자가 모두 가능한 시간 중 걸리는 게 가장 적어요.";
+    return "필수 참석자가 모두 가능하고, 캘린더 충돌과 피하고 싶은 표시가 가장 적어요.";
   }
 
   function primaryCardDetail(slot) {
     if (hasPrivateBurden(slot)) {
       // 과제 단서 "점심 직후 기피"는 사유(시간대)까지 밝힌다 — 누가·몇 명인지는 계속 숨긴다
       if (data.researchDefaults.postLunchDip.hours.indexOf(slot.start) >= 0) {
-        return "점심 직후라 피하고 싶다는 표시가 있어요. 그래도 오후 중 가장 이른 시작이라 그나마 걸리는 게 가장 적어요.";
+        return "점심 직후라 피하고 싶다는 표시가 있어요. 그래도 오후 중 가장 이른 시작이라 그나마 겹치는 게 가장 적어요.";
       }
       return "피하고 싶은 표시가 조금 있어요. 그래도 가장 무난한 시간이에요.";
     }
@@ -739,7 +739,7 @@
     if (slot.optionalUnavailable.length > 0) {
       return "필수 4명은 다 괜찮아요. " + names(slot.optionalUnavailable) + "은 어려운데, 정해지면 결과만 알려드릴까요?";
     }
-    return "다음으로 걸리는 게 적은 시간이에요.";
+    return "다음으로 겹치는 게 적은 시간이에요.";
   }
 
   function runnerUpCardDetail(slot) {
@@ -1183,7 +1183,9 @@
             '<ul class="channel-list">' +
               ["공지", "pm-admin-dashboard", "제품실험", "데이터지원"].map(function (ch) {
                 var active = state.composePosted && ch === state.channelName;
-                return '<li class="' + (active ? "active" : "") + '"># ' + ch + '</li>';
+                var unread = (ch === "공지" || ch === "제품실험") && !active;
+                var badge = ch === "공지" ? '<span class="ch-badge">3</span>' : '';
+                return '<li class="' + (active ? "active" : "") + (unread ? " is-unread" : "") + '"><span># ' + ch + '</span>' + badge + '</li>';
               }).join("") +
               '<li class="channel-app' + (state.composePosted ? "" : " active") + '">WhenWorks</li>' +
             '</ul>' +
@@ -1359,7 +1361,7 @@
 
     return (
       '<div class="wcal">' +
-        '<div class="wcal-title">2026년 7월</div>' +
+        '<div class="wcal-title">2026년 7월 <span class="wcal-today">오늘 ' + TODAY_DOM + '일</span></div>' +
         '<div class="wcal-grid wcal-grid--head">' + head + '</div>' +
         '<div class="wcal-grid" data-wcal-grid="1">' + cells + '</div>' +
         '<p class="wcal-note">날짜를 누르면 그 주(월~금)가 후보로 열려요.</p>' +
@@ -1413,7 +1415,7 @@
           '<span class="compose-icon" aria-hidden="true">' + ICONS.lines + '</span>' +
           '<div class="compose-row-body">' +
             '<textarea class="compose-context-input" id="compose-context" rows="' + Math.max(3, (state.meetingContext || suggestedDescription()).split("\n").length) + '" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
-            (state.meetingContext ? '' : '<button type="button" class="compose-accept-chip" data-action="accept-description">제안 그대로 쓰기</button>') +
+            (state.meetingContext ? '' : '<button type="button" class="compose-accept-link" data-action="accept-description">↓ 제안 그대로 쓰기</button>') +
           '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +
@@ -1440,7 +1442,7 @@
             '<span class="compose-icon" aria-hidden="true">' + ICONS.bubble + '</span>' +
             '<div class="compose-row-body">' +
               '<textarea class="compose-message-input" id="compose-message" rows="' + textareaRows(state.composeMessage || suggestedMessage(), 4) + '" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
-              (state.composeMessage ? '' : '<button type="button" class="compose-accept-chip" data-action="compose-accept-message">제안 그대로 쓰기</button>') +
+              (state.composeMessage ? '' : '<button type="button" class="compose-accept-link" data-action="compose-accept-message">↓ 제안 그대로 쓰기</button>') +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -1553,10 +1555,12 @@
             '<p class="workspace-name">Product Lab</p>' +
             '<ul class="channel-list">' +
               ["공지", "pm-admin-dashboard", "제품실험", "데이터지원"].map(function (ch) {
-                return '<li># ' + ch + '</li>';
+                var unread = ch === "공지" || ch === "제품실험";
+                var badge = ch === "공지" ? '<span class="ch-badge">3</span>' : '';
+                return '<li class="' + (unread ? "is-unread" : "") + '"><span># ' + ch + '</span>' + badge + '</li>';
               }).join("") +
               '<li class="channel-section">다이렉트 메시지</li>' +
-              '<li class="channel-app active">WhenWorks</li>' +
+              '<li class="channel-app active"><span>WhenWorks</span></li>' +
             '</ul>' +
           '</aside>' +
           '<section class="channel-panel" aria-label="봇 DM">' +
@@ -1615,7 +1619,7 @@
           '</header>' +
           '<div class="slack-modal-body">' +
             '<p class="eyebrow">' + meetingTitle() + ' · ' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</p>' +
-            '<p class="input-tentative">첫 제안 ' + tentativeLabel() + ' · 어려우면 표시해주세요</p>' +
+            '<p class="input-tentative">첫 제안은 격자에 표시했어요. 피하고 싶은 시간을 칠해주세요</p>' +
             (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
@@ -1639,6 +1643,8 @@
 
   function renderMiniGrid(person, optedOut) {
     var days = activeDays();
+    // 첫 제안 슬롯을 격자에 직접 표시 (내 캘린더 표시 모달에는 특정 제안이 없으므로 제외)
+    var proposalId = state.myMarksOpen ? null : (tentativeSlot() ? tentativeSlot().id : null);
     var html = '<div class="mini-head"></div>';
     days.forEach(function (day) {
       html += '<div class="mini-head">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
@@ -1684,9 +1690,11 @@
         if (video) {
           label += ", 화상 참여 가능";
         }
+        var isProposal = id === proposalId;
         html +=
-          '<button class="mini-slot' + (hard ? " is-hard" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + '" ' +
-          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
+          '<button class="mini-slot' + (hard ? " is-hard" : "") + (soft ? " is-soft" : "") + (video ? " has-video" : "") + (isProposal ? " is-proposal" : "") + '" ' +
+          'data-action="toggle-soft" data-slot-id="' + id + '" aria-label="' + label + (isProposal ? ", 첫 제안" : "") + '" ' + (disabled ? "disabled" : "") + (soft ? ' title="표시한 시간이에요"' : "") + '>' +
+            (isProposal ? '<span class="mini-proposal-tag">첫 제안</span>' : '') +
             (hard && hardLabel ? '<span class="mini-slot-label">' + escapeText(hardLabel) + '</span>' : '') +
             (video ? '<span class="mini-video-badge" aria-hidden="true"></span>' : '') +
           '</button>';
@@ -1709,7 +1717,7 @@
             '<div>' +
               '<p class="eyebrow">주최자 서지우</p>' +
               '<h1 class="screen-title">추천 시간</h1>' +
-              '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 캘린더 일정과 직접 남긴 표시를 함께 보고, 걸리는 게 적은 순서로 정리했어요.</p>' +
+              '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 캘린더 충돌과 피하고 싶다는 표시가 가장 적은 순서로 정리했어요.</p>' +
               renderResponseLine() +
             '</div>' +
             renderSortToggle() +
@@ -1753,8 +1761,8 @@
       '<p class="response-line">' +
         respondedCount + '명 응답 · ' + waitingNames + ' 답 기다리는 중 · 캘린더 기준으로 먼저 계산했어요 ' +
         (state.reminderSent
-          ? '<span class="remind-done">다시 알렸어요</span>'
-          : '<button class="remind-btn" data-action="send-reminder">다시 알려주기</button>') +
+          ? '<span class="remind-done">리마인드를 보냈어요</span>'
+          : '<button class="remind-btn" data-action="send-reminder">리마인드 보내기</button>') +
       '</p>'
     );
   }
@@ -1762,7 +1770,7 @@
   function renderSortToggle() {
     return (
       '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
-        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">걸리는 게 적은 순</button>' +
+        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">겹치는 게 적은 순</button>' +
         '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
       '</div>'
     );
