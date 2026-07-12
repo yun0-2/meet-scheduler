@@ -3614,6 +3614,7 @@ button.compose-step:hover {
 .slack-modal.is-compose .slack-modal-body {
   flex: 1 1 auto;
   overflow-y: auto;
+  padding-bottom: 0;
 }
 
 .slack-modal.is-wide {
