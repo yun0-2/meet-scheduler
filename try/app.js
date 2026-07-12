@@ -2205,7 +2205,7 @@
             '<span class="compose-row-label">참석자</span>' +
             '<div class="compose-row-body">' + renderConfirmAttendeeSection(slot) + '</div>' +
           '</div>' +
-          '<div class="compose-row-icon">' +
+          '<div class="compose-row-icon confirm-row-notify">' +
             '<span class="compose-row-label">알림</span>' +
             '<div class="compose-row-body">' + renderConfirmPreview(slot) + '</div>' +
           '</div>' +
@@ -2269,10 +2269,9 @@
       '<div class="compose-row confirm-attendee-row">' +
         '<span class="avatar" aria-hidden="true"' + avatarVars(person) + '>' + initials(person.name) + '</span>' +
         '<div class="compose-row-main">' +
-          '<span class="compose-row-line"><span class="compose-row-name">' + person.name + '</span></span>' +
+          '<span class="compose-row-line"><span class="compose-row-name">' + person.name + '</span><span class="confirm-attendee-status">' + statusText + '</span></span>' +
           '<span class="compose-row-role">' + description + '</span>' +
         '</div>' +
-        '<span class="confirm-attendee-status">' + statusText + '</span>' +
       '</div>'
     );
   }

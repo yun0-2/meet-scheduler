@@ -923,8 +923,8 @@ button {
 
 .desktop-layout {
   display: grid;
-  grid-template-columns: 400px minmax(0, 1fr);
-  gap: var(--space-6);
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--space-5);
   align-items: start;
   margin-top: var(--space-6);
 }
@@ -1768,7 +1768,7 @@ body.is-embed .schedule-grid {
   align-items: center;
   gap: var(--space-2);
   border-radius: 999px;
-  background: var(--gray-900);
+  background: var(--gray-800);
   color: white;
   padding: var(--space-2) var(--space-3);
   box-shadow: var(--shadow-pop);
@@ -1882,7 +1882,7 @@ body.is-embed .schedule-grid {
   max-width: 400px;
   padding: var(--space-6);
   border-radius: var(--radius-16);
-  background: var(--gray-900);
+  background: var(--gray-800);
   color: white;
   box-shadow: var(--shadow-pop);
   /* 카드는 살짝 작게 시작해 제자리로 — 바운스 없음 (등장엔 모멘텀이 없으므로) */
@@ -2517,6 +2517,11 @@ body.is-embed .schedule-grid {
 /* 확정 화면: 단일 컬럼 + 뒤로 */
 .confirm-single {
   max-width: 640px;
+  gap: var(--space-4);
+}
+/* 알림(결과 미리보기)만 입력 그룹에서 한 단계 떨어뜨린다 — 관련끼리 가깝게, 결과는 멀게 */
+.confirm-row-notify {
+  margin-top: var(--space-2);
 }
 
 .back-link {
@@ -3921,11 +3926,18 @@ button.compose-step:hover {
   margin-bottom: 0;
 }
 
-/* 오른쪽 상태는 초록 뱃지 대신 중립 텍스트 — 참석 여부를 단정하지 않는다(F-004) */
+/* 상태는 이름에 붙는 중립 소프트 뱃지 — 초록(참석 단정) 금지(F-004), 회색으로 사실만 */
 .confirm-attendee-status {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--gray-100);
   color: var(--gray-600);
-  font-size: var(--text-13);
+  font-size: var(--text-12);
+  font-weight: 600;
   white-space: nowrap;
+  vertical-align: 1px;
 }
 
 /* 알림 행: 확정하면 채널에 올라갈 내용 미리보기 */

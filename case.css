@@ -722,6 +722,14 @@ h3 {
   width: 100%;
 }
 
+/* 추천 장면: 모달이 좁으면 1열로 접혀서, iframe 컨테이너만 가운데 breakout으로 넓혀
+   캡처처럼 2열(후보 카드 + 캘린더)이 보이게 한다. 캡션은 제자리(프로즈 정렬) 유지. */
+.stage--wide .stage__embed {
+  width: min(1060px, calc(100vw - var(--space-8)));
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
 /* 장면 캡션: 제목(왼쪽 열) · 설명(오른쪽 열)을 수평 정렬 */
 .stage figcaption {
   max-width: var(--prose-width);
