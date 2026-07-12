@@ -376,7 +376,7 @@ button {
 .schedule-card {
   max-width: 680px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-16);
+  border-radius: var(--radius-12);
   background: var(--surface);
   padding: var(--space-6);
 }
@@ -931,7 +931,7 @@ button {
 .panel,
 .slack-preview {
   border: 1px solid var(--border);
-  border-radius: var(--radius-16);
+  border-radius: var(--radius-12);
   background: var(--surface);
   box-shadow: var(--shadow-soft);
 }
@@ -1247,8 +1247,8 @@ button {
 .slot-avatar {
   position: relative;
   display: inline-grid;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   place-items: center;
   border-radius: 50%;
   box-shadow: 0 0 0 2px var(--surface);
@@ -1336,7 +1336,7 @@ button {
   display: grid;
   gap: var(--space-3);
   border: 1px solid var(--border);
-  border-radius: var(--radius-16);
+  border-radius: var(--radius-12);
   background: var(--surface);
   padding: var(--space-4);
   transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
@@ -2425,7 +2425,9 @@ body.is-embed .schedule-grid {
 }
 
 .slot-avatar.is-unresponded {
-  opacity: 0.55;
+  /* 미응답 = 캘린더 기준 추정 — 점선(미확정 문법) + 반투명. 카드 아바타와 동일 */
+  opacity: 0.6;
+  border: 1.5px dashed var(--gray-400);
 }
 
 /* 참석자 DM 진입 화면 */
@@ -3790,21 +3792,20 @@ button.compose-step:hover {
 .card-attendees .card-avatar {
   display: inline-grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--surface);
   background: var(--avatar, var(--gray-200));
   color: var(--avatar-text, var(--gray-700));
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 
-/* 미응답자는 캘린더 기준 추정일 뿐 — 팝오버의 is-unresponded와 같은 반투명+점선 문법 */
+/* 미응답자는 캘린더 기준 추정일 뿐 — 팝오버 아바타와 완전 동일 문법(점선+반투명) */
 .card-attendees .card-avatar.is-unresponded {
-  opacity: .55;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-  border-style: dashed;
+  opacity: 0.6;
+  border: 1.5px dashed var(--gray-400);
 }
 
 /* 카드·팝오버의 핀 아이콘 회의실 필 — 텍스트 라벨과 같은 톤(중립), 강조는 안 함 */

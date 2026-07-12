@@ -34,6 +34,39 @@
       #appendix-title {
         max-width: 700px;
       }
+      /* 넓은 화면: 목차를 좌측 sticky 세로 인덱스로 (알약 → 문서 내비게이션) */
+      @media (min-width: 1000px) {
+        .appendix-layout {
+          display: grid;
+          grid-template-columns: 168px minmax(0, 1fr);
+          gap: 48px;
+          align-items: start;
+        }
+        .appendix-toc {
+          position: sticky;
+          top: 24px;
+          flex-direction: column;
+          flex-wrap: nowrap;
+          align-items: stretch;
+          gap: 2px;
+          max-width: none;
+          margin: 0;
+        }
+        .appendix-toc a {
+          background: transparent;
+          border-radius: 6px;
+          padding: 7px 10px;
+        }
+        .appendix-toc a:hover {
+          background: #F2F4F6;
+        }
+      }
+      /* 좁은 화면: 목차가 제목 위로 올라오므로 숨긴다(섹션은 스크롤로 도달) */
+      @media (max-width: 999px) {
+        .appendix-toc {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -51,16 +84,8 @@
     <main id="main">
       <section class="section" aria-labelledby="appendix-title">
         <div class="section__inner">
-          <div class="section__head">
-            <p class="eyebrow">부록 · 리서치</p>
-            <h1 id="appendix-title">여섯 조직을 어떻게 보고, 무엇을 확인했는지의 전체 기록이에요.</h1>
-          </div>
-          <p class="article-lead">
-            인터뷰와 사용성 테스트의 표본, 질문 방식, 가설이 수정된 과정, 그리고 각 발견이 설계에 반영된 근거를 정리했어요. 실명과 회사명은 싣지 않고 업종·직무·조직 환경까지만 남겨요. 직접 확인하지 않은 간접 사례는 따로 표시하고, 인터뷰 전문은 게시하지 않아요.
-          </p>
-          <p class="fact-strip">직접 인터뷰 5명 · 8개 조직 경험 비교 · 간접 사례 2건 · 사용성 테스트 3회</p>
-
-          <nav class="appendix-toc" aria-label="부록 목차">
+          <div class="appendix-layout">
+            <nav class="appendix-toc" aria-label="부록 목차">
             <a href="#sample">표본</a>
             <a href="#method">모집과 질문</a>
             <a href="#environment">환경 비교</a>
@@ -69,6 +94,17 @@
             <a href="#usability">사용성 테스트</a>
             <a href="#spectrum">타깃 경계</a>
           </nav>
+            <div class="appendix-body">
+          <div class="section__head">
+            <p class="eyebrow">부록 · 리서치</p>
+            <h1 id="appendix-title">리서치 기록: 표본, 방법, 발견, 검증</h1>
+          </div>
+          <p class="article-lead">
+            인터뷰와 사용성 테스트의 표본, 질문 방식, 가설이 수정된 과정, 그리고 각 발견이 설계에 반영된 근거를 정리했어요. 실명과 회사명은 싣지 않고 업종·직무·조직 환경까지만 남겨요. 직접 확인하지 않은 간접 사례는 따로 표시하고, 인터뷰 전문은 게시하지 않아요.
+          </p>
+          <p class="fact-strip">직접 인터뷰 5명 · 8개 조직 경험 비교 · 간접 사례 2건 · 사용성 테스트 3회</p>
+
+
 
           <h3 class="article-subhead" id="sample">1. 표본</h3>
           <p class="article-body">
@@ -531,7 +567,8 @@
               <p>이번 표본에서는 간접 사례 두 곳에서만 확인했어요. 도구가 없어서가 아니라 적는 문화가 없고 품이 들기 때문이에요. 그래서 사정을 공식 시스템 안에 쓰기 편하게 두는 걸 설계 방향으로 잡았어요.</p>
             </div>
           </div>
-
+            </div>
+          </div>
         </div>
       </section>
     </main>
