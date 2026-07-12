@@ -1295,22 +1295,24 @@ h3 {
   background: var(--surface-muted);
 }
 
-/* 가로 스크롤 힌트: 넘칠 때만 그쪽 가장자리에 페이드가 뜨고, 끝까지 밀면 사라진다.
-   흰색 커버(local, 콘텐츠 끝에 고정) + 회색 페이드(scroll, 컨테이너 가장자리 고정)의
-   조합으로 순수 CSS로 동작한다. */
+/* 가로 스크롤 힌트: 넘치는 쪽 가장자리에서 표 내용이 흰색으로 페이드된다(검정 아님).
+   mask로 콘텐츠 자체를 투명하게(=배경 흰색) 만들고, 방향은 JS가 more-left/more-right로 켠다.
+   끝까지 밀면 그쪽 페이드가 사라진다. */
 .table-scroll {
   overflow-x: auto;
   margin: 0 0 var(--space-3);
-  background-color: var(--surface);
-  background-image:
-    linear-gradient(to right, var(--surface), rgba(255, 255, 255, 0)),
-    linear-gradient(to left, var(--surface), rgba(255, 255, 255, 0)),
-    linear-gradient(to right, rgba(25, 31, 40, 0.12), rgba(25, 31, 40, 0)),
-    linear-gradient(to left, rgba(25, 31, 40, 0.12), rgba(25, 31, 40, 0));
-  background-position: left center, right center, left center, right center;
-  background-size: 32px 100%, 32px 100%, 16px 100%, 16px 100%;
-  background-repeat: no-repeat;
-  background-attachment: local, local, scroll, scroll;
+  --fade-l: 0px;
+  --fade-r: 0px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
+}
+
+.table-scroll.more-left {
+  --fade-l: 36px;
+}
+
+.table-scroll.more-right {
+  --fade-r: 36px;
 }
 
 .table-scroll .sample-table {

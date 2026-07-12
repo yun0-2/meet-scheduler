@@ -559,5 +559,24 @@
     <footer class="footer">
       <p>TOSS Product Designer Challenge 2026 · 장윤영</p>
     </footer>
+
+    <script>
+      // 가로 스크롤 표: 넘치는 방향에만 흰색 페이드(mask)를 켠다. 끝까지 밀면 그쪽은 꺼진다.
+      (function () {
+        var tables = document.querySelectorAll(".table-scroll");
+        function update(el) {
+          var max = el.scrollWidth - el.clientWidth;
+          el.classList.toggle("more-left", el.scrollLeft > 1);
+          el.classList.toggle("more-right", el.scrollLeft < max - 1);
+        }
+        tables.forEach(function (el) {
+          update(el);
+          el.addEventListener("scroll", function () { update(el); }, { passive: true });
+        });
+        window.addEventListener("resize", function () {
+          tables.forEach(update);
+        });
+      })();
+    </script>
   </body>
 </html>
