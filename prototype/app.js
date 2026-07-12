@@ -1925,7 +1925,10 @@
           '</div>' +
         '</div>' +
         '</div>' +
-        '<div class="compose-footer">' +
+        '<div class="compose-footer compose-footer-split">' +
+          (state.selectedSlotId
+            ? '<span class="footer-selection">선택한 시간 <strong>' + displayTime(slotById(state.selectedSlotId)) + '</strong> · ' + slotById(state.selectedSlotId).totalAvailable + '명 가능 · ' + roomForSlot(slotById(state.selectedSlotId)) + '</span>'
+            : '<span class="footer-selection"></span>') +
           '<button class="btn compose-send-btn" data-action="go-confirm"' + (state.selectedSlotId ? '' : ' disabled') + '>미팅 확정</button>' +
         '</div>' +
         '</div>' +

@@ -1289,9 +1289,22 @@ h3 {
   background: var(--surface-muted);
 }
 
+/* 가로 스크롤 힌트: 넘칠 때만 그쪽 가장자리에 페이드가 뜨고, 끝까지 밀면 사라진다.
+   흰색 커버(local, 콘텐츠 끝에 고정) + 회색 페이드(scroll, 컨테이너 가장자리 고정)의
+   조합으로 순수 CSS로 동작한다. */
 .table-scroll {
   overflow-x: auto;
   margin: 0 0 var(--space-3);
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(to right, var(--surface), rgba(255, 255, 255, 0)),
+    linear-gradient(to left, var(--surface), rgba(255, 255, 255, 0)),
+    linear-gradient(to right, rgba(25, 31, 40, 0.12), rgba(25, 31, 40, 0)),
+    linear-gradient(to left, rgba(25, 31, 40, 0.12), rgba(25, 31, 40, 0));
+  background-position: left center, right center, left center, right center;
+  background-size: 32px 100%, 32px 100%, 16px 100%, 16px 100%;
+  background-repeat: no-repeat;
+  background-attachment: local, local, scroll, scroll;
 }
 
 .table-scroll .sample-table {

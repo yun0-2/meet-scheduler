@@ -3866,32 +3866,8 @@ button.compose-step:hover {
   font-size: var(--text-12);
 }
 
-/* 선택된 셀은 프라이머리로 완전히 칠한다 — 격자에서 '내가 고른 시간'이 스트로크보다
-   또렷해야 한다는 실사용 피드백. 데이터(가능=연파랑) 채움 규칙 위에 상태(선택)로 얹는다 */
-.slot-cell.is-selected:not(.is-unavailable) {
-  background: var(--accent);
-}
-
-/* 선택 셀 위 부담 세모는 파랑 위에서 앰버 대신 흰색으로 — 배경에 묻히지 않게 */
-.slot-cell.is-selected.has-private-burden:not(.is-unavailable)::after {
-  border-bottom-color: #fff;
-}
-
-/* 솔리드 뱃지 반전 — 파랑 칠 위에 파랑 뱃지가 앉으면 안 보인다(파랑 위 파랑 방지) */
-.slot-cell.is-selected .rank-tag.is-tonal {
-  background: #fff;
-  color: var(--accent);
-}
-
-/* 10분 픽 라인·칩도 같은 이유로 반전 — 선택 셀 안에서만 나타나는 요소라 항상 짝을 이룬다 */
-.slot-cell.is-selected:not(.is-unavailable) .slot-pick {
-  border-top-color: #fff;
-}
-
-.slot-cell.is-selected:not(.is-unavailable) .slot-pick-chip {
-  background: #fff;
-  color: var(--accent);
-}
+/* 선택 = 스트로크만(기본 규칙) — 프라이머리 필은 데이터 채움(가능=연파랑)과 같은 축이라
+   추천 셀·일반 셀에서 선택이 다르게 읽혔다(사용자 피드백). 선택 확인은 푸터 요약이 담당 */
 
 /* 선택한 셀은 팝오버를 숨긴다 — 이미 골랐으니 그 정보는 이제 카드가 담당 */
 .slot-cell.is-selected:hover .slot-popover,
@@ -4199,11 +4175,7 @@ button.compose-step:hover {
 .slot-tags .rank-tag {
   position: static;
 }
-/* 선택(파랑 필)과 겹치면 흰 배경 칩으로 반전 */
-.slot-cell.is-selected .slot-sent-flag {
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--accent);
-}
+
 
 /* 순위 기준 설명은 클릭 팝오버가 아니라 호버 툴팁 — 아이콘에 얹으면 바로 보인다 */
 .rank-info-pop {
@@ -4235,4 +4207,18 @@ button.compose-step:hover {
   font-size: 8px;
   font-weight: 800;
   line-height: 1;
+}
+
+/* 푸터 선택 요약 — 격자 선택은 스트로크뿐이라, 무엇을 골랐는지는 CTA 옆에서 확인시킨다 */
+.footer-selection {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gray-600);
+  font-size: var(--text-13);
+}
+.footer-selection strong {
+  color: var(--gray-900);
+  font-weight: 600;
+  font-feature-settings: "tnum";
 }
