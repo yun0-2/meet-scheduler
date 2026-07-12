@@ -739,7 +739,7 @@
     if (slot.totalAvailable === activePeople().length && slot.start < 16) {
       return "6명 모두 가능한 낮 시간이에요.";
     }
-    return "필수 참석자가 모두 가능하고, 캘린더 충돌과 피하고 싶은 표시가 가장 적어요.";
+    return "필수 참석자가 모두 가능하고, 캘린더 충돌과 피하고 싶다는 표시가 가장 적어요.";
   }
 
   function primaryCardDetail(slot) {
@@ -750,7 +750,7 @@
       }
       return "피하고 싶다는 표시가 있어요. 후보 중 겹치는 게 가장 적어요.";
     }
-    return "캘린더 충돌과 피하고 싶은 표시가 후보 중 가장 적어요.";
+    return "캘린더 충돌과 피하고 싶다는 표시가 후보 중 가장 적어요.";
   }
 
   function runnerUpCardCopy(slot) {
@@ -1785,21 +1785,6 @@
           '<div class="mini-lunch-band" role="note" aria-label="' + lunchStart + '시 점심시간, 후보에서 제외">점심시간</div>';
         lunchInserted = true;
       }
-      // 행 전체가 같은 이유로 막혀 있으면(예: 17시 이후 불가) 셀마다 반복하지 않고
-      // 점심시간과 같은 밴드 하나로 접는다 — 한 사실은 한 번만 말한다.
-      var rowHards = days.map(function (day) {
-        return participantHardForInput(person, day, hour);
-      });
-      var firstLabel = rowHards[0] ? (rowHards[0].title || rowHards[0].label || "") : "";
-      var uniformRow = firstLabel && rowHards.every(function (info) {
-        return info && (info.title || info.label || "") === firstLabel;
-      });
-      if (uniformRow) {
-        html +=
-          '<div class="mini-time mini-time-lunch" aria-hidden="true">' + hour + '</div>' +
-          '<div class="mini-lunch-band" role="note" aria-label="' + hour + '시, ' + escapeText(firstLabel) + '">' + escapeText(firstLabel) + '</div>';
-        return;
-      }
       html += '<div class="mini-time">' + hour + '</div>';
       days.forEach(function (day) {
         var id = slotId(day, hour);
@@ -1841,9 +1826,9 @@
         '<div class="screen-inner">' +
           '<header class="compare-header">' +
             '<div>' +
-              '<p class="eyebrow">주최자 서지우</p>' +
+              '<p class="eyebrow">' + meetingTitle() + '</p>' +
               '<h1 class="screen-title">추천 시간</h1>' +
-              '<p class="screen-subtitle">모두 완벽한 시간은 없어요. 캘린더 충돌과 피하고 싶다는 표시가 가장 적은 순서로 정리했어요.</p>' +
+              '<p class="screen-subtitle">캘린더 충돌과 피하고 싶다는 표시가 적은 순서로 정리했어요.</p>' +
               renderResponseLine() +
             '</div>' +
           '</header>' +
@@ -1858,7 +1843,6 @@
                 renderLegend() +
               '</header>' +
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
-              renderActiveSlotDetail() +
             '</section>' +
           '</div>' +
         '</div>' +
@@ -1908,7 +1892,7 @@
       '<div class="legend" role="group" aria-label="격자 범례">' +
 
         '<span class="legend-item"><span class="legend-ramp" aria-hidden="true"><span class="is-low"></span><span class="is-mid"></span><span class="is-high"></span></span>추천</span>' +
-        '<span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>피하고 싶은 표시 있음</span>' +
+        '<span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>피하고 싶다는 표시 있음</span>' +
       '</div>'
     );
   }
@@ -1959,12 +1943,12 @@
           selected = true;
         }
         html +=
-          '<button class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
-          'data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
+          '<div class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
+          'role="button" tabindex="0" data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
             (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '') +
             (pick ? '<span class="slot-pick" style="top:' + Math.round((pick.start - hour) * 100) + '%"><span class="slot-pick-chip">' + formatClock(pick.start) + '</span></span>' : '') +
-            '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot) + '</span>' +
-          '</button>';
+            '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot, open) + '</span>' +
+          '</div>';
       });
     });
 
@@ -1980,7 +1964,7 @@
       parts.push("여유 " + availabilityLevel(slot) + "단계");
     }
     if (slot.privateSoft.length > 0) {
-      parts.push("피하고 싶은 표시 있음");
+      parts.push("피하고 싶다는 표시 있음");
     }
     if (recommended) {
       parts.push("추천");
@@ -2007,7 +1991,7 @@
     });
   }
 
-  function renderSlotPopover(slot) {
+  function renderSlotPopover(slot, isOpen) {
     // 아바타 회색 처리 문법 — 불참(회색 흐림)·미응답(반투명)은 범례 없이 읽힌다.
     // 이름별 설명 문장은 과설명이라 쓰지 않는다.
     var states = slotPeopleStates(slot);
@@ -2032,44 +2016,13 @@
       '<strong class="popover-title">' + slotStatusTitle(slot) + '</strong>' +
       '<span class="popover-avatar-stack">' + avatars + '</span>' +
       (slot.privateSoft.length > 0 ? '<span class="popover-note">피하고 싶다는 표시가 있어요</span>' : '') +
+      (isOpen ? '<button class="popover-choose" data-action="choose-slot" data-slot-id="' + slot.id + '">이 시간 선택</button>' : '') +
       ''
     );
   }
 
   function slotStatusTitle(slot) {
     return displayTime(slot) + " · " + slot.totalAvailable + "명 참석 가능";
-  }
-
-  function slotStatusLine(slot) {
-    var parts = [slotStatusTitle(slot)];
-    if (isUnavailableSlot(slot)) {
-      parts.push("안 돼요");
-    }
-    if (hasPrivateBurden(slot)) {
-      parts.push("피하고 싶은 표시 있음");
-    }
-    if (slot.conditional.length > 0) {
-      parts.push("화상 참여 있음");
-    }
-    return parts.join(" · ");
-  }
-
-  // 격자에서 10분 단위 시각을 골랐으면 상태 줄도 그 시각 기준으로 —
-  // 그리고 카드 없는 시각도 확정으로 이어갈 수 있게 선택 버튼을 함께 둔다.
-  // 호버 싱크(updateActiveSlotDetail)와 첫 렌더가 같은 내용을 쓰도록 빌더를 공유한다.
-  function activeSlotDetailBody() {
-    var slot = slotById(state.activeSlotId || state.selectedSlotId);
-    if (state.customSlot && slot && state.customSlot.day === slot.day && Math.floor(state.customSlot.start) === Math.floor(slot.start)) {
-      slot = state.customSlot;
-    }
-    return slotStatusLine(slot) +
-      '<button class="remind-btn" data-action="choose-slot" data-slot-id="' + slot.id + '">이 시간 선택</button>';
-  }
-
-  function renderActiveSlotDetail() {
-    return (
-      '<div class="slot-detail-panel" data-slot-detail role="status">' + activeSlotDetailBody() + '</div>'
-    );
   }
 
   function renderRecommendCards() {
@@ -2377,6 +2330,11 @@
   }
 
   app.addEventListener("click", function (event) {
+    // 앱 안 클릭은 여기서 끝 — document의 '바깥 클릭 닫기'가 render() 뒤
+    // 분리된 노드를 보고 바깥 클릭으로 오판해 팝오버를 되닫는 것을 막는다
+    if (event.stopPropagation) {
+      event.stopPropagation();
+    }
     // 검색창은 재클릭(이미 포커스 상태)에도 제안이 열려야 한다 (focusin은 이때 안 옴)
     if (event.target && event.target.id === "compose-search") {
       openComposeSuggest();
@@ -2824,7 +2782,6 @@
       return;
     }
     state.activeSlotId = cell.getAttribute("data-slot-id");
-    updateActiveSlotDetail();
   });
 
   app.addEventListener("mouseout", function (event) {
@@ -2866,7 +2823,6 @@
       return;
     }
     state.activeSlotId = cell.getAttribute("data-slot-id");
-    updateActiveSlotDetail();
   });
 
   if (document.addEventListener) {
@@ -2947,16 +2903,6 @@
         chip.style.display = field.value ? "none" : "";
       }
     });
-  }
-
-  function updateActiveSlotDetail() {
-    if (!app.querySelector) {
-      return;
-    }
-    var detail = app.querySelector("[data-slot-detail]");
-    if (detail) {
-      detail.innerHTML = activeSlotDetailBody();
-    }
   }
 
   if (document.addEventListener) {

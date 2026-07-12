@@ -1328,14 +1328,6 @@ button {
   transition: opacity 150ms ease-out, scale 150ms ease-out;
 }
 
-.slot-detail-panel {
-  border-top: 1px solid var(--border);
-  padding: var(--space-4);
-  color: var(--gray-700);
-  font-size: var(--text-13);
-  font-weight: 700;
-}
-
 .recommend-list {
   display: grid;
   gap: var(--space-3);
@@ -3370,6 +3362,7 @@ body.is-embed .mobile-stage {
   border-radius: var(--radius-16, 16px);
   background: var(--bg, #F7F8FA);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+  padding: var(--space-6);
 }
 
 .web-dialog-close {
@@ -3440,4 +3433,24 @@ body.is-embed .mobile-stage {
 
 .card-people .card-avatar + .card-avatar {
   margin-left: -6px;
+}
+
+/* 열린 셀 팝오버의 액션 — 정보와 선택이 클릭 지점에서 한 번에 (구글 캘린더 문법) */
+.popover-choose {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-3);
+  border: 0;
+  border-radius: var(--radius-8);
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: var(--text-13);
+  font-weight: 700;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.popover-choose:hover {
+  background: var(--accent-strong);
 }
