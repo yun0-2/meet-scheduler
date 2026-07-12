@@ -401,15 +401,21 @@ h3 {
 }
 
 /* 언제 검토했나: 카드 제목 아래 작은 순서 라벨 (판단 여정을 시간순으로) */
+/* 언제 검토했나: 카드 제목과 위계가 겹치지 않게 필 뱃지로 (제목이 두 개로 안 읽히게) */
 .decision-when {
-  margin-top: var(--space-2);
-  color: var(--gray-400);
+  display: inline-flex;
+  align-items: center;
+  margin-top: var(--space-3);
+  border-radius: 999px;
+  background: var(--gray-100);
+  color: var(--gray-500);
   font-size: var(--text-13);
   font-weight: 600;
+  padding: 4px 10px;
 }
 
 .decision-when + p {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .screen-grid {
