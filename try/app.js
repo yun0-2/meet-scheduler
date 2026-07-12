@@ -1568,6 +1568,15 @@
             '<div class="message-thread">' +
               '<p class="dm-day-divider">오늘</p>' +
               renderDmInviteMessage(person, optional) +
+              (state.inputStage === "done"
+                ? '<article class="message">' +
+                    '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
+                    '<div>' +
+                      '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
+                      '<p class="bot-intro-text">응답 받았어요. 시간이 정해지면 여기로 알려드릴게요.</p>' +
+                    '</div>' +
+                  '</article>'
+                : '') +
             '</div>' +
           '</section>' +
         '</div>' +
@@ -1591,8 +1600,8 @@
             '</div>' +
             '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 알려주세요</span></div>' +
             (state.inputStage === "done"
-              ? '<div class="dm-answered">' +
-                  '<p class="dm-answered-text">응답을 보냈어요. ' + state.replyBy + '까지 모인 응답으로 주최자가 시간을 정하고, 확정되면 여기로 알려드려요.</p>' +
+              ? '<div class="dm-answered is-ok">' +
+                  '<p class="dm-answered-check">✓ 응답 완료</p>' +
                   '<button type="button" class="btn btn-secondary btn-full" data-action="dm-edit-response">응답 고치기</button>' +
                 '</div>'
               : state.declined
@@ -1780,7 +1789,7 @@
     return (
       '<div class="legend" role="group" aria-label="격자 범례">' +
 
-        '<span class="legend-item"><span class="legend-ramp" aria-hidden="true"><span class="is-low"></span><span class="is-mid"></span><span class="is-high"></span></span>여유</span>' +
+        '<span class="legend-item"><span class="legend-ramp" aria-hidden="true"><span class="is-low"></span><span class="is-mid"></span><span class="is-high"></span></span>추천</span>' +
         '<span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>피하고 싶은 표시 있음</span>' +
       '</div>'
     );
@@ -2267,11 +2276,9 @@
       return;
     }
     if (action === "dm-all-ok" || action === "submit-response") {
+      // 피드백은 토스트가 아니라 대화 안에서: 카드가 응답 완료 상태로 바뀌고,
+      // 봇이 한 줄짜리 확인 메시지를 보낸다 (슬랙 실물: chat.update + 짧은 메시지)
       state.inputStage = "done";
-      state.toastVisible = true;
-      state.toastFading = false;
-      state.toastText = "응답을 보냈어요";
-      scheduleToastDismiss();
       render();
       return;
     }

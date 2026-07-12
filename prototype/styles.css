@@ -3166,3 +3166,16 @@ body.is-embed .mobile-stage {
   box-shadow: 0 0 0 2px var(--accent), 0 4px 14px rgba(49, 130, 246, 0.25);
   z-index: 2;
 }
+
+/* 응답 완료 — 카드가 초록 확인 상태로 전환 */
+.dm-answered.is-ok {
+  padding: var(--space-3);
+  border-radius: var(--radius-8);
+  background: var(--green-soft, #E8F4ED);
+}
+.dm-answered-check {
+  margin: 0;
+  font-size: var(--text-14);
+  font-weight: 700;
+  color: var(--green-text, #25623C);
+}
