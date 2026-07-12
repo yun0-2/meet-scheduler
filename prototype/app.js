@@ -1927,10 +1927,10 @@
           '</div>' +
         '</div>' +
         '</div>' +
-        '<div class="compose-footer compose-footer-split">' +
+        '<div class="compose-footer">' +
           (state.selectedSlotId
             ? '<span class="footer-selection"><strong>' + displayTime(slotById(state.selectedSlotId)) + '</strong> · ' + slotById(state.selectedSlotId).totalAvailable + '명 가능 · ' + roomForSlot(slotById(state.selectedSlotId)) + '</span>'
-            : '<span class="footer-selection"></span>') +
+            : '') +
           '<button class="btn compose-send-btn" data-action="go-confirm"' + (state.selectedSlotId ? '' : ' disabled') + '>미팅 확정</button>' +
         '</div>' +
         '</div>' +

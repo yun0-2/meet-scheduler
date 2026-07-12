@@ -4247,28 +4247,23 @@ button.compose-step:hover {
 
 /* 푸터 선택 요약 — 한 덩어리 토널 필. 선택하면 CTA 옆에 나타나는 것 자체가 피드백이고,
    반 단계짜리 타이포 차이 3개(라벨/시간/메타)로 쪼개 조잡하던 것을 단일 표면으로 */
+/* 선택 요약 — 필 배경 없이 accent 텍스트로 CTA 바로 왼쪽에. 버튼과 한 눈에 묶여 '이걸 확정' */
 .footer-selection {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  border-radius: 999px;
-  background: var(--accent-soft, #e8f3ff);
+  margin-right: var(--space-1);
   color: var(--accent-strong, #2272eb);
   font-size: var(--text-13);
   font-weight: 500;
-  padding: 8px 14px;
   white-space: nowrap;
   animation: footer-selection-in 160ms ease-out;
-}
-.footer-selection:empty {
-  display: none;
 }
 .footer-selection strong {
   font-weight: 700;
   font-feature-settings: "tnum";
 }
 @keyframes footer-selection-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateX(4px); }
   to { opacity: 1; transform: none; }
 }
 
