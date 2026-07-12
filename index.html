@@ -9,7 +9,7 @@
       name="description"
       content="토스 프로덕트 디자이너 챌린지 케이스입니다. 6명의 회의 시간을 잡는 과제에서 캘린더 밖의 사정이라는 문제를 확인하고, 그 사정을 모아 확정까지 가는 조율을 설계한 과정을 담았어요."
     >
-    <link rel="stylesheet" href="./case.css?v=2299eae">
+    <link rel="stylesheet" href="./case.css?v=e35d7c9">
   </head>
   <body>
     <a class="skip-link" href="#main">본문으로 바로가기</a>
@@ -193,7 +193,7 @@
           </p>
 
           <div class="lifecycle">
-            <figure class="stage" data-embed-src="prototype/index.html?embed#entry">
+            <figure class="stage" data-embed-src="prototype/index.html?embed#entry" data-embed-height="640">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-1-compose.png" alt="슬랙 작성 창에서 회의를 만드는 화면" loading="lazy" />
               </div>
@@ -203,7 +203,7 @@
               </figcaption>
             </figure>
 
-            <figure class="stage" data-embed-src="prototype/index.html?embed#input">
+            <figure class="stage" data-embed-src="prototype/index.html?embed#input" data-embed-height="1200">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-2-dm.png" alt="참석자가 봇 DM으로 초대 카드를 받은 화면" loading="lazy" />
               </div>
@@ -213,7 +213,7 @@
               </figcaption>
             </figure>
 
-            <figure class="stage" data-embed-src="prototype/index.html?embed#compare">
+            <figure class="stage" data-embed-src="prototype/index.html?embed#compare" data-embed-height="1280">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-3-compare.png" alt="추천 화면: 주간 시간표와 후보 카드" loading="lazy" />
               </div>
@@ -223,7 +223,7 @@
               </figcaption>
             </figure>
 
-            <figure class="stage stage--narrow" data-embed-src="prototype/index.html?embed#confirm">
+            <figure class="stage stage--narrow" data-embed-src="prototype/index.html?embed#confirm" data-embed-height="760">
               <div class="stage__embed">
                 <img class="stage__img" src="img/case-4-confirmed.png" alt="확정된 채널 카드" loading="lazy" />
               </div>
@@ -342,6 +342,13 @@
               var frame = document.createElement("iframe");
               frame.className = "stage__live";
               frame.src = stage.getAttribute("data-embed-src");
+              // 장면의 최대 상태 높이로 처음부터 고정 — 조작해도 높이가 움직이지 않는다.
+              // 콘텐츠가 이보다 커지면(프로토타입 수정 등) 래칫이 자동으로 늘린다.
+              var seed = parseFloat(stage.getAttribute("data-embed-height") || "0");
+              if (seed) {
+                frame.dataset.fittedHeight = seed;
+                frame.style.height = seed + "px";
+              }
               var heading = stage.querySelector("figcaption h3");
               frame.title = (heading ? heading.textContent + " " : "") + "장면 프로토타입";
               img.replaceWith(frame);
@@ -361,17 +368,25 @@
       // (iframe 높이를 0으로 리셋하면 프로토타입 innerHeight가 0이 되어 레이아웃이
       //  세로로 무너지므로 리셋하지 않는다.)
       // load 직후 + ResizeObserver로 화면 밖 로드·모달 열림까지 실시간 추적.
+      // 높이는 래칫: 첫 측정만 자유롭게 맞추고, 이후엔 커질 때만 반영한다.
+      // 모달을 닫아도 줄어들지 않아 화면이 위아래로 출렁이지 않는다.
+      function setFrameHeight(frame, h) {
+        if (!h) {
+          return;
+        }
+        var cur = parseFloat(frame.dataset.fittedHeight || "0");
+        if (!cur || h > cur) {
+          frame.dataset.fittedHeight = h;
+          frame.style.height = Math.ceil(h) + "px";
+        }
+      }
+
       function attachAutoHeight(frame) {
-        var last = 0;
         var fit = function () {
           try {
             var doc = frame.contentDocument;
             if (doc && doc.body) {
-              var h = Math.ceil(doc.body.scrollHeight);
-              if (h && h !== last) {
-                last = h;
-                frame.style.height = h + "px";
-              }
+              setFrameHeight(frame, doc.body.scrollHeight);
             }
           } catch (e) { /* cross-origin이면 불가(같은 도메인이라 발생하지 않음) */ }
         };
@@ -398,7 +413,7 @@
         var frames = document.querySelectorAll("iframe.stage__live");
         for (var i = 0; i < frames.length; i++) {
           if (frames[i].contentWindow === event.source) {
-            frames[i].style.height = Math.ceil(data.height) + "px";
+            setFrameHeight(frames[i], data.height);
             break;
           }
         }
