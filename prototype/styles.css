@@ -2305,7 +2305,6 @@ body.is-embed .schedule-grid {
   align-items: center;
   justify-content: center;
   padding: 16px 20px 12px;
-  border-bottom: 1px solid var(--border);
 }
 
 .slack-modal-head h2 {
@@ -2837,7 +2836,6 @@ body.is-embed .schedule-grid {
   display: flex;
   justify-content: flex-end;
   padding-top: var(--space-4);
-  border-top: 1px solid var(--border, #e2e8f0);
 }
 .compose-footer .compose-send-btn {
   margin: 0;
@@ -2857,14 +2855,14 @@ body.is-embed .schedule-grid {
 .slack-modal-head {
   flex: 0 0 auto;
 }
-/* 보내기 버튼 하단 고정 — 스크롤을 노출하면서 주 액션은 항상 보이게 */
+/* 보내기 버튼 하단 고정 — 스크롤을 노출하면서 주 액션은 항상 보이게.
+   디바이더 대신 여백으로 경계를 두는 게 토스 톤 (2026-07-13 사용자 결정) */
 .compose-footer {
   position: sticky;
   bottom: 0;
   margin: 0 -20px;
   padding: var(--space-4) 20px calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   background: var(--surface, #fff);
-  border-top: 1px solid var(--border, #e2e8f0);
 }
 
 /* 엔트리 봇 홈 버튼 행 — gap 누락 수정 */

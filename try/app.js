@@ -1819,7 +1819,6 @@
         '<div class="slack-modal is-input" role="dialog" aria-modal="true" aria-label="' + meetingTitle() + ' 피하고 싶은 시간 표시">' +
           '<header class="slack-modal-head">' +
             '<h2>' + meetingTitle() + '</h2>' +
-            '<span class="head-badge">' + (effectiveAttendance(person) === "required" ? "필수" : "선택") + '</span>' +
             '<button type="button" class="slack-modal-close" data-action="grid-back-dm" aria-label="닫기">✕</button>' +
           '</header>' +
           '<div class="slack-modal-body">' +
@@ -1827,10 +1826,10 @@
             (optional ? '<p class="input-guidance">선택 참석이라 어려우면 \'참석 어려움\'을 눌러도 돼요. 정해지면 결과를 공유해요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
-            '<div class="compose-footer compose-footer-split">' +
-              '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
-              '<button class="btn compose-send-btn" data-action="submit-response">제출</button>' +
-            '</div>' +
+          '</div>' +
+          '<div class="compose-footer compose-footer-split">' +
+            '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
+            '<button class="btn compose-send-btn" data-action="submit-response">제출</button>' +
           '</div>' +
         '</div>' +
       '</div>'
