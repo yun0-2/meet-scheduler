@@ -3239,4 +3239,5 @@ body.is-embed .mobile-stage {
   font-size: var(--text-14);
   line-height: 1.5;
   padding: 10px 12px;
+  margin: 0; /* 미러(inset:0)와 원점 일치 — 옛 margin-top 8px가 어긋남의 원인이었다 */
 }
