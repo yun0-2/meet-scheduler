@@ -3740,3 +3740,12 @@ button.compose-step:hover {
   left: var(--space-3);
   z-index: 20;
 }
+
+/* 주최자 고정 행 캡션 — 뺄 수 없는 사람이라 컨트롤 대신 정체만 */
+.organizer-cap {
+  margin-left: auto;
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  font-weight: 600;
+  white-space: nowrap;
+}

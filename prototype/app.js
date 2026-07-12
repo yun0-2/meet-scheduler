@@ -1515,11 +1515,12 @@
         '<div class="compose-row-icon">' +
           '<span class="compose-icon" aria-hidden="true">' + ICONS.people + '</span>' +
           '<div class="compose-row-body">' +
+            '<span class="compose-chip-label">참석자</span>' +
             '<div class="compose-search-wrap">' +
               '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="초대할 사람 추가" aria-label="참석자 검색" autocomplete="off" />' +
               '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
             '</div>' +
-            (addedRows ? '<div class="compose-list">' + addedRows + '</div>' : '') +
+            '<div class="compose-list">' + renderOrganizerRow(jiwoo) + addedRows + '</div>' +
           '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +
@@ -1625,6 +1626,7 @@
     return (
       '<div class="compose-row is-organizer">' +
         personIdentityBlock(jiwoo, "required") +
+        '<span class="organizer-cap">필수</span>' +
       '</div>'
     );
   }
