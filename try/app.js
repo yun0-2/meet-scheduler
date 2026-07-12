@@ -1413,13 +1413,13 @@
 
     // 7/1은 수요일 → 월요일 시작 격자에서 앞 2칸은 빈칸
     var cells = '<span class="wcal-pad"></span><span class="wcal-pad"></span>';
-    var anchorWeek = state.windowAnchor === null ? null : weekMondayDom(state.windowAnchor);
     for (var dom = 1; dom <= 31; dom += 1) {
       var dow = julyDow(dom);
       var isWeekend = dow === null;
       var selectable = isSelectableDom(dom);
-      // 시작일을 찍었으면 같은 주 평일만 종료일 후보 — 범위는 한 주를 넘지 않는다
-      if (anchorWeek !== null && selectable && weekMondayDom(dom) !== anchorWeek) {
+      // 시작일을 찍었으면 달력 7일 안에서만 종료일 후보 — 같은 요일이 두 번 들어오면
+      // 주간 격자(요일 축)가 성립하지 않는다. 주 걸침(목~다음 화)은 허용된다.
+      if (state.windowAnchor !== null && selectable && Math.abs(dom - state.windowAnchor) > 6) {
         selectable = false;
       }
       var inRange = state.windowAnchor === null && dom >= state.windowStart && dom <= state.windowEnd && !isWeekend;
@@ -1445,7 +1445,7 @@
         '<div class="wcal-grid wcal-grid--head">' + head + '</div>' +
         '<div class="wcal-grid" data-wcal-grid="1">' + cells + '</div>' +
         (state.windowAnchor !== null
-          ? '<p class="wcal-note">마지막 날짜를 눌러주세요. 범위는 한 주(월~금) 안에서 골라요.</p>'
+          ? '<p class="wcal-note">마지막 날짜를 눌러주세요. 평일 기준 최대 5일까지 골라요.</p>'
           : '<p class="wcal-note">시작일과 마지막 날짜를 차례로 눌러주세요.</p>') +
       '</div>'
     );
