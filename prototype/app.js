@@ -194,12 +194,11 @@
   }
 
   function buildSlotHours() {
+    // 점심(12시)도 정규 후보 — 시스템 잠금 대신 '모두에게 미리 채워진 회피 표시'로 다룬다.
+    // 사람마다 점심이 다를 수 있으니, 기본 ×를 본인이 지울 수 있다 (사용성 테스트 3호).
     var hours = [];
-    var lunchStart = data.meeting.workHours.lunch[0];
     for (var hour = data.meeting.workHours.start; hour < data.meeting.workHours.end; hour += 1) {
-      if (hour !== lunchStart) {
-        hours.push(hour);
-      }
+      hours.push(hour);
     }
     return hours;
   }
@@ -367,13 +366,9 @@
 
   // 회의가 점심시간(12–13)이나 근무 종료(18시)를 침범하면 그 시작 시각은 불가
   function slotBlockedByHours(start) {
+    // 점심은 더 이상 하드 차단이 아니다 — 기본 회피 표시(소프트)로 강등
     var end = start + meetingDuration();
-    var lunchStart = data.meeting.workHours.lunch[0];
-    var lunchEnd = lunchStart + 1;
-    if (end > data.meeting.workHours.end) {
-      return true;
-    }
-    return start < lunchEnd && end > lunchStart;
+    return end > data.meeting.workHours.end;
   }
 
   function personHasBusy(person, day, start) {
@@ -417,9 +412,37 @@
     return found;
   }
 
+  // 사람별 표시 오버라이드 맵 — 명시적으로 지운(false) 기록이 있는지 확인용
+  function softOverrideMap(person) {
+    if (person.id === "jiwoo") {
+      return state.jiwooSoftSlots || {};
+    }
+    if (person.id === "haneul") {
+      return state.selectedSoftSlots;
+    }
+    return state.optionalSoftSlots;
+  }
+
+  // 점심(12시)은 모두에게 미리 채워진 회피 표시 — 본인이 지우면(false) 사라진다
+  function lunchDefaultSoft(person, key, start) {
+    var lunchStart = data.meeting.workHours.lunch[0];
+    if (start < lunchStart || start >= lunchStart + 1) {
+      return false;
+    }
+    var map = softOverrideMap(person);
+    if (Object.prototype.hasOwnProperty.call(map, key)) {
+      return false; // 본인이 직접 정한 값이 우선 (표시든 해제든)
+    }
+    return true;
+  }
+
   function softConstraintStatus(person, day, start) {
     var key = slotId(day, start);
     var found = [];
+
+    if (lunchDefaultSoft(person, key, start)) {
+      found.push({ type: "soft", visibility: "private", label: "점심시간", source: "기본 표시 — 본인이 바꿀 수 있음" });
+    }
 
     if (person.id === "jiwoo" && state.jiwooSoftSlots && state.jiwooSoftSlots[key]) {
       found.push({ type: "soft", visibility: "private", label: "피하고 싶은 시간", source: "본인 입력" });
@@ -857,6 +880,11 @@
   }
 
   function softSelectedForInput(person, slotKey) {
+    // 점심 기본 ×: 명시 기록이 없으면 12시는 미리 칠해져 있고, 클릭 한 번으로 지워진다
+    var start = parseFloat(slotKey.split("-")[1]);
+    if (lunchDefaultSoft(person, slotKey, start)) {
+      return true;
+    }
     if (person.id === "jiwoo") {
       return Boolean(state.jiwooSoftSlots && state.jiwooSoftSlots[slotKey]);
     }
@@ -1800,10 +1828,16 @@
 
   // 내가 칠한 피하고 싶은 시간 수 — 응답 상태 카드가 '뭐라고 답했는지'를 말하게 한다
   function inputMarkCount(person) {
+    // 기본 점심 ×는 '이번 응답'이 아니라 상시 표시라 세지 않는다 —
+    // 안 그러면 '언제든 괜찮아요'를 눌러도 5개 표시로 읽힌다
     var n = 0;
     activeDays().forEach(function (day) {
       slotHours.forEach(function (hour) {
-        if (softSelectedForInput(person, slotId(day, hour))) {
+        var key = slotId(day, hour);
+        if (lunchDefaultSoft(person, key, hour)) {
+          return;
+        }
+        if (softSelectedForInput(person, key)) {
           n += 1;
         }
       });
@@ -1851,17 +1885,7 @@
       html += '<div class="mini-head">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
     });
 
-    var lunchStart = data.meeting.workHours.lunch[0];
-    var lunchEnd = data.meeting.workHours.lunch[1];
-    var lunchInserted = false;
-
     slotHours.forEach(function (hour) {
-      if (!lunchInserted && hour === lunchEnd) {
-        html +=
-          '<div class="mini-time mini-time-lunch" aria-hidden="true">' + lunchStart + '</div>' +
-          '<div class="mini-lunch-band" role="note" aria-label="' + lunchStart + '시 점심시간, 후보에서 제외">점심시간</div>';
-        lunchInserted = true;
-      }
       html += '<div class="mini-time">' + hour + '</div>';
       days.forEach(function (day) {
         var id = slotId(day, hour);
@@ -1989,13 +2013,7 @@
       html += '<div class="grid-day">' + day + '<span class="grid-date">' + dayDate(day) + '</span></div>';
     });
 
-    var lunchStart = data.meeting.workHours.lunch[0];
     slotHours.forEach(function (hour) {
-      if (hour === lunchStart + 1) {
-        // 12시 점심 행 — 시스템이 잠근 시간은 회색 비활성 (격자 의미 체계 §4)
-        html += '<div class="grid-time is-lunch">' + String(lunchStart).padStart(2, "0") + ':00</div>' +
-          '<div class="grid-lunch-band" role="note" aria-label="' + lunchStart + '시 점심시간, 후보에서 제외">점심시간</div>';
-      }
       html += '<div class="grid-time">' + String(hour).padStart(2, "0") + ':00</div>';
       days.forEach(function (day) {
         var slot = slotById(slotId(day, hour));
@@ -2725,7 +2743,8 @@
       var miniSlotId = target.getAttribute("data-slot-id");
       if (state.myMarksOpen) {
         // '내 캘린더 표시' 모달 — 대상은 주최자 본인, 표시는 이후 모든 조율 계산에 반영
-        state.jiwooSoftSlots[miniSlotId] = !state.jiwooSoftSlots[miniSlotId];
+        var jiwoo = getPerson("jiwoo");
+        state.jiwooSoftSlots[miniSlotId] = !softSelectedForInput(jiwoo, miniSlotId);
         render();
         return;
       }
@@ -2733,10 +2752,11 @@
       if (state.inputOptOutByPerson[inputPerson.id]) {
         return;
       }
+      // 현재값은 기본 점심 ×까지 아는 softSelectedForInput 기준 — 기본 표시도 한 번에 지워진다
       if (inputPerson.id === "haneul") {
-        state.selectedSoftSlots[miniSlotId] = !softSelectedByDefault(miniSlotId);
+        state.selectedSoftSlots[miniSlotId] = !softSelectedForInput(inputPerson, miniSlotId);
       } else {
-        state.optionalSoftSlots[miniSlotId] = !state.optionalSoftSlots[miniSlotId];
+        state.optionalSoftSlots[miniSlotId] = !softSelectedForInput(inputPerson, miniSlotId);
       }
       render();
     }

@@ -1211,7 +1211,10 @@ button {
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
-.slot-cell:nth-child(6n) .slot-popover {
+/* 마지막 요일 열 팝오버는 오른쪽 기준으로 앵커 — nth-child는 점심 밴드가
+   행 구조를 바꾸면 빗나가므로, 요일 데이터 속성으로 직접 잡는다. */
+.slot-cell:nth-child(6n) .slot-popover,
+.slot-cell[data-slot-id^="금"] .slot-popover {
   right: 0;
   left: auto;
   transform: none;
@@ -1850,6 +1853,11 @@ body.is-embed .web-dialog {
 
 body.is-embed .web-dialog-close {
   display: none;
+}
+
+/* 임베드에서 iframe이 좁아지면 주간 시간표만 자체 가로 스크롤(페이지 잘림 방지) */
+body.is-embed .schedule-grid {
+  overflow-x: auto;
 }
 
 #demo-nav {

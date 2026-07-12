@@ -632,16 +632,54 @@ h3 {
 }
 
 /* 장면 임베드는 프로즈 컬럼 밖으로 넓게(추천 화면 2단 유지 → 세로 급감).
-   페이지 중앙 기준 좌우 대칭 확장. 헤딩·리드는 좁은 컬럼 그대로 둔다. */
+   왼쪽은 본문과 같은 라인에 붙이고 오른쪽으로만 확장한다(마진 체계 통일).
+   (100% + 100vw) / 2 = 컨테이너 왼쪽 끝에서 뷰포트 오른쪽 끝까지의 거리. */
 .stage {
-  width: min(1160px, calc(100vw - var(--space-8)));
+  width: min(1160px, calc((100% + 100vw) / 2 - var(--space-6)));
   max-width: none;
-  margin-left: calc((100% - min(1160px, calc(100vw - var(--space-8)))) / 2);
+  margin-left: 0;
   margin-right: 0;
 }
 
 .stage__embed {
   position: relative;
+}
+
+/* ── 캘린더에 없던 것들 (항목 + 출처 태그 목록) ──
+   비교표가 아니라 "항목 : 출처" 나열이라 표 대신 칩 리스트로 읽는다. */
+.absent-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-8);
+  padding: 0;
+  list-style: none;
+}
+
+.absent-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-radius: var(--radius-12);
+  background: var(--surface-muted);
+  padding: var(--space-4) var(--space-5);
+}
+
+.absent-list .absent-item {
+  color: var(--gray-800);
+  font-size: var(--text-15);
+  line-height: 1.5;
+}
+
+.absent-list .absent-source {
+  flex: none;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
 }
 
 /* ── 발견→결정 연결 목록 (부록 1번 섹션) ──
@@ -945,9 +983,56 @@ h3 {
   border-bottom: 0;
 }
 
-/* 직접 인터뷰가 아닌 행(같은 사람의 과거 경험, 건너 들은 이야기)은 톤을 낮춰 성격을 구분 */
-.sample-table tr.row-indirect td {
+/* 첫 열은 행의 이름표 — 진하게 잡아 행 스캔의 앵커로 쓴다. 두 줄로 꺾이지 않게. */
+.sample-table tbody td:first-child {
+  color: var(--gray-900);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 열이 많은 행렬(가설 채점 8열)은 셀을 구기지 말고 최소폭을 확보해 가로 스크롤로 */
+.table-scroll .sample-table.table-wide {
+  min-width: 1080px;
+}
+
+.table-wide tbody td:first-child {
+  white-space: normal;
+  min-width: 200px;
+}
+
+.table-wide tbody td {
+  min-width: 90px;
+}
+
+/* 직접 인터뷰가 아닌 행(같은 사람의 과거 경험, 건너 들은 이야기)은 톤을 낮춰 성격을 구분.
+   첫 열(이름표)까지 함께 흐리게 — 같은 특이도라 first-child 규칙 뒤에 둬서 이긴다. */
+.sample-table tbody tr.row-indirect td,
+.sample-table tbody tr.row-indirect td:first-child {
   color: var(--gray-400);
+  font-weight: 400;
+}
+
+/* 건너 들은 이야기 표시 — 중립 회색, 눈에 튀지 않게 */
+.badge-indirect {
+  display: inline-block;
+  margin-left: var(--space-2);
+  border-radius: 999px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  font-size: var(--text-12);
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 1px 8px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* 흐린 행 안에서는 뱃지도 더 조용하게 */
+.row-indirect .badge-indirect {
+  background: transparent;
+  color: var(--gray-400);
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .method-box {
