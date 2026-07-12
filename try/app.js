@@ -33,6 +33,7 @@
     myMarksOpen: false,
     windowStart: 20,
     windowEnd: 24,
+    customSlot: null,
     deadlinePassed: false,
     deadlineSeen: false,
     entryTab: "channel",
@@ -216,8 +217,14 @@
     return day + "-" + start;
   }
 
+  function formatClock(start) {
+    var h = Math.floor(start);
+    var m = Math.round((start - h) * 60);
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  }
+
   function displayTime(slot) {
-    return dayDate(slot.day) + "(" + slot.day + ") " + String(slot.start).padStart(2, "0") + ":00";
+    return dayDate(slot.day) + "(" + slot.day + ") " + formatClock(slot.start);
   }
 
   function overlaps(event, start, end) {
@@ -685,6 +692,9 @@
   }
 
   function slotById(id) {
+    if (state.customSlot && state.customSlot.id === id) {
+      return state.customSlot;
+    }
     var slots = scoreAllSlots();
     return slots.find(function (slot) {
       return slot.id === id;
@@ -747,7 +757,7 @@
 
   function runnerUpCardCopy(slot) {
     if (slot.optionalUnavailable.length > 0) {
-      return "필수 4명 모두 가능해요. " + names(slot.optionalUnavailable) + "은 캘린더에 일정이 있어요.";
+      return "필수 4명 모두 가능해요. 선택 참석자 " + slot.optionalUnavailable.length + "명은 캘린더 일정과 겹쳐요.";
     }
     return "다음으로 겹치는 게 적은 시간이에요.";
   }
@@ -762,7 +772,7 @@
   function stressCardCopy(slot) {
     if (slot.conditional.length > 0) {
       // 비공개 제약은 인원수도 안 센다 (k-익명 원칙)
-      return "6명 모두 가능해요. 다만 금요일 늦은 오후이고, 직후에 일정이 있다는 표시가 있어요.";
+      return "6명 모두 가능해요. 다만 끝나면 바로 퇴근이라, 직후에 일정이 있다는 표시가 있어요.";
     }
     if (hasPrivateBurden(slot)) {
       return "6명 모두 가능해요. 다만 피하고 싶다는 표시가 있어요.";
@@ -1827,7 +1837,9 @@
       state.activeSlotId = featured.recommended.id;
     }
     app.innerHTML =
-      '<section class="screen">' +
+      '<section class="screen compare-stage">' +
+        '<div class="web-dialog" role="dialog" aria-modal="true" aria-label="추천 시간">' +
+        '<button type="button" class="web-dialog-close" data-action="go-entry" aria-label="닫기">✕</button>' +
         '<div class="screen-inner">' +
           '<header class="compare-header">' +
             '<div>' +
@@ -1851,6 +1863,7 @@
               renderActiveSlotDetail() +
             '</section>' +
           '</div>' +
+        '</div>' +
         '</div>' +
       '</section>' +
       renderToast();
@@ -1939,11 +1952,20 @@
         var rankLabel = rankIndex >= 0
           ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 첫 제안" : "")
           : (slot.id === tentativeId ? "첫 제안" : null);
+        var rankClass = rankIndex === 0 ? "rank-tag is-first" : "rank-tag";
+        // 10분 단위 선택: 정시가 아닌 시각을 고르면 그 셀 안에 라인+시간 칩으로 표시
+        var pick = state.customSlot && state.customSlot.day === day && Math.floor(state.customSlot.start) === hour
+          ? state.customSlot
+          : null;
+        if (pick) {
+          selected = true;
+        }
         html +=
           '<button class="slot-cell availability-' + availabilityLevel(slot) + (unavailable ? " is-unavailable" : "") + (privateBurden ? " has-private-burden" : "") + (selected ? " is-selected" : "") + (recommended ? " is-recommended" : "") + (active ? " is-active" : "") + (open ? " is-open" : "") + '" ' +
           'data-action="select-grid-slot" data-slot-id="' + slot.id + '" aria-label="' + slotAria(slot, recommended) + '">' +
-            (rankLabel ? '<span class="rank-tag is-first">' + rankLabel + '</span>' : '') +
-            '<span class="slot-popover" role="dialog" aria-label="' + displayTime(slot) + ' 상세">' + renderSlotPopover(slot) + '</span>' +
+            (rankLabel ? '<span class="' + rankClass + '">' + rankLabel + '</span>' : '') +
+            (pick ? '<span class="slot-pick" style="top:' + Math.round((pick.start - hour) * 100) + '%"><span class="slot-pick-chip">' + formatClock(pick.start) + '</span></span>' : '') +
+            '<span class="slot-popover" role="dialog" aria-label="' + displayTime(pick || slot) + ' 상세">' + renderSlotPopover(pick || slot) + '</span>' +
           '</button>';
       });
     });
@@ -2034,10 +2056,21 @@
     return parts.join(" · ");
   }
 
-  function renderActiveSlotDetail() {
+  // 격자에서 10분 단위 시각을 골랐으면 상태 줄도 그 시각 기준으로 —
+  // 그리고 카드 없는 시각도 확정으로 이어갈 수 있게 선택 버튼을 함께 둔다.
+  // 호버 싱크(updateActiveSlotDetail)와 첫 렌더가 같은 내용을 쓰도록 빌더를 공유한다.
+  function activeSlotDetailBody() {
     var slot = slotById(state.activeSlotId || state.selectedSlotId);
+    if (state.customSlot && slot && state.customSlot.day === slot.day && Math.floor(state.customSlot.start) === Math.floor(slot.start)) {
+      slot = state.customSlot;
+    }
+    return slotStatusLine(slot) +
+      '<button class="remind-btn" data-action="choose-slot" data-slot-id="' + slot.id + '">이 시간 선택</button>';
+  }
+
+  function renderActiveSlotDetail() {
     return (
-      '<div class="slot-detail-panel" data-slot-detail role="status">' + slotStatusLine(slot) + '</div>'
+      '<div class="slot-detail-panel" data-slot-detail role="status">' + activeSlotDetailBody() + '</div>'
     );
   }
 
@@ -2057,12 +2090,24 @@
             '<span class="metric-pill">필수 ' + slot.requiredAvailable + '/' + requiredPeople().length + '</span>' +
             '<span class="metric-pill">선택 ' + slot.optionalAvailable + '/' + optionalPeople().length + '</span>' +
             (slot.conditional.length ? '<span class="metric-pill"><span class="video-icon" aria-hidden="true"></span>화상</span>' : '') +
+            renderCardBusyPeople(slot) +
           '</div>' +
           (isOpen ? '<p class="recommend-detail">' + card.detail + '</p>' : '') +
           '<button class="card-button' + (index > 0 ? " is-secondary" : "") + (state.selectedSlotId === slot.id ? " is-chosen" : "") + '" data-action="choose-slot" data-slot-id="' + slot.id + '">' + (state.selectedSlotId === slot.id ? "✓ 선택됨" : "이 시간 선택") + '</button>' +
         '</article>'
       );
     }).join("");
+  }
+
+  // 카드에도 '누가 겹치는지'를 아바타로 — 격자 팝오버와 같은 정보(캘린더=공개)를 카드에서도
+  function renderCardBusyPeople(slot) {
+    var busy = slot.requiredUnavailable.concat(slot.optionalUnavailable);
+    if (!busy.length) {
+      return '';
+    }
+    return '<span class="card-people">' + busy.map(function (item) {
+      return '<span class="card-avatar" title="' + item.person.name + ' · 캘린더 일정과 겹침"' + avatarVars(item.person) + '>' + initials(item.person.name) + '</span>';
+    }).join('') + '</span>';
   }
 
   function names(items) {
@@ -2599,9 +2644,29 @@
       render();
     }
     if (action === "select-grid-slot") {
-      state.selectedSlotId = target.getAttribute("data-slot-id");
-      state.activeSlotId = state.selectedSlotId;
-      state.openSlotId = state.selectedSlotId;
+      // 클릭 위치를 10분 단위로 스냅 — 13:30, 16:30 같은 시간도 고를 수 있다 (구글 캘린더 문법)
+      var cellId = target.getAttribute("data-slot-id");
+      var pickedId = cellId;
+      if (typeof target.getBoundingClientRect === "function" && event && typeof event.clientY === "number") {
+        var rect = target.getBoundingClientRect();
+        if (rect.height > 0) {
+          var frac = (event.clientY - rect.top) / rect.height;
+          var minutes = Math.min(50, Math.max(0, Math.round(frac * 60 / 10) * 10));
+          if (minutes > 0) {
+            var parts = cellId.split("-");
+            var candidate = scoreSlot(parts[0], parseFloat(parts[1]) + minutes / 60);
+            if (!candidate.blockedByHours) {
+              state.customSlot = candidate;
+              pickedId = candidate.id;
+            }
+          } else {
+            state.customSlot = null;
+          }
+        }
+      }
+      state.selectedSlotId = pickedId;
+      state.activeSlotId = cellId;
+      state.openSlotId = cellId;
       render();
     }
     if (action === "send-reminder") {
@@ -2625,6 +2690,10 @@
     }
     if (action === "choose-slot") {
       state.selectedSlotId = target.getAttribute("data-slot-id");
+      // 카드에서 정시 슬롯을 고르면 격자의 10분 픽은 해제
+      if (!state.customSlot || state.customSlot.id !== state.selectedSlotId) {
+        state.customSlot = null;
+      }
       state.activeSlotId = state.selectedSlotId;
       state.openSlotId = null;
       state.posted = false;
@@ -2875,7 +2944,7 @@
     }
     var detail = app.querySelector("[data-slot-detail]");
     if (detail) {
-      detail.innerHTML = slotStatusLine(slotById(state.activeSlotId || state.selectedSlotId));
+      detail.innerHTML = activeSlotDetailBody();
     }
   }
 
