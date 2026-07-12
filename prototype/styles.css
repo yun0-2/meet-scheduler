@@ -3008,7 +3008,8 @@ body.is-embed .web-dialog-close {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 34px;
+  /* 아이콘 글리프를 본문 첫 줄(라벨)에 맞춘다 — 34px 박스 중앙이면 11px 라벨보다 낮게 앉는다 */
+  height: 18px;
   color: var(--gray-400, #94a3b8);
 }
 .compose-row-body {

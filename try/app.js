@@ -1576,9 +1576,6 @@
             '</div>' +
           '</div>' +
           '<section class="panel" aria-label="주간 격자">' +
-            '<header class="panel-header">' +
-              '<h2>주간 격자</h2>' +
-            '</header>' +
             '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
           '</section>' +
         '</div>' +
@@ -1927,9 +1924,6 @@
               '<div class="recommend-list">' + renderRecommendCards() + '</div>' +
             '</aside>' +
             '<section class="panel" aria-label="주간 격자">' +
-              '<header class="panel-header">' +
-                '<h2>주간 격자</h2>' +
-              '</header>' +
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
             '</section>' +
           '</div>' +
