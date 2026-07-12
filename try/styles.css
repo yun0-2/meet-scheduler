@@ -202,7 +202,7 @@ button {
   min-height: 44px;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-14);
+  border-radius: var(--radius-12);
   padding: 0 var(--space-4);
   background: var(--accent);
   color: white;
@@ -2300,7 +2300,7 @@ body.is-embed .schedule-grid {
   max-height: calc(100dvh - 64px);
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
+  border-radius: var(--radius-16);
   background: var(--surface);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
 }
@@ -3714,7 +3714,7 @@ button.compose-step:hover {
   position: static;
   margin: 0;
   flex: 0 0 auto;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--radius-16) var(--radius-16);
 }
 
 /* 클릭으로 연 팝오버가 있는 동안엔 다른 셀의 호버 팝오버를 띄우지 않는다 — 한 번에 하나만 */
