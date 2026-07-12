@@ -2797,9 +2797,7 @@ body.is-embed .mobile-stage {
   justify-content: center;
   padding: 0;
 }
-.wcal-day:hover:not(.is-disabled):not(.is-weekend) {
-  background: var(--accent-soft, #eef1f6);
-}
+
 .wcal-day.is-weekend,
 .wcal-day.is-disabled {
   color: var(--gray-300, #cbd5e1);
