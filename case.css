@@ -872,9 +872,11 @@ h3 {
 
 /* ===== 아티클 확장 (2026-07-11) ===== */
 
+/* 리드는 본문과 같은 17px — 크기로 나누지 않고 여는 문단은 아래 여백으로만 구분한다.
+   본문 텍스트는 히어로·리드·본문 전부 한 크기(17px)로 통일. */
 .article-lead {
   max-width: var(--prose-width);
-  font-size: var(--text-19);
+  font-size: var(--text-17);
   line-height: 1.7;
   color: var(--gray-700);
   margin: 0 auto var(--space-8);
