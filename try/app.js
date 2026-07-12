@@ -20,7 +20,6 @@
     activeSlotId: null,
     openSlotId: null,
     openCardId: null,
-    rankInfoOpen: false,
     sortMode: "recommended",
     dragActive: false,
     dragMoved: false,
@@ -1964,18 +1963,16 @@
       '<div class="sort-toggle-wrap">' +
         '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
           '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">추천순' +
-            '<span class="rank-info-btn" role="button" tabindex="0" data-action="toggle-rank-info" aria-expanded="' + String(Boolean(state.rankInfoOpen)) + '" aria-label="순위 기준 설명"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>' +
+            '<span class="rank-info-btn" tabindex="0" aria-label="순위 기준 설명"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>' +
           '</button>' +
           '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
         '</div>' +
-        (state.rankInfoOpen
-          ? '<span class="rank-info-pop" role="note">' +
-              '<strong>순위는 이렇게 매겨요</strong>' +
-              '<span>필수 참석자가 안 되는 시간은 후보에서 빠져요.</span>' +
-              '<span>남은 후보는 캘린더 충돌과 피하고 싶다는 표시가 적은 순서예요. 모두 가능한 시간이라도 부담 표시가 있으면 순위가 내려가요.</span>' +
-              '<span>인원수로 보고 싶으면 \'가능한 사람 많은 순\'으로 바꿀 수 있어요.</span>' +
-            '</span>'
-          : '') +
+        '<span class="rank-info-pop" role="note">' +
+          '<strong>순위는 이렇게 매겨요</strong>' +
+          '<span>필수 참석자가 안 되는 시간은 후보에서 빠져요.</span>' +
+          '<span>남은 후보는 캘린더 충돌과 피하고 싶다는 표시가 적은 순서예요. 모두 가능한 시간이라도 부담 표시가 있으면 순위가 내려가요.</span>' +
+          '<span>인원수로 보고 싶으면 \'가능한 사람 많은 순\'으로 바꿀 수 있어요.</span>' +
+        '</span>' +
       '</div>'
     );
   }
@@ -2493,15 +2490,6 @@
     var action = target.getAttribute("data-action");
     if (action !== "select-grid-slot") {
       state.openSlotId = null;
-    }
-    if (action === "toggle-rank-info") {
-      state.rankInfoOpen = !state.rankInfoOpen;
-      render();
-      return;
-    }
-    // 순위 설명은 다른 조작을 시작하면 닫는다 — 한 번에 하나만
-    if (state.rankInfoOpen) {
-      state.rankInfoOpen = false;
     }
     if (action === "go-input") {
       setRoute("input");
