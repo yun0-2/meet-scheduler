@@ -2063,8 +2063,9 @@
         // 부담 반영)이 안 보인다. 인원수·이름은 여전히 절대 노출하지 않는다(k-익명).
         // 세모는 본인이 직접 남긴 표시(privateSoft)만 — 추론·통념까지 그리면
         // 후보마다 전부 표시가 붙는 부조리가 된다. 약한 신호는 카드 문장의 몫.
-        // compose(응답 전) 격자에선 부담 세모를 숨긴다 — 아직 표시가 안 모였는데 뜨면 노이즈
-        var privateBurden = !unavailable && slot.privateSoft.length > 0 && !(opts && opts.pickAction);
+        // 세모는 compose에서도 보여준다 — 점심·상시 표시는 응답 전에도 존재하는 정보라,
+        // 숨기면 12시가 '깨끗한 후보'처럼 보여 점심에 제안하는 사고가 난다
+        var privateBurden = !unavailable && slot.privateSoft.length > 0;
         // 카드와 같은 번호 언어(1·2·3순위)를 격자에도 — 카드↔격자 연결(사용성 테스트 006 P1)
         var rankIndex = rankOrderIds.indexOf(slot.id);
         var rankLabel = rankIndex >= 0
