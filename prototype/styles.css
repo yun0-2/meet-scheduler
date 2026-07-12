@@ -1171,11 +1171,11 @@ button {
 .person-dot {
   position: relative;
   display: inline-grid;
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   place-items: center;
   border-radius: 50%;
-  font-size: 10px;
+  font-size: var(--text-12);
   font-weight: 700;
   line-height: 1;
 }
@@ -1464,17 +1464,23 @@ button {
 .selected-time {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
-  align-items: center;
-  margin: 0 0 var(--space-4);
+  gap: var(--space-2) var(--space-3);
+  align-items: baseline;
+  margin: 0 0 var(--space-5);
   border-radius: var(--radius-12);
-  background: var(--gray-900);
-  color: white;
-  padding: var(--space-4);
+  background: var(--accent-soft);
+  color: var(--gray-900);
+  padding: var(--space-4) var(--space-5);
 }
 
 .selected-time strong {
-  font-size: var(--text-20);
+  font-size: var(--text-24, 26px);
+  color: var(--accent-strong);
+}
+
+.selected-time span {
+  color: var(--gray-600);
+  font-size: var(--text-14);
 }
 
 .btn-ghost-dark {
@@ -1510,8 +1516,8 @@ button {
 
 .attendee-status {
   display: grid;
-  gap: var(--space-2);
-  margin: var(--space-4) 0;
+  gap: 0;
+  margin: var(--space-4) 0 var(--space-2);
 }
 
 .status-row {
@@ -1520,7 +1526,7 @@ button {
   gap: var(--space-3);
   align-items: center;
   border-bottom: 1px solid var(--border);
-  padding: var(--space-2) 0;
+  padding: var(--space-3) 0;
 }
 
 .status-row:last-child {
@@ -1529,7 +1535,7 @@ button {
 
 .status-person {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: center;
 }
 
@@ -2250,7 +2256,7 @@ body.is-embed .schedule-grid {
 }
 
 .compose-search-input {
-  margin-top: var(--space-3);
+  margin-top: 0;
 }
 
 .compose-title-input:focus,
@@ -3614,6 +3620,11 @@ button.compose-step:hover {
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
+}
+
+/* 제목 입력 위쪽 숨 — 헤더 경계에 붙지 않게 */
+.slack-modal.is-compose .compose-title-input {
+  margin-top: var(--space-2);
 }
 
 .slack-modal.is-compose .slack-modal-body {
