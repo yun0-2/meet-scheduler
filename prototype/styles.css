@@ -2971,7 +2971,9 @@ body.is-embed .mobile-stage {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: center;
+  /* 아이콘은 첫 줄 상단에 고정 — 본문이 여러 줄(참석자 스택·설명)로 길어져도
+     아이콘이 본문 중앙으로 내려가지 않게 (구글 캘린더 게스트 아이콘 문법) */
+  align-items: start;
 }
 .compose-icon {
   display: flex;
