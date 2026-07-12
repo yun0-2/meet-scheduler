@@ -3309,3 +3309,29 @@ body.is-embed .mobile-stage {
   font-weight: 700;
   border-radius: 8px;
 }
+
+/* 채널에 보내기 체크박스 토글 */
+.compose-publish-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-13);
+  font-weight: 700;
+  color: var(--grey-700);
+  cursor: pointer;
+}
+.compose-publish-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent, #3182F6);
+}
+.compose-publish.is-off .compose-publish-toggle {
+  color: var(--grey-400, #B0B8C1);
+}
+/* 캘린더 확인 버튼 */
+.wcal-confirm {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 0;
+  font-size: var(--text-13);
+}

@@ -36,6 +36,7 @@
     deadlinePassed: false,
     deadlineSeen: false,
     entryTab: "channel",
+    postToChannel: true,
     windowAnchor: null,
     windowPickerOpen: false,
     respondedReveal: false,
@@ -343,7 +344,6 @@
     state.windowStart = Math.min(state.windowAnchor, dom);
     state.windowEnd = Math.max(state.windowAnchor, dom);
     state.windowAnchor = null;
-    state.windowPickerOpen = false;
     state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
     render();
   }
@@ -1236,9 +1236,9 @@
             '<p class="workspace-name">Product Lab</p>' +
             '<ul class="channel-list">' +
               ["공지", "pm-admin-dashboard", "제품실험", "데이터지원"].map(function (ch) {
-                var active = state.composePosted && state.entryTab === "channel" && ch === state.channelName;
+                var active = state.composePosted && state.postToChannel && state.entryTab === "channel" && ch === state.channelName;
                 var unread = (ch === "공지" || ch === "제품실험") && !active;
-                var clickable = state.composePosted && ch === state.channelName;
+                var clickable = state.composePosted && state.postToChannel && ch === state.channelName;
                 return '<li class="' + (active ? "active" : "") + (unread ? " is-unread" : "") + '"' + (clickable ? ' data-action="entry-tab-channel"' : '') + '><span># ' + ch + '</span></li>';
               }).join("") +
               '<li class="channel-app' + (!state.composePosted || state.entryTab === "bot" ? " active" : "") + '"' + (state.composePosted ? ' data-action="entry-tab-bot"' : '') + '>' +
@@ -1259,7 +1259,18 @@
                       renderPostedMessageText() + renderPostedCard() +
                     '</div>' +
                   '</article>'
-                : renderBotIntroMessage() + (state.composePosted && state.deadlinePassed ? renderDeadlineMessage() : '')) +
+                : renderBotIntroMessage() +
+                  (state.composePosted && !state.postToChannel
+                    ? '<article class="message">' +
+                        '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
+                        '<div>' +
+                          '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">오전 10:04</span></div>' +
+                          '<p class="bot-intro-text">참석자들에게 초대를 보냈어요. 응답 현황은 여기서 볼 수 있어요.</p>' +
+                          renderPostedCard() +
+                        '</div>' +
+                      '</article>'
+                    : '') +
+                  (state.composePosted && state.deadlinePassed ? renderDeadlineMessage() : '')) +
             '</div>' +
           '</section>' +
           (state.deadlinePassed && !state.deadlineSeen && state.entryTab === "channel"
@@ -1446,7 +1457,8 @@
         '<div class="wcal-grid" data-wcal-grid="1">' + cells + '</div>' +
         (state.windowAnchor !== null
           ? '<p class="wcal-note">마지막 날짜를 눌러주세요. 평일 기준 최대 5일까지 골라요.</p>'
-          : '<p class="wcal-note">시작일과 마지막 날짜를 차례로 눌러주세요.</p>') +
+          : '') +
+        '<button type="button" class="btn wcal-confirm" data-action="window-confirm">확인</button>' +
       '</div>'
     );
   }
@@ -1513,9 +1525,11 @@
             (addedRows ? '<div class="compose-list">' + addedRows + '</div>' : '') +
           '</div>' +
         '</div>' +
-        '<div class="compose-publish">' +
-          '<p class="compose-publish-head">채널에 보내기</p>' +
-          '<div class="compose-row-icon">' +
+        '<div class="compose-publish' + (state.postToChannel ? '' : ' is-off') + '">' +
+          '<label class="compose-publish-toggle">' +
+            '<input type="checkbox" id="post-to-channel"' + (state.postToChannel ? ' checked' : '') + ' /> 채널에 보내기' +
+          '</label>' +
+          (state.postToChannel ? '<div class="compose-row-icon">' +
             '<span class="compose-icon" aria-hidden="true">' + ICONS.hash + '</span>' +
             '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
               ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
@@ -1532,10 +1546,10 @@
                 '<button type="button" class="ghost-accept" id="ghost-accept-message" data-action="compose-accept-message">→ 그대로 쓰기</button>' +
               '</div>' +
             '</div>' +
-          '</div>' +
+          '</div>' : '') +
         '</div>' +
         '<div class="compose-footer">' +
-          '<button class="btn compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>채널에 보내기</button>' +
+          '<button class="btn compose-send-btn" data-action="post-compose"' + (addedCount === 0 ? " disabled" : "") + '>' + (state.postToChannel ? '채널에 보내기' : '초대 보내기') + '</button>' +
         '</div>' +
       '</div>'
     );
@@ -2230,6 +2244,11 @@
 
   app.addEventListener("change", function (event) {
     var sel = event.target;
+    if (sel && sel.id === "post-to-channel") {
+      state.postToChannel = sel.checked;
+      render();
+      return;
+    }
     if (sel && sel.id === "compose-replyby") {
       state.replyBy = sel.value;
       return;
@@ -2501,6 +2520,12 @@
       render();
       return;
     }
+    if (action === "window-confirm") {
+      state.windowPickerOpen = false;
+      state.windowAnchor = null;
+      render();
+      return;
+    }
     if (action === "window-pick") {
       pickWindowDate(parseInt(target.getAttribute("data-dom"), 10));
       return;
@@ -2515,11 +2540,11 @@
       state.respondedReveal = false;
       state.toastVisible = true;
       state.toastFading = false;
-      state.toastText = "채널에 보냈어요";
+      state.toastText = state.postToChannel ? "채널에 보냈어요" : "참석자들에게 초대를 보냈어요";
       scheduleToastDismiss();
       state.deadlinePassed = false;
       state.deadlineSeen = false;
-      state.entryTab = "channel";
+      state.entryTab = state.postToChannel ? "channel" : "bot";
       if (window.location.hash === "#entry") {
         render();
       } else {
