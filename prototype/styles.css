@@ -1719,10 +1719,33 @@ button {
 /* 폰 폭: 추천 격자가 화면 안에 들어오게 압축 (가로 스크롤/페이지 넘침 제거) */
 @media (max-width: 560px) {
   .schedule-grid {
-    grid-template-columns: 28px repeat(var(--day-cols, 5), minmax(0, 1fr));
+    grid-template-columns: 42px repeat(var(--day-cols, 5), minmax(0, 1fr));
     gap: 0;
     overflow-x: visible;
     padding: var(--space-3);
+  }
+
+  /* 뱃지는 한 줄 고정 — 좁은 셀에서 두 줄로 꺾여 넘치지 않게 */
+  .rank-tag {
+    white-space: nowrap;
+    max-width: calc(100% - 6px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+  }
+
+  /* 좁은 화면에선 앵커 팝오버 대신 화면 하단 시트 — 좌우 잘림 원천 차단.
+     가장자리 열 규칙(.slot-cell:nth-child(6n) .slot-popover, 0-3-0)을 이기려면 특이도 동률+후순위 */
+  .schedule-grid .slot-cell .slot-popover {
+    position: fixed;
+    top: auto;
+    bottom: 76px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    transform: none;
+    transform-origin: bottom center;
   }
 
   .grid-corner,
@@ -1797,7 +1820,8 @@ body.is-embed .mobile-stage {
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 50;
+  /* 추천 다이얼로그 오버레이(z 60) 위에 있어야 데모 이동이 항상 가능하다 */
+  z-index: 70;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -3348,10 +3372,19 @@ body.is-embed .mobile-stage {
 
 /* 추천 화면 = 슬랙 위의 웹 다이얼로그 — 채널에서 [추천 보기]를 누르면 뜨는 모달 문법 */
 .compare-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
   background: rgba(29, 28, 29, 0.45);
   display: grid;
   place-items: center;
   padding: var(--space-6);
+}
+
+/* 다이얼로그 뒤에 깔리는 실제 채널 화면 — 보기만 하고 만질 수 없다 */
+.dialog-backdrop {
+  pointer-events: none;
+  user-select: none;
 }
 
 .web-dialog {

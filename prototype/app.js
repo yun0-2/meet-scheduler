@@ -1236,8 +1236,13 @@
   }
 
   function renderEntry() {
+    app.innerHTML = entryMarkup() + renderToast();
+  }
+
+  // 추천 다이얼로그 뒤 배경으로도 재사용 — 모달 문법(뒤에 실제 채널이 비침)
+  function entryMarkup() {
     var jiwoo = getPerson("jiwoo");
-    app.innerHTML =
+    return (
       '<section class="screen">' +
         '<div class="screen-inner messenger-shell">' +
           '<aside class="workspace-rail" aria-label="워크스페이스">' +
@@ -1287,8 +1292,8 @@
         '</div>' +
       '</section>' +
       (state.composeModalOpen ? renderComposeModal(jiwoo) : '') +
-      (state.myMarksOpen ? renderMyMarksModal(jiwoo) : '') +
-      renderToast();
+      (state.myMarksOpen ? renderMyMarksModal(jiwoo) : '')
+    );
   }
 
   // 마감 알림 — 봇이 주최자에게 보내는 메시지. 여기의 [추천 보기]가 다음 단계 입구.
@@ -1820,6 +1825,7 @@
       state.activeSlotId = featured.recommended.id;
     }
     app.innerHTML =
+      '<div class="dialog-backdrop" aria-hidden="true" inert>' + entryMarkup() + '</div>' +
       '<section class="screen compare-stage">' +
         '<div class="web-dialog" role="dialog" aria-modal="true" aria-label="추천 시간">' +
         '<button type="button" class="web-dialog-close" data-action="go-entry" aria-label="닫기">✕</button>' +
