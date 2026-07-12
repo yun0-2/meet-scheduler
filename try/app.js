@@ -402,12 +402,15 @@
     return state.optionalSoftSlots;
   }
 
-  // 본인 상시 표시(예: 17시 이후) — 점심(12시)은 이제 하드 차단이라 여기서 다루지 않는다.
-  // 본인이 직접 정한 값(표시든 해제든)이 항상 우선한다.
+  // 미리 채워진 회피 표시 = 점심(12시, 조직 공통) + 본인 상시 표시(예: 17시 이후).
+  // 잠금이 아니라 '바꿀 수 있는 기본 표시'라 본인이 직접 정한 값(표시든 해제든)이 항상 우선한다.
   function lunchDefaultSoft(person, key, start) {
     var map = softOverrideMap(person);
     if (Object.prototype.hasOwnProperty.call(map, key)) {
       return false;
+    }
+    if (start === data.meeting.workHours.lunch[0]) {
+      return true;
     }
     return (person.constraints || []).some(function (constraint) {
       if (constraint.type !== "soft") {
@@ -1853,14 +1856,6 @@
     });
 
     slotHours.forEach(function (hour) {
-      // 점심(12시)은 개인 표시가 아니라 조직 전체가 막힌 시간 — 사람마다 셀을 반복하지
-      // 않고 점심시간과 같은 밴드 하나로 접는다(한 사실은 한 번만).
-      if (hour === data.meeting.workHours.lunch[0]) {
-        html +=
-          '<div class="mini-time mini-time-lunch" aria-hidden="true">' + hour + '</div>' +
-          '<div class="mini-lunch-band" role="note" aria-label="' + hour + '시 ' + blockedHoursReason(hour) + ', 후보에서 제외">점심시간</div>';
-        return;
-      }
       html += '<div class="mini-time">' + hour + '</div>';
       days.forEach(function (day) {
         var id = slotId(day, hour);

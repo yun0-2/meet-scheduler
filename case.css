@@ -776,21 +776,9 @@ h3 {
   font-size: var(--text-15);
 }
 
-.footer__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-
-.footer__link {
-  color: var(--gray-500);
-  font-size: var(--text-14);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.footer__link:hover {
-  color: var(--gray-700);
+.footer p {
+  font-size: var(--text-13);
+  color: var(--gray-400);
 }
 
 @media (max-width: 760px) {
