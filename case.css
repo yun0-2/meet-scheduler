@@ -563,11 +563,11 @@ h3 {
 }
 
 /* 인터뷰 인용: 받은 메시지 말풍선. 발화라는 사실을 형태로 말한다 */
+/* 인용은 발견→결정 박스와 같은 카드 문법 — 회색 카드에 발화, 아래 조용한 출처 */
 .quote-list {
   max-width: var(--prose-width);
   display: grid;
-  gap: var(--space-6);
-  justify-items: start;
+  gap: var(--space-3);
   margin-left: auto;
   margin-right: auto;
   margin-top: var(--space-6);
@@ -575,40 +575,23 @@ h3 {
 
 .quote-list blockquote {
   margin: 0;
-  padding: 0;
+  border-radius: var(--radius-16);
+  background: var(--surface-muted);
+  padding: var(--space-5);
 }
 
 .quote-list p {
-  position: relative;
-  width: fit-content;
-  border-radius: 24px;
-  background: var(--gray-100);
-  color: var(--gray-900);
-  font-size: var(--text-19);
+  color: var(--gray-800);
+  font-size: var(--text-17);
   font-weight: 600;
-  line-height: 1.55;
-  padding: var(--space-4) var(--space-6);
-}
-
-/* 왼쪽 아래 꼬리: 같은 색 사각형을 살짝 기울여 겹친다 */
-.quote-list p::after {
-  content: "";
-  position: absolute;
-  left: 10px;
-  bottom: -4px;
-  width: 16px;
-  height: 16px;
-  background: var(--gray-100);
-  border-radius: 3px;
-  transform: rotate(56deg) skewX(18deg);
+  line-height: 1.6;
 }
 
 .quote-list cite {
   display: block;
   margin-top: var(--space-3);
-  padding-left: var(--space-4);
   color: var(--gray-400);
-  font-size: var(--text-15);
+  font-size: var(--text-13);
   font-style: normal;
   font-weight: 500;
 }
