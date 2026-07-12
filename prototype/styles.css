@@ -797,7 +797,7 @@ button {
   position: absolute;
   inset: 6px;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0L10 10M10 0L0 10' stroke='%23B5852B' stroke-width='1.2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0L10 10M10 0L0 10' stroke='%23E5A24A' stroke-opacity='0.7' stroke-width='1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
@@ -3946,6 +3946,7 @@ button.compose-step:hover {
   margin: 0 0 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 10px;
+  padding-right: 26px; /* 우상단 ? 버튼 자리 확보 — 캡션 첫 줄이 밑으로 안 들어가게 */
   color: rgba(255, 255, 255, 0.72);
   font-size: 12px;
   font-weight: 400;
@@ -4000,20 +4001,24 @@ button.compose-step:hover {
   font-weight: 700;
 }
 
-/* ? 버튼도 같은 칩 문법(radius 8, 같은 톤) — 폭만 정사각 느낌 */
+/* ? = 장면이 아니라 도움말 — 장면 칩 행에 섞이면 '응답'과 동급으로 읽혀서
+   패널 우상단(캡션 영역)에 별도 affordance로 뺀다 */
 .demo-nav-help {
-  width: 26px;
-  height: 26px;
-  margin-left: 0;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
   border-radius: var(--radius-8);
-  background: none;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 13px;
-  font-weight: 500;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .demo-nav-help:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* 추천·확정 등 모달 화면에서는 패널이 모달 푸터 CTA(우하단)를 가린다 —

@@ -1128,11 +1128,10 @@
     // (세 조각으로 떠 보인다는 피드백 반영). 폭은 모달 푸터 CTA 텍스트를 가리지 않는
     // 한도로 CSS에서 고정한다.
     nav.innerHTML =
+      '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="데모 안내 다시 보기">?</button>' +
       '<p class="demo-nav-caption">' + demoCaptionFor(route) + '</p>' +
       '<div class="demo-nav-row">' + renderGroup(hostGroup) + '</div>' +
-      '<div class="demo-nav-row">' + renderGroup(guestGroup) +
-        '<button type="button" class="demo-nav-help" data-action="scenario-replay" aria-label="지금 단계 안내 다시 보기">?</button>' +
-      '</div>';
+      '<div class="demo-nav-row">' + renderGroup(guestGroup) + '</div>';
   }
 
   // 소개 카드 — 자동으로 띄우지 않는다. 리모컨 ? 버튼으로 열 때만 표시하고,
