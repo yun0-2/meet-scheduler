@@ -262,7 +262,7 @@ h3 {
 }
 
 .section-note {
-  color: var(--gray-500);
+  color: var(--gray-600);
   font-size: var(--text-13);
 }
 
@@ -660,7 +660,7 @@ h3 {
 .path-source {
   display: block;
   margin-top: var(--space-3);
-  color: var(--gray-400);
+  color: var(--gray-600);
   font-size: var(--text-13);
 }
 
@@ -917,6 +917,7 @@ h3 {
 
 .article-subhead {
   max-width: var(--prose-width);
+  scroll-margin-top: var(--space-16);
   font-size: var(--text-22);
   line-height: 1.4;
   font-weight: 600;
@@ -927,12 +928,15 @@ h3 {
 
 .sr-only {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   padding: 0;
   margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
   border: 0;
 }
 
@@ -954,18 +958,18 @@ h3 {
 }
 
 .sample-table thead th {
-  color: var(--gray-400);
+  color: var(--gray-500);
   font-size: var(--text-13);
   font-weight: 600;
   letter-spacing: 0.01em;
 }
 
-.sample-table tbody tr:last-child td {
+.sample-table tbody tr:last-child > * {
   border-bottom: 0;
 }
 
 /* 첫 열은 행의 이름표 — 진하게 잡아 행 스캔의 앵커로 쓴다. 두 줄로 꺾이지 않게. */
-.sample-table tbody td:first-child {
+.sample-table tbody tr > :first-child {
   color: var(--gray-900);
   font-weight: 600;
   white-space: nowrap;
@@ -976,7 +980,7 @@ h3 {
   min-width: 1080px;
 }
 
-.table-wide tbody td:first-child {
+.table-wide tbody tr > :first-child {
   white-space: normal;
   min-width: 200px;
 }
@@ -987,9 +991,8 @@ h3 {
 
 /* 직접 인터뷰가 아닌 행(같은 사람의 과거 경험, 건너 들은 이야기)은 톤을 낮춰 성격을 구분.
    첫 열(이름표)까지 함께 흐리게 — 같은 특이도라 first-child 규칙 뒤에 둬서 이긴다. */
-.sample-table tbody tr.row-indirect td,
-.sample-table tbody tr.row-indirect td:first-child {
-  color: var(--gray-400);
+.sample-table tbody tr.row-indirect > * {
+  color: var(--gray-500);
   font-weight: 400;
 }
 
@@ -999,7 +1002,7 @@ h3 {
   margin-left: var(--space-2);
   border-radius: 999px;
   background: var(--gray-100);
-  color: var(--gray-500);
+  color: var(--gray-600);
   font-size: var(--text-12);
   font-weight: 600;
   line-height: 1.4;
@@ -1080,21 +1083,21 @@ h3 {
 
 /* 좌우 열 이름: 어느 쪽이 잘못된 질문인지 한눈에 */
 .probe-list .probe-head span {
-  color: var(--gray-400);
+  color: var(--gray-600);
   font-weight: 600;
 }
 
 .probe-bad {
-  color: var(--gray-400);
+  color: var(--gray-600);
   text-decoration: line-through;
-  text-decoration-color: var(--gray-300);
+  text-decoration-color: var(--gray-500);
   padding: var(--space-2) var(--space-3);
   background: var(--gray-100);
   border-radius: var(--radius-8);
 }
 
 .probe-good {
-  color: var(--green-text);
+  color: var(--gray-700);
   padding: var(--space-2) var(--space-3);
   background: var(--green-soft);
   border-radius: var(--radius-8);
@@ -1115,6 +1118,7 @@ h3 {
 
 /* 제목을 2줄 높이로 통일하고 세로 중앙 정렬 — 셀마다 제목 줄 수가 달라도
    본문 시작 높이가 맞는다(1줄짜리 제목은 가운데로 내려온다). */
+.spectrum__cell h3,
 .spectrum__cell h4 {
   display: flex;
   flex-direction: column;
@@ -1138,6 +1142,7 @@ h3 {
   background: var(--accent-soft);
 }
 
+.spectrum__cell--target h3,
 .spectrum__cell--target h4 {
   color: var(--accent-strong);
 }
@@ -1243,7 +1248,7 @@ h3 {
   min-height: 32px;
   /* 높이 대비 굴곡감을 큰 버튼(48px·12px)과 맞춘다 — 32px엔 12px가 과해 보여서 8px */
   border-radius: var(--radius-8);
-  background: var(--accent);
+  background: #1b64d8;
   color: white !important;
   padding: 0 var(--space-4);
 }
@@ -1302,10 +1307,14 @@ h3 {
   margin: 0;
 }
 
+.table-scroll .sample-table.table-compact {
+  min-width: 640px;
+}
+
 .table-note {
   max-width: var(--prose-width);
   margin: 0 auto var(--space-8);
-  color: var(--gray-400);
+  color: var(--gray-500);
   font-size: var(--text-14);
 }
 
@@ -1324,6 +1333,7 @@ h3 {
   }
 
   /* 1열에선 셀이 세로로 쌓여 제목 높이 통일이 불필요 */
+  .spectrum__cell h3,
   .spectrum__cell h4 {
     min-height: 0;
   }
