@@ -3591,6 +3591,11 @@ button.compose-step:hover {
   flex-direction: column;
 }
 
+/* 2단계는 결정 컬럼(카드+기한+게시)이 길어 높이 여유를 더 쓴다 */
+.slack-modal.is-compose.is-wide {
+  height: min(880px, calc(100vh - 48px));
+}
+
 .slack-modal.is-compose .slack-modal-body {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -3615,10 +3620,23 @@ button.compose-step:hover {
    영향을 주지 않는다. 스택 지점은 요구사항대로 560px */
 .compose-step2-layout {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: var(--space-5, 20px);
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: var(--space-5);
   align-items: start;
-  margin: var(--space-1, 4px) 0;
+}
+
+/* 왼쪽 결정 컬럼 — 카드(무엇을) → 기한(언제까지) → 채널·메시지(어디로) */
+.compose-decide-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.compose-decide-col .compose-publish {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .compose-pick-list {
@@ -3629,12 +3647,21 @@ button.compose-step:hover {
    버튼 기본 크롬만 초기화한다(전체 카드가 클릭 타깃, 안쪽엔 중첩 button 없음) */
 .compose-pick-card {
   display: grid;
-  gap: var(--space-2, 8px);
+  gap: var(--space-1, 4px);
   width: 100%;
+  padding: var(--space-3);
   text-align: left;
   font: inherit;
   color: inherit;
   cursor: pointer;
+}
+
+.compose-pick-card .card-time {
+  font-size: var(--text-16, 17px);
+}
+
+.compose-pick-card .card-copy {
+  font-size: var(--text-13);
 }
 
 /* 뒤로/보내기를 양쪽 끝으로 — 기본 compose-footer는 우측 정렬 하나뿐이라 분기 클래스 필요 */

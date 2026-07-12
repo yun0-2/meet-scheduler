@@ -1549,17 +1549,8 @@
           '<p class="compose-step2-hint">참석자들의 캘린더와 미리 표시해 둔 피하고 싶은 시간으로 계산했어요. 응답을 받으면 더 정확해져요.</p>' +
         '</div>' +
         '<div class="compose-step2-layout">' +
-          '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
-          '<section class="panel" aria-label="주간 격자">' +
-            '<header class="panel-header">' +
-              '<h2>주간 격자</h2>' +
-            '</header>' +
-            '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
-          '</section>' +
-        '</div>' +
-        '<div class="compose-row-icon">' +
-          '<span class="compose-icon" aria-hidden="true">' + ICONS.hourglass + '</span>' +
-          '<div class="compose-chip-row">' +
+          '<div class="compose-decide-col">' +
+            '<div class="recommend-list compose-pick-list">' + renderComposePickCards() + '</div>' +
             '<div class="compose-chip-field">' +
               '<span class="compose-chip-label">응답 기한</span>' +
               '<span class="compose-chip-wrap"><select id="compose-replyby" class="compose-chip compose-chip-select" aria-label="응답 기한">' +
@@ -1568,30 +1559,28 @@
                 }).join("") +
               '</select></span>' +
             '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="compose-publish' + (state.postToChannel ? '' : ' is-off') + '">' +
-          '<label class="compose-publish-toggle">' +
-            '<input type="checkbox" id="post-to-channel"' + (state.postToChannel ? ' checked' : '') + ' /> 채널에 보내기' +
-          '</label>' +
-          (state.postToChannel ? '<div class="compose-row-icon">' +
-            '<span class="compose-icon" aria-hidden="true">' + ICONS.hash + '</span>' +
-            '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
-              ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
-                return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
-              }).join("") +
-            '</select>' +
-          '</div>' +
-          '<div class="compose-row-icon">' +
-            '<span class="compose-icon" aria-hidden="true">' + ICONS.bubble + '</span>' +
-            '<div class="compose-row-body">' +
+            '<div class="compose-publish' + (state.postToChannel ? '' : ' is-off') + '">' +
+              '<label class="compose-publish-toggle">' +
+                '<input type="checkbox" id="post-to-channel"' + (state.postToChannel ? ' checked' : '') + ' /> 채널에 보내기' +
+              '</label>' +
+              (state.postToChannel ? '<select id="compose-channel" class="fact-select compose-channel-select" aria-label="보낼 채널">' +
+                ["pm-admin-dashboard", "공지", "제품실험", "데이터지원"].map(function (ch) {
+                  return '<option value="' + ch + '"' + (state.channelName === ch ? " selected" : "") + '>#' + ch + '</option>';
+                }).join("") +
+              '</select>' +
               '<div class="ghost-wrap">' +
                 '<div class="ghost-mirror" id="ghost-message" aria-hidden="true"></div>' +
                 '<textarea class="compose-message-input" id="compose-message" rows="' + textareaRows(state.composeMessage || suggestedMessage(), 4) + '" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
                 '<button type="button" class="ghost-accept" id="ghost-accept-message" data-action="compose-accept-message">→ 그대로 쓰기</button>' +
-              '</div>' +
+              '</div>' : '') +
             '</div>' +
-          '</div>' : '') +
+          '</div>' +
+          '<section class="panel" aria-label="주간 격자">' +
+            '<header class="panel-header">' +
+              '<h2>주간 격자</h2>' +
+            '</header>' +
+            '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
+          '</section>' +
         '</div>' +
         '<div class="compose-footer">' +
           '<button class="btn compose-send-btn" data-action="post-compose">' + (state.postToChannel ? '제안 보내기' : '초대 보내기') + '</button>' +
