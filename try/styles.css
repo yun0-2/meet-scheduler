@@ -3303,3 +3303,11 @@ body.is-embed .mobile-stage {
   height: 12px;
   background: var(--gray-900, #101827);
 }
+
+/* 범위 시작일 — 첫 클릭이 즉시 보여야 한다 (리팩터링 때 유실됐던 규칙 복원) */
+.wcal-day.is-anchor {
+  background: var(--accent, #3182F6);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 8px;
+}
