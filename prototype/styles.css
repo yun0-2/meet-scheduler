@@ -202,7 +202,7 @@ button {
   min-height: 44px;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-8);
   padding: 0 var(--space-4);
   background: var(--accent);
   color: white;
@@ -1967,8 +1967,8 @@ body.is-embed .schedule-grid {
 
 .compose-title-input {
   margin-top: var(--space-2);
-  font-size: var(--text-18);
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .compose-context-input {
@@ -2776,8 +2776,8 @@ body.is-embed .schedule-grid {
   border-bottom: 2px solid var(--gray-200, #e2e8f0);
   border-radius: 0;
   padding: 6px 2px 8px;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 600;
   margin: 0;
   background: transparent;
 }
@@ -4050,11 +4050,6 @@ button.compose-step:hover {
 }
 
 /* ===== 라이팅 정비 (2026-07-13) ===== */
-.compose-prefill-note {
-  margin: 4px 0 0;
-  color: var(--gray-500);
-  font-size: var(--text-12);
-}
 
 /* ===== 시스템 판단의 출처 표시 (2026-07-13, UT 반영) ===== */
 /* 추천 부제 옆 ⓘ — '전원 가능한데 왜 아래?'(부담 표시가 인원보다 무겁다)를 여는 곳 */

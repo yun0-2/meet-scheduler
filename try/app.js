@@ -1513,8 +1513,7 @@
               '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="초대할 사람 추가" aria-label="참석자 검색" autocomplete="off" />' +
               '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
             '</div>' +
-            '<p class="compose-prefill-note">함께 일한 이력으로 미리 담았어요</p>' +
-            '<div class="compose-list">' + renderOrganizerRow(jiwoo) + addedRows + '</div>' +
+                        '<div class="compose-list">' + renderOrganizerRow(jiwoo) + addedRows + '</div>' +
           '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +

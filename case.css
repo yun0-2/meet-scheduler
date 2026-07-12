@@ -1130,11 +1130,11 @@ h3 {
   color: var(--gray-600);
 }
 
-/* 이상향(드문 조직): 실제로 도달한 자리가 아니라 지향점이라 채운 박스 대신
-   흰 배경 + 회색 점선 테두리로 '아직 비어 있는 목표'처럼 보이게 한다. */
+/* 이상향(드문 조직): 지향점이라 채운 박스 대신 흰 배경 + 큰 점선 테두리로.
+   CSS border의 dashed는 대시 크기를 못 정해서, SVG 배경으로 큰 대시를 그린다. */
 .spectrum__cell--ideal {
-  background: var(--surface);
-  border: 1px dashed var(--gray-300);
+  background-color: var(--surface);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23C4CBD4' stroke-width='2.5' stroke-dasharray='14,12'/%3e%3c/svg%3e");
 }
 
 .stage__try {
