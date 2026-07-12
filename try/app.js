@@ -1552,7 +1552,6 @@
           '<section class="panel" aria-label="주간 격자">' +
             '<header class="panel-header">' +
               '<h2>주간 격자</h2>' +
-              renderLegend() +
             '</header>' +
             '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured, { pickAction: "compose-pick-slot" }) + '</div>' +
           '</section>' +
@@ -1903,7 +1902,6 @@
             '<section class="panel" aria-label="주간 격자">' +
               '<header class="panel-header">' +
                 '<h2>주간 격자</h2>' +
-                renderLegend() +
               '</header>' +
               '<div class="schedule-grid" style="--day-cols: ' + activeDays().length + '">' + renderScheduleGrid(featured) + '</div>' +
             '</section>' +
@@ -2138,10 +2136,14 @@
 
   function renderConfirm() {
     var slot = slotById(state.selectedSlotId || currentFeatured().recommended.id);
+    // 추천 다이얼로그에서 이어지는 같은 저니 — 여기만 페이지로 튀지 않게 같은 다이얼로그 문법
     app.innerHTML =
-      '<section class="screen">' +
+      '<div class="dialog-backdrop" aria-hidden="true" inert>' + entryMarkup() + '</div>' +
+      '<section class="screen compare-stage">' +
+        '<div class="web-dialog is-narrow" role="dialog" aria-modal="true" aria-label="확정 전 확인">' +
+        '<button type="button" class="slack-modal-back web-dialog-back" data-action="go-compare" aria-label="추천으로">←</button>' +
+        '<button type="button" class="web-dialog-close" data-action="go-entry" aria-label="닫기">✕</button>' +
         '<div class="screen-inner confirm-single">' +
-          '<button type="button" class="back-link" data-action="go-compare">‹ 추천으로</button>' +
           '<p class="eyebrow">확정 전 확인</p>' +
           '<h1 class="screen-title">이 시간으로 정할까요?</h1>' +
           '<section class="confirm-panel">' +
@@ -2151,6 +2153,7 @@
               '<button class="btn btn-full" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "확정하고 #" + state.channelName + " 채널에 알리기") + '</button>' +
             '</div>' +
           '</section>' +
+        '</div>' +
         '</div>' +
       '</section>';
   }
@@ -3028,7 +3031,14 @@
       return null;
     }
     var parts = cell.getAttribute("data-slot-id").split("-");
-    var minutes = Math.min(50, Math.max(0, Math.round(((clientY - rect.top) / rect.height) * 60 / 10) * 10));
+    // 30분 스냅 — 회의는 정시/반시에 시작하는 문화가 기본값. 더 잘게 쪼갠 시각(09:50 등)은
+    // 고를 수 있어도 의미가 없고, 제약 경계의 미세 시각은 수동 스크럽이 아니라
+    // 엔진 추천이 알려주는 게 맞다.
+    var minutes = Math.round(((clientY - rect.top) / rect.height) * 60 / 30) * 30;
+    if (minutes >= 60) {
+      minutes = 30;
+    }
+    minutes = Math.max(0, minutes);
     var start = parseFloat(parts[1]) + minutes / 60;
     var candidate = scoreSlot(parts[0], start);
     if (candidate.blockedByHours) {

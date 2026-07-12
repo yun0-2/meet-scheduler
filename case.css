@@ -177,6 +177,7 @@ h3 {
   min-height: 48px;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
   margin-top: var(--space-8);
   border-radius: var(--radius-12);
   background: var(--accent);
@@ -186,6 +187,34 @@ h3 {
   padding: 0 var(--space-6);
   text-decoration: none;
   transition: background-color 150ms ease, transform 150ms ease;
+}
+
+/* 버튼 앞 아이콘(새 창·백버튼 등). 글자 크기에 맞춰 따라간다 */
+.btn-icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+/* 상단바 백버튼(부록 → 아티클) */
+.site-bar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gray-800);
+  font-size: var(--text-13);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.site-bar__back:hover {
+  color: var(--gray-900);
+}
+
+.site-bar__back:focus-visible {
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
 }
 
 .hero__button:hover {
@@ -532,7 +561,7 @@ h3 {
   font-weight: 600;
 }
 
-/* 인터뷰 인용: 받은 메시지 말풍선 — 발화라는 사실을 형태로 말한다 */
+/* 인터뷰 인용: 받은 메시지 말풍선. 발화라는 사실을 형태로 말한다 */
 .quote-list {
   max-width: var(--prose-width);
   display: grid;
@@ -1053,6 +1082,7 @@ h3 {
 .site-bar__cta {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   min-height: 32px;
   border-radius: var(--radius-12);
   background: var(--accent);
@@ -1186,7 +1216,7 @@ h3 {
   margin: 0;
   max-width: none;
 }
-/* 비율이 다른 두 캡처의 높이를 맞춘다 — 잘라내지 않고(contain) 남는 자리는 배경으로 채운다 */
+/* 비율이 다른 두 캡처의 높이를 맞춘다. 잘라내지 않고(contain) 남는 자리는 배경으로 채운다 */
 .evidence-row .evidence-figure img {
   height: 240px;
   object-fit: contain;

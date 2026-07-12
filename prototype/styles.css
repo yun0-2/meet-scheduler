@@ -3726,3 +3726,15 @@ button.compose-step:hover {
 .schedule-grid.is-dragging .slot-popover {
   visibility: hidden !important;
 }
+
+/* 확정 다이얼로그 — 단일 컬럼 내용이라 좁게, 뒤로는 좌상단 */
+.web-dialog.is-narrow {
+  width: min(720px, 100%);
+}
+
+.web-dialog-back {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 20;
+}
