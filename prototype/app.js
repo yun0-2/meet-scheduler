@@ -772,7 +772,7 @@
 
   function stressCardDetail(slot) {
     // 화상은 벌점이 아니므로 강등 이유로 쓰지 않는다 — 진짜 이유(시간대·직후 일정)만
-    return "정렬을 '겹치는 게 적은 순'으로 바꾸면 이 시간은 3순위예요.";
+    return "정렬을 '추천순'으로 바꾸면 이 시간은 3순위예요.";
   }
 
   function cardOrder(mode) {
@@ -1872,7 +1872,7 @@
   function renderSortToggle() {
     return (
       '<div class="sort-toggle" role="group" aria-label="추천 정렬">' +
-        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">겹치는 게 적은 순</button>' +
+        '<button class="' + (state.sortMode === "recommended" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "recommended") + '" data-action="sort-mode" data-sort-mode="recommended">추천순</button>' +
         '<button class="' + (state.sortMode === "availability" ? "is-active" : "") + '" aria-pressed="' + String(state.sortMode === "availability") + '" data-action="sort-mode" data-sort-mode="availability">가능한 사람 많은 순</button>' +
       '</div>'
     );
