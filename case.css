@@ -578,11 +578,12 @@ h3 {
 /* 장면 임베드는 프로즈 컬럼 밖으로 넓게(추천 화면 2단 유지 → 세로 급감).
    왼쪽은 본문과 같은 라인에 붙이고 오른쪽으로만 확장한다(마진 체계 통일).
    (100% + 100vw) / 2 = 컨테이너 왼쪽 끝에서 뷰포트 오른쪽 끝까지의 거리. */
+/* 임베드 장면: 컨테이너(미디어 폭) 안에 꽉 채워 좌우 마진을 대칭으로.
+   예전엔 오른쪽으로만 breakout 해서 마진이 170:24로 어긋났다. */
 .stage {
-  width: min(1160px, calc((100% + 100vw) / 2 - var(--space-6)));
+  width: 100%;
   max-width: none;
-  margin-left: 0;
-  margin-right: 0;
+  margin: 0;
 }
 
 .stage__embed {
@@ -717,8 +718,7 @@ h3 {
 /* 콘텐츠 폭이 좁은 장면(확정 카드)은 컨테이너도 좁힌다.
    프로즈·표와 같은 왼쪽 라인에 붙인다(가운데 띄우면 혼자 어긋나 보인다). */
 .stage--narrow {
-  width: min(720px, calc(100vw - var(--space-8)));
-  margin-left: 0;
+  width: 100%;
 }
 
 .stage figcaption {

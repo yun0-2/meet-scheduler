@@ -1275,7 +1275,7 @@
             '</div>' +
           '</section>' +
           (state.deadlinePassed && !state.deadlineSeen && state.entryTab === "channel"
-            ? '<div class="coach-bubble" role="status">응답 기한이 끝났어요. <strong>WhenWorks</strong>를 눌러 알림을 확인하세요.</div>'
+            ? '<div class="coach-bubble" role="status">응답 기한이 끝났어요. <strong>WhenWorks</strong>에서 모인 응답을 확인해요.</div>'
             : '') +
         '</div>' +
       '</section>' +
@@ -1291,7 +1291,7 @@
         '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
         '<div>' +
           '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
-          '<p class="bot-intro-text">' + meetingTitle() + ' 응답 기한이 끝났어요. 모인 응답으로 추천 시간을 골라보세요.</p>' +
+          '<p class="bot-intro-text">' + meetingTitle() + ' 응답 기한이 끝났어요. 모인 응답으로 시간을 정해요.</p>' +
           '<div class="bot-intro-actions">' +
             '<button type="button" class="slack-btn slack-btn-primary" data-action="go-compare">시간 확정하기</button>' +
           '</div>' +
@@ -1328,7 +1328,7 @@
             '<button type="button" class="slack-modal-close" data-action="close-my-marks" aria-label="닫기">✕</button>' +
           '</header>' +
           '<div class="slack-modal-body">' +
-            '<p class="helper-copy">피하고 싶은 시간을 표시해두면 앞으로의 모든 회의 조율에 반영돼요. 누가 표시했는지는 보이지 않아요.</p>' +
+            '<p class="helper-copy">피하고 싶은 시간을 표시해두면 모든 회의 조율에 반영돼요. 누가 표시했는지는 보이지 않아요.</p>' +
             '<div class="mini-week-grid" style="--day-cols: ' + activeDays().length + '" aria-label="내 표시 격자">' + renderMiniGrid(jiwoo, false) + '</div>' +
           '</div>' +
           '<div class="compose-footer">' +
@@ -1368,7 +1368,7 @@
         '<div class="meeting-banner-body">' +
           '<span class="banner-line">응답 ' + responded + '/' + people.length +
             (waiting.length > 0 ? ' · ' + waiting.map(function (p) { return p.name; }).join(', ') + '님 답 기다리는 중' : ' · 모두 응답했어요') + '</span>' +
-          '<button type="button" class="btn btn-secondary banner-cta" data-action="go-compare">추천 보기</button>' +
+          '<button type="button" class="btn btn-secondary banner-cta" data-action="go-compare">시간 확정하기</button>' +
         '</div>';
     }
     return (
@@ -1465,7 +1465,7 @@
         (state.windowAnchor !== null
           ? '<p class="wcal-note">마지막 날짜를 눌러주세요. 평일 기준 최대 5일까지 골라요.</p>'
           : '') +
-        '<button type="button" class="btn wcal-confirm" data-action="window-confirm">확인</button>' +
+        '<button type="button" class="btn wcal-confirm" data-action="window-confirm">이 기간으로</button>' +
       '</div>'
     );
   }
@@ -1670,7 +1670,7 @@
             '<h2>' + meetingTitle() + '</h2>' +
             renderResponseStatusLine() +
           '</div>' +
-          '<button class="btn posted-cta" data-action="' + (state.posted ? 'go-confirm' : 'go-compare') + '">' + (state.posted ? '확정 내용 보기' : '추천 보기') + '</button>' +
+          '<button class="btn posted-cta" data-action="' + (state.posted ? 'go-confirm' : 'go-compare') + '">' + (state.posted ? '확정 내용 보기' : '시간 확정하기') + '</button>' +
         '</div>' +
         '<div class="meeting-facts">' +
           '<span class="fact-pill">' + durationLabel() + '</span>' +
