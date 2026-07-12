@@ -3179,3 +3179,64 @@ body.is-embed .mobile-stage {
   font-weight: 700;
   color: var(--green-text, #25623C);
 }
+
+/* ===== fish식 인라인 고스트 + 필드 내 수락 필 (2026-07-12) ===== */
+.ghost-wrap {
+  position: relative;
+}
+/* 미러: textarea와 같은 상자·폰트 메트릭으로 겹쳐 줄바꿈을 일치시킨다 */
+.ghost-mirror {
+  display: none;
+  position: absolute;
+  inset: 0;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-8);
+  font-family: var(--font-sans);
+  font-size: var(--text-14);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ghost-typed {
+  color: transparent;
+}
+.ghost-rest {
+  color: var(--grey-400, #B0B8C1);
+}
+.ghost-wrap textarea {
+  position: relative;
+  background: transparent;
+}
+/* 필드 안 우측 하단 수락 필 — 클릭 수락 + → 키 힌트 겸용 */
+.ghost-accept {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 999px;
+  background: var(--surface, #fff);
+  color: var(--grey-600);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+.ghost-accept:hover {
+  color: var(--grey-900);
+  border-color: var(--grey-500);
+}
+
+/* 고스트 정합: 두 textarea의 메트릭을 미러와 동일하게 고정 */
+.ghost-wrap .compose-context-input,
+.ghost-wrap .compose-message-input {
+  font-family: var(--font-sans);
+  font-size: var(--text-14);
+  line-height: 1.5;
+  padding: 10px 12px;
+}

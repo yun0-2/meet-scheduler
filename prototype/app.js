@@ -33,6 +33,7 @@
     myMarksOpen: false,
     windowStart: 20,
     windowEnd: 24,
+    windowAnchor: null,
     windowPickerOpen: false,
     respondedReveal: false,
     jiwooSoftSlots: {},
@@ -329,10 +330,16 @@
     if (isNaN(dom)) {
       return;
     }
-    // 한 번 클릭 = 그 날짜가 속한 주(월~금) 전체를 후보로. 격자가 주 단위라 정합.
-    var mon = weekMondayDom(dom);
-    state.windowStart = mon;
-    state.windowEnd = mon + 4;
+    // 날짜 범위 2클릭: 시작일 찍고, 같은 주(월~금) 안에서 종료일 찍기.
+    // 격자·추천이 한 주 화면이라 범위는 한 주를 넘지 않는다.
+    if (state.windowAnchor === null) {
+      state.windowAnchor = dom;
+      render();
+      return;
+    }
+    state.windowStart = Math.min(state.windowAnchor, dom);
+    state.windowEnd = Math.max(state.windowAnchor, dom);
+    state.windowAnchor = null;
     state.windowPickerOpen = false;
     state.selectedSlotId = buildFeaturedSlots(scoreAllSlots()).recommended.id;
     render();
@@ -930,6 +937,9 @@
       renderScenarioCard(state.route, false);
     }
     lockBackgroundScroll(state.composeModalOpen || state.myMarksOpen || state.inputStage === "grid");
+    if (state.composeModalOpen) {
+      syncGhosts();
+    }
     postEmbedHeight();
   }
 
@@ -958,6 +968,47 @@
       return;
     }
     document.body.style.overflow = locked ? "hidden" : "";
+  }
+
+  // fish식 인라인 고스트: 입력이 제안의 접두사인 동안 나머지를 회색으로 보여준다.
+  // (다르게 치면 사라진다 — Gmail의 무시-소멸 규칙. 빈 필드는 placeholder가 담당)
+  function ghostRemainder(value, suggestion) {
+    if (!value) {
+      return "";
+    }
+    if (suggestion.indexOf(value) === 0 && suggestion.length > value.length) {
+      return suggestion.slice(value.length);
+    }
+    return null;
+  }
+
+  function syncGhost(fieldId, mirrorId, acceptId, suggestion) {
+    var field, mirror, accept;
+    try {
+      field = document.getElementById(fieldId);
+      mirror = document.getElementById(mirrorId);
+      accept = document.getElementById(acceptId);
+    } catch (lookupError) {
+      return;
+    }
+    if (!field || !mirror) {
+      return;
+    }
+    var rest = ghostRemainder(field.value, suggestion);
+    if (rest) {
+      mirror.innerHTML = '<span class="ghost-typed">' + escapeText(field.value) + '</span><span class="ghost-rest">' + escapeText(rest) + '</span>';
+      mirror.style.display = "block";
+    } else {
+      mirror.style.display = "none";
+    }
+    if (accept) {
+      accept.style.display = (!field.value || rest) ? "inline-flex" : "none";
+    }
+  }
+
+  function syncGhosts() {
+    syncGhost("compose-context", "ghost-context", "ghost-accept-context", suggestedDescription());
+    syncGhost("compose-message", "ghost-message", "ghost-accept-message", suggestedMessage());
   }
 
   // 여러 줄 텍스트가 기본 상태(제안 문안)에서 스크롤 없이 다 보이도록 rows를 미리 맞춘다.
@@ -1337,23 +1388,27 @@
 
     // 7/1은 수요일 → 월요일 시작 격자에서 앞 2칸은 빈칸
     var cells = '<span class="wcal-pad"></span><span class="wcal-pad"></span>';
+    var anchorWeek = state.windowAnchor === null ? null : weekMondayDom(state.windowAnchor);
     for (var dom = 1; dom <= 31; dom += 1) {
       var dow = julyDow(dom);
       var isWeekend = dow === null;
       var selectable = isSelectableDom(dom);
-      var inRange = dom >= state.windowStart && dom <= state.windowEnd && !isWeekend;
+      // 시작일을 찍었으면 같은 주 평일만 종료일 후보 — 범위는 한 주를 넘지 않는다
+      if (anchorWeek !== null && selectable && weekMondayDom(dom) !== anchorWeek) {
+        selectable = false;
+      }
+      var inRange = state.windowAnchor === null && dom >= state.windowStart && dom <= state.windowEnd && !isWeekend;
       var cls = ["wcal-day"];
       if (isWeekend) cls.push("is-weekend");
-      if (!selectable) cls.push("is-disabled");
+      if (!selectable && state.windowAnchor !== dom) cls.push("is-disabled");
       if (inRange) {
         cls.push("is-range");
-        // 밴드의 양끝만 둥글게 — 월(또는 시작일) 왼쪽, 금(또는 종료일) 오른쪽
-        if (dow === "월" || dom === state.windowStart) cls.push("is-range-start");
-        if (dow === "금" || dom === state.windowEnd) cls.push("is-range-end");
+        if (dom === state.windowStart) cls.push("is-range-start");
+        if (dom === state.windowEnd) cls.push("is-range-end");
       }
-      // 선택 가능한 평일엔 그 주 월요일을 데이터로 — 호버 시 주 전체 하이라이트에 사용
+      if (state.windowAnchor === dom) cls.push("is-anchor");
       var weekAttr = selectable ? ' data-week="' + weekMondayDom(dom) + '"' : '';
-      var attrs = selectable
+      var attrs = selectable || state.windowAnchor === dom
         ? ' data-action="window-pick" data-dom="' + dom + '"' + weekAttr
         : ' disabled';
       cells += '<button type="button" class="' + cls.join(" ") + '"' + attrs + '>' + dom + '</button>';
@@ -1364,7 +1419,9 @@
         '<div class="wcal-title">2026년 7월 <span class="wcal-today">오늘 ' + TODAY_DOM + '일</span></div>' +
         '<div class="wcal-grid wcal-grid--head">' + head + '</div>' +
         '<div class="wcal-grid" data-wcal-grid="1">' + cells + '</div>' +
-        '<p class="wcal-note">날짜를 누르면 그 주(월~금)가 후보로 열려요.</p>' +
+        (state.windowAnchor !== null
+          ? '<p class="wcal-note">마지막 날짜를 눌러주세요. 범위는 한 주(월~금) 안에서 골라요.</p>'
+          : '<p class="wcal-note">시작일과 마지막 날짜를 차례로 눌러주세요.</p>') +
       '</div>'
     );
   }
@@ -1414,8 +1471,11 @@
         '<div class="compose-row-icon">' +
           '<span class="compose-icon" aria-hidden="true">' + ICONS.lines + '</span>' +
           '<div class="compose-row-body">' +
-            '<textarea class="compose-context-input" id="compose-context" rows="' + Math.max(3, (state.meetingContext || suggestedDescription()).split("\n").length) + '" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
-            (state.meetingContext ? '' : '<button type="button" class="compose-accept-link" data-action="accept-description">↓ 제안 그대로 쓰기</button>') +
+            '<div class="ghost-wrap">' +
+              '<div class="ghost-mirror" id="ghost-context" aria-hidden="true"></div>' +
+              '<textarea class="compose-context-input" id="compose-context" rows="' + Math.max(3, (state.meetingContext || suggestedDescription()).split("\n").length) + '" placeholder="' + escapeAttr(suggestedDescription()).replace(/\n/g, '&#10;') + '" aria-label="회의 설명">' + escapeText(state.meetingContext) + '</textarea>' +
+              '<button type="button" class="ghost-accept" id="ghost-accept-context" data-action="accept-description">→ 그대로 쓰기</button>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<div class="compose-row-icon">' +
@@ -1441,8 +1501,11 @@
           '<div class="compose-row-icon">' +
             '<span class="compose-icon" aria-hidden="true">' + ICONS.bubble + '</span>' +
             '<div class="compose-row-body">' +
-              '<textarea class="compose-message-input" id="compose-message" rows="' + textareaRows(state.composeMessage || suggestedMessage(), 4) + '" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
-              (state.composeMessage ? '' : '<button type="button" class="compose-accept-link" data-action="compose-accept-message">↓ 제안 그대로 쓰기</button>') +
+              '<div class="ghost-wrap">' +
+                '<div class="ghost-mirror" id="ghost-message" aria-hidden="true"></div>' +
+                '<textarea class="compose-message-input" id="compose-message" rows="' + textareaRows(state.composeMessage || suggestedMessage(), 4) + '" aria-label="채널에 보낼 메시지" placeholder="' + escapeAttr(suggestedMessage()).replace(/\n/g, '&#10;') + '">' + escapeText(state.composeMessage) + '</textarea>' +
+                '<button type="button" class="ghost-accept" id="ghost-accept-message" data-action="compose-accept-message">→ 그대로 쓰기</button>' +
+              '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -2163,6 +2226,7 @@
     }
     if (field.id === "compose-context") {
       state.meetingContext = field.value;
+      syncGhosts();
       syncComposeMessagePlaceholder();
       return;
     }
@@ -2172,6 +2236,7 @@
     if (field.id === "compose-message") {
       // 직접 타이핑 = 자기 글. placeholder(제안 문안)는 브라우저가 알아서 숨긴다.
       state.composeMessage = field.value;
+      syncGhosts();
       return;
     }
     if (field.id === "compose-search") {
@@ -2236,6 +2301,7 @@
       var inPicker = event.target.closest ? event.target.closest(".wcal-anchor") : null;
       if (!inPicker) {
         state.windowPickerOpen = false;
+        state.windowAnchor = null;
         render();
       }
     }
@@ -2390,6 +2456,7 @@
     }
     if (action === "toggle-window-picker") {
       state.windowPickerOpen = !state.windowPickerOpen;
+      state.windowAnchor = null;
       render();
       return;
     }
@@ -2565,23 +2632,27 @@
       if (linked) { linked.classList.add("is-card-hover"); }
       return;
     }
-    // 회의 시기 캘린더: 평일에 호버하면 그 주(월~금)를 통째로 미리보기 하이라이트
+    // 회의 시기 캘린더: 시작일을 찍은 상태면 anchor→호버 범위를 미리보기,
+    // 아니면 호버한 날짜 하나만 하이라이트 (날짜 범위 선택 모델)
     var wcalDay = event.target.closest ? event.target.closest(".wcal-day[data-week]") : null;
     if (wcalDay) {
       var grid = wcalDay.closest("[data-wcal-grid]");
       if (grid) {
-        var week = wcalDay.getAttribute("data-week");
-        var days = grid.querySelectorAll(".wcal-day[data-week]");
-        var inWeek = [];
+        var hoverDom = parseInt(wcalDay.getAttribute("data-dom"), 10);
+        var lo = state.windowAnchor !== null ? Math.min(state.windowAnchor, hoverDom) : hoverDom;
+        var hi = state.windowAnchor !== null ? Math.max(state.windowAnchor, hoverDom) : hoverDom;
+        var days = grid.querySelectorAll(".wcal-day[data-dom]");
+        var marked = [];
         for (var i = 0; i < days.length; i += 1) {
-          var on = days[i].getAttribute("data-week") === week;
+          var d = parseInt(days[i].getAttribute("data-dom"), 10);
+          var on = d >= lo && d <= hi;
           days[i].classList.toggle("is-hover-week", on);
           days[i].classList.remove("is-hover-start", "is-hover-end");
-          if (on) inWeek.push(days[i]);
+          if (on) marked.push(days[i]);
         }
-        if (inWeek.length) {
-          inWeek[0].classList.add("is-hover-start");
-          inWeek[inWeek.length - 1].classList.add("is-hover-end");
+        if (marked.length) {
+          marked[0].classList.add("is-hover-start");
+          marked[marked.length - 1].classList.add("is-hover-end");
         }
       }
       return;
@@ -2648,16 +2719,28 @@
   // 제안 수락 — value가 비어 있을 때 → 키만 (Tab은 표준 역할 유지 — 021 조사)
   app.addEventListener("keydown", function (event) {
     var field = event.target;
-    if (!field || event.key !== "ArrowRight" || field.value) {
+    if (!field || event.key !== "ArrowRight") {
       return;
     }
+    var sug = field.id === "compose-message" ? suggestedMessage()
+      : field.id === "compose-context" ? suggestedDescription()
+      : null;
+    if (sug === null) {
+      return;
+    }
+    if (field.value && ghostRemainder(field.value, sug) === null) {
+      return;
+    }
+    if (field.value && field.selectionStart !== field.value.length) {
+      return;
+    }
+    event.preventDefault();
     if (field.id === "compose-message") {
-      event.preventDefault();
       acceptSuggestedMessage();
-    } else if (field.id === "compose-context") {
-      event.preventDefault();
+    } else {
       acceptSuggestedDescription();
     }
+    syncGhosts();
   });
 
   // 참석자가 바뀌면 문안의 멘션 줄도 따라간다 — 첫 줄이 멘션으로만 된 줄일 때만 (손글 존중)
