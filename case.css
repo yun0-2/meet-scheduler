@@ -643,10 +643,11 @@ h3 {
   position: relative;
 }
 
-/* 콘텐츠 폭이 좁은 장면(확정 카드)은 컨테이너도 좁혀 좌우 빈 여백을 없앤다 */
+/* 콘텐츠 폭이 좁은 장면(확정 카드)은 컨테이너도 좁힌다.
+   프로즈·표와 같은 왼쪽 라인에 붙인다(가운데 띄우면 혼자 어긋나 보인다). */
 .stage--narrow {
   width: min(720px, calc(100vw - var(--space-8)));
-  margin-left: calc((100% - min(720px, calc(100vw - var(--space-8)))) / 2);
+  margin-left: 0;
 }
 
 .stage figcaption {
