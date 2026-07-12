@@ -664,8 +664,12 @@ h3 {
 }
 
 /* 왼쪽 상자가 인용일 때(01 문제 섹션) — 말을 조금 더 또렷하게 */
+/* 인용 박스: 대사가 본체, 출처는 캡션. 오른쪽 상자보다 짧을 때 대사를 세로 중앙에 둔다. */
 .path-quote {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .path-quote p {
