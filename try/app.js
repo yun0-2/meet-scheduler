@@ -181,7 +181,8 @@
     people: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="6" cy="5.5" r="2.4"/><path d="M1.8 13.2c.6-2.2 2.3-3.4 4.2-3.4s3.6 1.2 4.2 3.4"/><path d="M10.6 3.6a2.4 2.4 0 0 1 0 3.9M12.4 9.9c1 .5 1.7 1.6 2 3"/></svg>',
     hash: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M6.2 2.5 4.8 13.5M11.2 2.5 9.8 13.5M3 6h10.5M2.5 10H13"/></svg>',
     bubble: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 3.5h11v7.5H8l-3 2.5v-2.5H2.5z"/></svg>',
-    hourglass: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M4 2.5h8M4 13.5h8M5 2.5v2.6L8 8l3-2.9V2.5M5 13.5v-2.6L8 8l3 2.9v2.6"/></svg>'
+    hourglass: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M4 2.5h8M4 13.5h8M5 2.5v2.6L8 8l3-2.9V2.5M5 13.5v-2.6L8 8l3 2.9v2.6"/></svg>',
+    pin: '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M8 14s4.5-4.2 4.5-7.5a4.5 4.5 0 1 0-9 0C3.5 9.8 8 14 8 14z"/><circle cx="8" cy="6.5" r="1.6"/></svg>'
   };
 
   var slotHours = buildSlotHours();
@@ -423,17 +424,29 @@
     return state.optionalSoftSlots;
   }
 
-  // 점심(12시)은 모두에게 미리 채워진 회피 표시 — 본인이 지우면(false) 사라진다
+  // 미리 채워진 회피 표시 = 점심(12시, 전원) + 본인 상시 표시(예: 17시 이후).
+  // 본인이 직접 정한 값(표시든 해제든)이 항상 우선한다.
   function lunchDefaultSoft(person, key, start) {
-    var lunchStart = data.meeting.workHours.lunch[0];
-    if (start < lunchStart || start >= lunchStart + 1) {
-      return false;
-    }
     var map = softOverrideMap(person);
     if (Object.prototype.hasOwnProperty.call(map, key)) {
-      return false; // 본인이 직접 정한 값이 우선 (표시든 해제든)
+      return false;
     }
-    return true;
+    var lunchStart = data.meeting.workHours.lunch[0];
+    if (start >= lunchStart && start < lunchStart + 1) {
+      return true;
+    }
+    return (person.constraints || []).some(function (constraint) {
+      if (constraint.type !== "soft") {
+        return false;
+      }
+      if (constraint.rule.avoidStartAt === start) {
+        return true;
+      }
+      if (constraint.rule.unavailableAfter && start + meetingDuration() > constraint.rule.unavailableAfter) {
+        return true;
+      }
+      return false;
+    });
   }
 
   function softConstraintStatus(person, day, start) {
@@ -466,6 +479,11 @@
       }
 
       if (constraint.type === "soft" && constraint.rule.preferBefore && start >= constraint.rule.preferBefore) {
+        found.push(constraint);
+      }
+
+      // 상시 표시(예: 17시 이후) — 회의가 그 시각을 넘기면 부담으로 계산
+      if (constraint.type === "soft" && constraint.rule.unavailableAfter && start + meetingDuration() > constraint.rule.unavailableAfter) {
         found.push(constraint);
       }
     });
@@ -683,7 +701,9 @@
 
     var stress = requiredOk
       .filter(function (slot) {
-        return slot.allHardAvailable && slot.id !== recommended.id && (!runnerUp || slot.id !== runnerUp.id);
+        // 근무 종료에 딱 붙는 마지막 시작(17시)은 제외 — 17시 하드 차단이 소프트로 강등되면서
+        // 후보에 들어오지만, 데모 서사(퇴근 직전 16시·직후 일정 표시)는 16시에 묶여 있다
+        return slot.allHardAvailable && slot.start < 17 && slot.id !== recommended.id && (!runnerUp || slot.id !== runnerUp.id);
       })
       .sort(byAvailability)[0] || requiredOk
       .filter(function (slot) {
@@ -1862,8 +1882,10 @@
             (optional ? '<p class="input-guidance">선택 참석이에요. 어려우면 부담 없이 \'참석 어려움\'을 선택하세요. 결정사항은 따로 공유돼요</p>' : '') +
             (optional ? renderOptOutControl(person, optedOut) : '') +
             '<div class="mini-week-grid ' + (optedOut ? "is-disabled" : "") + '" style="--day-cols: ' + activeDays().length + '" aria-label="주간 입력 격자">' + renderMiniGrid(person, optedOut) + '</div>' +
-            '<button class="btn btn-full" data-action="submit-response">제출</button>' +
-            '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
+            '<div class="compose-footer compose-footer-split">' +
+              '<button type="button" class="dm-decline-link" data-action="dm-decline">이 회의 참석이 어려워요</button>' +
+              '<button class="btn compose-send-btn" data-action="submit-response">제출</button>' +
+            '</div>' +
           '</div>' +
         '</div>' +
       '</div>'
@@ -1927,14 +1949,17 @@
     }
     app.innerHTML =
       '<div class="dialog-backdrop" aria-hidden="true" inert>' + entryMarkup() + '</div>' +
-      '<section class="screen compare-stage">' +
-        '<div class="web-dialog" role="dialog" aria-modal="true" aria-label="추천 시간">' +
-        '<button type="button" class="web-dialog-close" data-action="go-entry" aria-label="닫기">✕</button>' +
+      '<div class="slack-modal-overlay">' +
+        '<div class="slack-modal is-compose is-wide" role="dialog" aria-modal="true" aria-label="추천 시간">' +
+        '<header class="slack-modal-head">' +
+          '<h2>추천 시간</h2>' +
+          '<button type="button" class="slack-modal-close" data-action="go-entry" aria-label="닫기">✕</button>' +
+        '</header>' +
+        '<div class="slack-modal-body">' +
         '<div class="screen-inner">' +
           '<header class="compare-header">' +
             '<div>' +
-              '<p class="eyebrow">' + meetingTitle() + '</p>' +
-              '<h1 class="screen-title">추천 시간</h1>' +
+              '<p class="eyebrow">' + meetingTitle() + ' · <span class="meta-pin">' + ICONS.pin + ' ' + state.meetingRoom + '</span></p>' +
               '<p class="screen-subtitle">캘린더 충돌과 피하고 싶다는 표시가 적은 순서로 정리했어요.</p>' +
               renderResponseLine() +
             '</div>' +
@@ -1951,7 +1976,11 @@
           '</div>' +
         '</div>' +
         '</div>' +
-      '</section>' +
+        '<div class="compose-footer">' +
+          '<button class="btn compose-send-btn" data-action="go-confirm"' + (state.selectedSlotId ? '' : ' disabled') + '>확정하러 가기</button>' +
+        '</div>' +
+        '</div>' +
+      '</div>' +
       renderToast();
   }
 
@@ -2152,7 +2181,6 @@
             renderCardBusyPeople(slot) +
           '</div>' +
           (isOpen ? '<p class="recommend-detail">' + card.detail + '</p>' : '') +
-          '<button class="card-button' + (index > 0 ? " is-secondary" : "") + '" data-action="choose-slot" data-slot-id="' + slot.id + '">이 시간 선택</button>' +
         '</article>'
       );
     }).join("");
@@ -2180,17 +2208,19 @@
     // 추천 다이얼로그에서 이어지는 같은 저니 — 여기만 페이지로 튀지 않게 같은 다이얼로그 문법
     app.innerHTML =
       '<div class="dialog-backdrop" aria-hidden="true" inert>' + entryMarkup() + '</div>' +
-      '<section class="screen compare-stage">' +
-        '<div class="web-dialog is-narrow" role="dialog" aria-modal="true" aria-label="확정 전 확인">' +
-        '<button type="button" class="slack-modal-back web-dialog-back" data-action="go-compare" aria-label="추천으로">←</button>' +
-        '<button type="button" class="web-dialog-close" data-action="go-entry" aria-label="닫기">✕</button>' +
-        '<div class="screen-inner confirm-single">' +
-          '<p class="eyebrow">확정 전 확인</p>' +
-          '<h1 class="screen-title">이 시간으로 정할까요?</h1>' +
+      '<div class="slack-modal-overlay">' +
+        '<div class="slack-modal is-compose" role="dialog" aria-modal="true" aria-label="확정 전 확인">' +
+        '<header class="slack-modal-head">' +
+          '<button type="button" class="slack-modal-back" data-action="go-compare" aria-label="추천으로">←</button>' +
+          '<h2>이 시간으로 정할까요?</h2>' +
+          '<button type="button" class="slack-modal-close" data-action="go-entry" aria-label="닫기">✕</button>' +
+        '</header>' +
+        '<div class="slack-modal-body">' +
+        '<div class="compose-step1-col confirm-single">' +
           '<section class="confirm-panel">' +
             '<div class="selected-time"><strong>' + displayTime(slot) + '</strong><span>' + durationLabel() + ' · ' + meetingTitle() + '</span></div>' +
             '<label class="confirm-room">' +
-              '<span class="confirm-room-label">회의실</span>' +
+              '<span class="confirm-room-label">' + ICONS.pin + ' 회의실</span>' +
               '<select id="confirm-room" class="confirm-room-select" aria-label="회의실">' +
                 ["미팅룸 6", "미팅룸 4", "포커스룸 A", "화상으로 진행"].map(function (room) {
                   return '<option value="' + room + '"' + (state.meetingRoom === room ? " selected" : "") + '>' + room + '</option>';
@@ -2198,13 +2228,14 @@
               '</select>' +
             '</label>' +
             '<div class="attendee-status">' + renderAttendeeStatus(slot) + '</div>' +
-            '<div class="button-row">' +
-              '<button class="btn btn-full" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "확정하고 #" + state.channelName + " 채널에 알리기") + '</button>' +
-            '</div>' +
           '</section>' +
         '</div>' +
         '</div>' +
-      '</section>';
+        '<div class="compose-footer">' +
+          '<button class="btn compose-send-btn" data-action="post-confirm"' + (state.posted ? " disabled" : "") + '>' + (state.posted ? "확정됨 ✓" : "확정하고 #" + state.channelName + " 채널에 알리기") + '</button>' +
+        '</div>' +
+        '</div>' +
+      '</div>';
   }
 
   function renderAttendeeStatus(slot) {
@@ -2817,15 +2848,15 @@
       render();
     }
     if (action === "choose-slot") {
+      // 선택만 한다 — 다음 단계는 푸터 CTA([확정하러 가기])가 담당 (다이얼로그 원칙)
       state.selectedSlotId = target.getAttribute("data-slot-id");
-      // 카드에서 정시 슬롯을 고르면 격자의 10분 픽은 해제
       if (!state.customSlot || state.customSlot.id !== state.selectedSlotId) {
         state.customSlot = null;
       }
       state.activeSlotId = state.selectedSlotId;
       state.openSlotId = null;
       state.posted = false;
-      setRoute("confirm");
+      render();
     }
     if (action === "post-confirm") {
       // 선택 없이 확정 화면에 직행(데모 내비)한 경우 화면이 보여주던 추천 1순위로 확정
@@ -3119,8 +3150,26 @@
     line.querySelector(".slot-pick-chip").textContent = formatClock(pick.slot.start);
   }
 
+  // ── 입력 격자 드래그 페인트: 회피 표시를 끌어서 여러 칸 한 번에 칠하거나 지운다 ──
+  var paintDrag = null;
+
   app.addEventListener("mousedown", function (event) {
     if (!event.target || !event.target.closest) {
+      return;
+    }
+    var mini = event.target.closest('.mini-slot[data-action="toggle-soft"]');
+    if (mini && !mini.disabled) {
+      var person = state.myMarksOpen ? getPerson("jiwoo") : inputPersonForRoute();
+      paintDrag = {
+        person: person,
+        // 첫 칸의 반대값을 드래그 전체에 칠한다 (칠하기 시작이면 칠하고, 지우기 시작이면 지운다)
+        value: !softSelectedForInput(person, mini.getAttribute("data-slot-id")),
+        painted: {},
+        moved: false
+      };
+      if (event.preventDefault) {
+        event.preventDefault();
+      }
       return;
     }
     var cell = event.target.closest('.slot-cell[data-action="select-grid-slot"], .slot-cell[data-action="compose-pick-slot"]');
@@ -3144,6 +3193,20 @@
 
   if (document.addEventListener) {
     document.addEventListener("mousemove", function (event) {
+      if (paintDrag) {
+        var el = document.elementFromPoint ? document.elementFromPoint(event.clientX, event.clientY) : null;
+        var mini = el && el.closest ? el.closest('.mini-slot[data-action="toggle-soft"]') : null;
+        if (mini && !mini.disabled) {
+          var key = mini.getAttribute("data-slot-id");
+          if (!paintDrag.painted[key]) {
+            paintDrag.painted[key] = true;
+            paintDrag.moved = true;
+            softOverrideMap(paintDrag.person)[key] = paintDrag.value;
+            render();
+          }
+        }
+        return;
+      }
       if (!gridDrag) {
         return;
       }
@@ -3162,6 +3225,15 @@
     });
 
     document.addEventListener("mouseup", function () {
+      if (paintDrag) {
+        var drag = paintDrag;
+        paintDrag = null;
+        if (drag.moved) {
+          // 드래그로 칠했으면 뒤따르는 click(toggle-soft)은 무시
+          state.suppressNextSoftToggle = true;
+        }
+        return;
+      }
       if (!gridDrag) {
         return;
       }
@@ -3279,6 +3351,14 @@
     // 부모 폭 변화로 iframe이 리사이즈되면 콘텐츠 높이도 바뀌니 다시 알린다.
     window.addEventListener("resize", postEmbedHeight);
     window.addEventListener("load", postEmbedHeight);
+    // render()를 거치지 않는 조작(모달 열기·격자 칠하기 등)까지 커버하려면
+    // body 크기 변화를 직접 감지해 부모에 알린다. 연속 조작에서 iframe이 정확히 따라온다.
+    if (typeof ResizeObserver !== "undefined" && document.body) {
+      var embedResizeObserver = new ResizeObserver(function () {
+        postEmbedHeight();
+      });
+      embedResizeObserver.observe(document.body);
+    }
   }
   if (String(window.location.search || "").indexOf("debug") !== -1) {
     window.PROTOTYPE_DEBUG = {

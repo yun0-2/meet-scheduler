@@ -196,13 +196,13 @@ window.CAST = {
           "source": "비공개 입력 — 화면에는 k-익명 집계로만 노출 (displayRules.kAnonymity 참조)"
         },
         {
-          "type": "hard",
+          "type": "soft",
           "visibility": "private",
           "rule": {
             "unavailableAfter": 17
           },
-          "label": "17시 이후 불가",
-          "source": "비공개 입력 (저녁 일정) — 사유 미노출"
+          "label": "17시 이후 피하고 싶음",
+          "source": "본인 상시 표시 — 바꿀 수 있음"
         }
       ]
     },

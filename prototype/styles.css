@@ -796,17 +796,17 @@ button {
 
 .mini-slot.is-soft {
   z-index: 1;
-  background: var(--amber-2);
-  box-shadow: inset 0 0 0 1px var(--amber-line);
+  background: #FFF7E1;
+  box-shadow: inset 0 0 0 1px #EFDCA8;
 }
 
 /* 색만으론 약하니 '회피' 의미를 옅은 × 로 보강 (배경 앰버와 저대비) */
 .mini-slot.is-soft::after {
   content: "×";
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
-  color: rgba(140, 96, 20, 0.5);
+  color: rgba(151, 116, 44, 0.55);
 }
 
 .mini-slot.is-hard {
@@ -1863,6 +1863,28 @@ body.is-embed .web-dialog-close {
 /* 임베드에서 iframe이 좁아지면 주간 시간표만 자체 가로 스크롤(페이지 잘림 방지) */
 body.is-embed .schedule-grid {
   overflow-x: auto;
+}
+
+/* 회의 잡기·격자 입력 모달(slack-modal)도 임베드에선 오버레이를 풀어 인라인으로 편다.
+   fixed 오버레이 + 내부 스크롤이던 걸 문서 흐름에 넣어, 모달 전체가 잘림 없이 보이고
+   부모 iframe이 그 높이까지 자란다. 연속 조작(다음 단계 모달)에서도 스크롤이 안 생긴다. */
+body.is-embed .slack-modal-overlay {
+  position: static;
+  display: block;
+  padding: 0;
+  background: none;
+  overflow: visible;
+}
+
+body.is-embed .slack-modal {
+  width: 100%;
+  max-height: none;
+  box-shadow: none;
+}
+
+body.is-embed .slack-modal-body {
+  max-height: none;
+  overflow-y: visible;
 }
 
 #demo-nav {
@@ -4019,4 +4041,37 @@ button.compose-step:hover {
 
 .slot-cell.is-selected {
   box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* 입력 모달 푸터 — 전역 푸터 문법(sticky, 우하단 CTA), 거절 링크는 좌측 보조 */
+.slack-modal.is-input .compose-footer .dm-decline-link {
+  margin: 0;
+}
+
+/* 회의명 옆 장소 메타 — 핀 아이콘과 함께 */
+.meta-pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: -2px;
+}
+
+.meta-pin svg {
+  vertical-align: middle;
+}
+
+/* 확정 회의실 라벨의 핀 정렬 */
+.confirm-room-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 추천 화면이 모달 body 안에 들어오며 생기는 미세 가로 넘침 차단 */
+.slack-modal.is-compose .slack-modal-body {
+  overflow-x: hidden;
+}
+
+.slack-modal-body .screen-inner {
+  width: 100%;
 }
