@@ -3277,24 +3277,24 @@ body.is-embed .mobile-stage {
 /* 코치마크 — WhenWorks 알림 안내 (데모 레이어) */
 .coach-bubble {
   position: absolute;
-  left: 252px;
-  top: 268px;
+  left: 16px;
+  top: 336px;
   z-index: 30;
-  max-width: 240px;
+  width: 208px;
   background: var(--gray-900, #101827);
   color: #fff;
   font-size: var(--text-13);
   line-height: 1.5;
   padding: 10px 12px;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 .coach-bubble::before {
   content: "";
   position: absolute;
-  left: -6px;
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
+  top: -5px;
+  left: 96px;
+  transform: rotate(45deg);
   width: 12px;
   height: 12px;
   background: var(--gray-900, #101827);

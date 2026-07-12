@@ -1618,7 +1618,7 @@
     var responded = people.length - waiting.length;
     var text = "응답 " + responded + "/" + people.length;
     if (state.deadlinePassed && !state.posted) {
-      text = "응답 마감 · " + text;
+      text = "응답 마감 · " + responded + "/" + people.length + " 응답";
     } else if (waiting.length > 0) {
       text += " · " + waiting.map(function (p) { return p.name; }).join(", ") + "님 답 기다리는 중";
     } else {
