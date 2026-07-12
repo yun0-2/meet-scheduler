@@ -719,7 +719,7 @@
       return "이 길이로는 필수 참석자가 모두 가능한 시간이 없어요. 가장 가까운 후보예요.";
     }
     if (slot.totalAvailable === activePeople().length && slot.start < 16) {
-      return "6명이 낮에 다 올 수 있는 시간이에요.";
+      return "6명 모두 가능한 낮 시간이에요.";
     }
     return "필수 참석자가 모두 가능하고, 캘린더 충돌과 피하고 싶은 표시가 가장 적어요.";
   }
@@ -728,23 +728,23 @@
     if (hasPrivateBurden(slot)) {
       // 과제 단서 "점심 직후 기피"는 사유(시간대)까지 밝힌다 — 누가·몇 명인지는 계속 숨긴다
       if (data.researchDefaults.postLunchDip.hours.indexOf(slot.start) >= 0) {
-        return "점심 직후라 피하고 싶다는 표시가 있어요. 그래도 오후 중 가장 이른 시작이라 그나마 겹치는 게 가장 적어요.";
+        return "점심 직후를 피하고 싶다는 표시가 있어요. 오후 후보 중에서는 겹치는 게 가장 적어요.";
       }
-      return "피하고 싶은 표시가 조금 있어요. 그래도 가장 무난한 시간이에요.";
+      return "피하고 싶다는 표시가 있어요. 후보 중 겹치는 게 가장 적어요.";
     }
-    return "캘린더 충돌과 피하고 싶은 표시를 같이 보니 가장 무난한 시간이에요.";
+    return "캘린더 충돌과 피하고 싶은 표시가 후보 중 가장 적어요.";
   }
 
   function runnerUpCardCopy(slot) {
     if (slot.optionalUnavailable.length > 0) {
-      return "필수 4명은 다 괜찮아요. " + names(slot.optionalUnavailable) + "은 어려운데, 정해지면 결과만 알려드릴까요?";
+      return "필수 4명 모두 가능해요. " + names(slot.optionalUnavailable) + "은 캘린더에 일정이 있어요.";
     }
     return "다음으로 겹치는 게 적은 시간이에요.";
   }
 
   function runnerUpCardDetail(slot) {
     if (slot.optionalUnavailable.length > 0) {
-      return "선택 참석자는 빠져도 회의 결정을 진행할 수 있어요. 대신 결과 공유를 같이 준비해요.";
+      return "선택 참석자는 빠져도 진행할 수 있어요. 정해지면 결과를 공유해요.";
     }
     return "추천 시간과 비교할 후보로 볼 수 있어요.";
   }
@@ -752,17 +752,17 @@
   function stressCardCopy(slot) {
     if (slot.conditional.length > 0) {
       // 비공개 제약은 인원수도 안 센다 (k-익명 원칙)
-      return "다 되긴 하는데 금요일 늦은 오후예요. 끝나고 바로 다음 일정이 걸린다는 표시도 있어요.";
+      return "6명 모두 가능해요. 다만 금요일 늦은 오후이고, 직후에 일정이 있다는 표시가 있어요.";
     }
     if (hasPrivateBurden(slot)) {
-      return "다 되긴 하는데 피하고 싶은 표시가 있어요.";
+      return "6명 모두 가능해요. 다만 피하고 싶다는 표시가 있어요.";
     }
-    return "가능 인원은 많지만 다른 후보보다 여유가 적어요.";
+    return "가능 인원은 많지만, 겹치는 표시가 다른 후보보다 많아요.";
   }
 
   function stressCardDetail(slot) {
     // 화상은 벌점이 아니므로 강등 이유로 쓰지 않는다 — 진짜 이유(시간대·직후 일정)만
-    return "가능 인원만 보면 좋아 보이지만, 걸리는 시간대와 바로 다음 일정까지 보면 여유가 적어요.";
+    return "정렬을 '겹치는 게 적은 순'으로 바꾸면 이 시간은 3순위예요.";
   }
 
   function cardOrder(mode) {
