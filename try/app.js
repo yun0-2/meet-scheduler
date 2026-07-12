@@ -1942,10 +1942,12 @@
   }
 
   function renderResponseLine() {
-    var sent = '<strong class="response-sent">보낸 제안 ' + tentativeLabel() + '</strong>';
+    // 모달 타이틀과 같은 굵기의 문장으로 두면 제목이 두 개로 읽힌다 —
+    // 상태는 필 뱃지로 분리해 위계를 낮춘다.
+    var sent = '<span class="response-pill response-pill--sent">보낸 제안 ' + tentativeLabel() + '</span>';
     var waiting = unrespondedPeople();
     if (waiting.length === 0) {
-      return '<p class="response-line">' + sent + ' · ' + activePeople().length + '명 모두 응답했어요</p>';
+      return '<p class="response-line">' + sent + '<span class="response-pill">' + activePeople().length + '명 모두 응답</span></p>';
     }
     var respondedCount = activePeople().length - waiting.length;
     var waitingNames = waiting.map(function (person) {
@@ -1953,7 +1955,9 @@
     }).join(", ");
     return (
       '<p class="response-line">' +
-        sent + ' · ' + respondedCount + '명 응답 · ' + waitingNames + '은 응답이 없어 캘린더 기준이에요' +
+        sent +
+        '<span class="response-pill">' + respondedCount + '명 응답</span>' +
+        '<span class="response-pill">' + waitingNames + ' 응답 없음 · 캘린더 기준</span>' +
       '</p>'
     );
   }
