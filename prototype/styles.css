@@ -273,6 +273,7 @@ button {
 }
 
 .messenger-shell {
+  position: relative; /* 코치마크 기준점 */
   display: grid;
   min-height: calc(100dvh - var(--space-6) * 2);
   grid-template-columns: 240px minmax(0, 1fr);
@@ -3240,4 +3241,61 @@ body.is-embed .mobile-stage {
   line-height: 1.5;
   padding: 10px 12px;
   margin: 0; /* 미러(inset:0)와 원점 일치 — 옛 margin-top 8px가 어긋남의 원인이었다 */
+}
+
+/* ===== 게시 카드 재배치 + 마감 연출 (2026-07-12) ===== */
+.posted-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.posted-card-head .response-status-line {
+  margin: 4px 0 0;
+}
+.posted-cta {
+  flex: 0 0 auto;
+}
+/* 참석자: 세로 리스트 → 2열 그리드 (공간 효율) */
+.participant-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px var(--space-4);
+  margin: var(--space-4) 0;
+}
+.participant-grid .compose-row.is-static {
+  padding: 4px 0;
+  border: 0;
+}
+/* 사이드바 항목 클릭 가능 표시 */
+.channel-list li[data-action] {
+  cursor: pointer;
+}
+.channel-list li[data-action]:hover {
+  color: #fff;
+}
+/* 코치마크 — WhenWorks 알림 안내 (데모 레이어) */
+.coach-bubble {
+  position: absolute;
+  left: 252px;
+  top: 268px;
+  z-index: 30;
+  max-width: 240px;
+  background: var(--gray-900, #101827);
+  color: #fff;
+  font-size: var(--text-13);
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+.coach-bubble::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: var(--gray-900, #101827);
 }

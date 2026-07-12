@@ -33,6 +33,9 @@
     myMarksOpen: false,
     windowStart: 20,
     windowEnd: 24,
+    deadlinePassed: false,
+    deadlineSeen: false,
+    entryTab: "channel",
     windowAnchor: null,
     windowPickerOpen: false,
     respondedReveal: false,
@@ -1233,19 +1236,22 @@
             '<p class="workspace-name">Product Lab</p>' +
             '<ul class="channel-list">' +
               ["공지", "pm-admin-dashboard", "제품실험", "데이터지원"].map(function (ch) {
-                var active = state.composePosted && ch === state.channelName;
+                var active = state.composePosted && state.entryTab === "channel" && ch === state.channelName;
                 var unread = (ch === "공지" || ch === "제품실험") && !active;
-                var badge = ch === "공지" ? '<span class="ch-badge">3</span>' : '';
-                return '<li class="' + (active ? "active" : "") + (unread ? " is-unread" : "") + '"><span># ' + ch + '</span>' + badge + '</li>';
+                var clickable = state.composePosted && ch === state.channelName;
+                return '<li class="' + (active ? "active" : "") + (unread ? " is-unread" : "") + '"' + (clickable ? ' data-action="entry-tab-channel"' : '') + '><span># ' + ch + '</span></li>';
               }).join("") +
-              '<li class="channel-app' + (state.composePosted ? "" : " active") + '">WhenWorks</li>' +
+              '<li class="channel-app' + (!state.composePosted || state.entryTab === "bot" ? " active" : "") + '"' + (state.composePosted ? ' data-action="entry-tab-bot"' : '') + '>' +
+                '<span>WhenWorks</span>' +
+                (state.deadlinePassed && !state.deadlineSeen ? '<span class="ch-badge">1</span>' : '') +
+              '</li>' +
             '</ul>' +
           '</aside>' +
           '<section class="channel-panel" aria-label="슬랙 스타일 채널">' +
-            '<header class="channel-header"><h1>' + (state.composePosted ? '# ' + state.channelName : 'WhenWorks') + '</h1></header>' +
-            (state.composePosted ? renderMeetingBanner() : '') +
+            '<header class="channel-header"><h1>' + (state.composePosted && state.entryTab === "channel" ? '# ' + state.channelName : 'WhenWorks') + '</h1></header>' +
+            (state.composePosted && state.entryTab === "channel" ? renderMeetingBanner() : '') +
             '<div class="message-thread">' +
-              (state.composePosted
+              (state.composePosted && state.entryTab === "channel"
                 ? '<article class="message">' +
                     '<div class="avatar" aria-hidden="true"' + avatarVars(jiwoo) + '>' + initials(jiwoo.name) + '</div>' +
                     '<div>' +
@@ -1253,14 +1259,33 @@
                       renderPostedMessageText() + renderPostedCard() +
                     '</div>' +
                   '</article>'
-                : renderBotIntroMessage()) +
+                : renderBotIntroMessage() + (state.composePosted && state.deadlinePassed ? renderDeadlineMessage() : '')) +
             '</div>' +
           '</section>' +
+          (state.deadlinePassed && !state.deadlineSeen && state.entryTab === "channel"
+            ? '<div class="coach-bubble" role="status">응답 기한이 끝났어요. <strong>WhenWorks</strong>를 눌러 알림을 확인하세요.</div>'
+            : '') +
         '</div>' +
       '</section>' +
       (state.composeModalOpen ? renderComposeModal(jiwoo) : '') +
       (state.myMarksOpen ? renderMyMarksModal(jiwoo) : '') +
       renderToast();
+  }
+
+  // 마감 알림 — 봇이 주최자에게 보내는 메시지. 여기의 [추천 보기]가 다음 단계 입구.
+  function renderDeadlineMessage() {
+    return (
+      '<article class="message">' +
+        '<div class="avatar app-avatar" aria-hidden="true">W</div>' +
+        '<div>' +
+          '<div class="message-meta"><span class="message-author">WhenWorks</span><span class="app-badge">앱</span><span class="message-time">방금</span></div>' +
+          '<p class="bot-intro-text">' + meetingTitle() + ' 응답 기한이 끝났어요. 모인 응답으로 추천 시간을 골라보세요.</p>' +
+          '<div class="bot-intro-actions">' +
+            '<button type="button" class="slack-btn slack-btn-primary" data-action="go-compare">추천 보기</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    );
   }
 
   // 봇 채널의 앱 메시지 — 여기의 버튼이 진입점이다 (슬랙 앱 관례)
@@ -1560,8 +1585,14 @@
   function renderPostedCard() {
     return (
       '<div class="schedule-card">' +
-        '<p class="card-kicker">회의 시간 정하기</p>' +
-        '<h2>' + meetingTitle() + '</h2>' +
+        '<div class="posted-card-head">' +
+          '<div>' +
+            '<p class="card-kicker">회의 시간 정하기</p>' +
+            '<h2>' + meetingTitle() + '</h2>' +
+            renderResponseStatusLine() +
+          '</div>' +
+          '<button class="btn posted-cta" data-action="' + (state.posted ? 'go-confirm' : 'go-compare') + '">' + (state.posted ? '확정 내용 보기' : '추천 보기') + '</button>' +
+        '</div>' +
         '<div class="meeting-facts">' +
           '<span class="fact-pill">' + durationLabel() + '</span>' +
           '<span class="fact-pill">' + windowLabel() + ' 중</span>' +
@@ -1570,9 +1601,7 @@
         (state.posted
           ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '첫 제안과 다른 시간이에요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
           : '<div class="tentative-line"><strong>첫 제안 ' + tentativeLabel() + '</strong><span>어려우면 ' + state.replyBy + '까지 표시해주세요. 그 뒤에 확정해요</span></div>') +
-        '<div class="participant-strip">' + renderParticipantRows() + '</div>' +
-        renderResponseStatusLine() +
-        '<button class="btn" data-action="' + (state.posted ? 'go-confirm' : 'go-compare') + '">' + (state.posted ? '확정 내용 보기' : '추천 보기') + '</button>' +
+        '<div class="participant-grid">' + renderParticipantRows() + '</div>' +
         (state.posted ? '<button type="button" class="btn btn-secondary dm-ok-btn" data-action="propose-change">시간 변경 제안</button>' : '') +
       '</div>'
     );
@@ -1588,7 +1617,9 @@
     var waiting = unrespondedPeople();
     var responded = people.length - waiting.length;
     var text = "응답 " + responded + "/" + people.length;
-    if (waiting.length > 0) {
+    if (state.deadlinePassed && !state.posted) {
+      text = "응답 마감 · " + text;
+    } else if (waiting.length > 0) {
       text += " · " + waiting.map(function (p) { return p.name; }).join(", ") + "님 답 기다리는 중";
     } else {
       text += " · 모두 응답했어요";
@@ -1619,8 +1650,7 @@
             '<ul class="channel-list">' +
               ["공지", "pm-admin-dashboard", "제품실험", "데이터지원"].map(function (ch) {
                 var unread = ch === "공지" || ch === "제품실험";
-                var badge = ch === "공지" ? '<span class="ch-badge">3</span>' : '';
-                return '<li class="' + (unread ? "is-unread" : "") + '"><span># ' + ch + '</span>' + badge + '</li>';
+                return '<li class="' + (unread ? "is-unread" : "") + '"><span># ' + ch + '</span></li>';
               }).join("") +
               '<li class="channel-section">다이렉트 메시지</li>' +
               '<li class="channel-app active"><span>WhenWorks</span></li>' +
@@ -2454,6 +2484,17 @@
       render();
       return;
     }
+    if (action === "entry-tab-bot") {
+      state.entryTab = "bot";
+      state.deadlineSeen = true;
+      render();
+      return;
+    }
+    if (action === "entry-tab-channel") {
+      state.entryTab = "channel";
+      render();
+      return;
+    }
     if (action === "toggle-window-picker") {
       state.windowPickerOpen = !state.windowPickerOpen;
       state.windowAnchor = null;
@@ -2476,14 +2517,30 @@
       state.toastFading = false;
       state.toastText = "채널에 보냈어요";
       scheduleToastDismiss();
+      state.deadlinePassed = false;
+      state.deadlineSeen = false;
+      state.entryTab = "channel";
       if (window.location.hash === "#entry") {
         render();
       } else {
         setRoute("entry");
       }
-      showPostedScenario();
+      // 2초 뒤 응답 기한 마감을 연출 — 오버레이 설명 대신 실제 제품의 신호(토스트·뱃지·알림)로
+      if (typeof window.setTimeout === "function") {
+        window.setTimeout(function () {
+          if (!state.composePosted || state.posted) {
+            return;
+          }
+          state.deadlinePassed = true;
+          state.respondedReveal = true;
+          state.toastVisible = true;
+          state.toastFading = false;
+          state.toastText = "응답 기한이 지났어요";
+          scheduleToastDismiss();
+          render();
+        }, 2000);
+      }
       return;
-      render();
     }
     if (action === "toggle-soft") {
       if (state.suppressNextSoftToggle) {
