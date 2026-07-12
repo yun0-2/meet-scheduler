@@ -1514,7 +1514,7 @@
               '<input class="compose-search-input" id="compose-search" type="text" value="' + escapeAttr(state.composeQuery) + '" placeholder="초대할 사람 추가" aria-label="참석자 검색" autocomplete="off" />' +
               '<div class="compose-suggestions' + (state.composeSuggestOpen ? " is-open" : "") + '" id="compose-suggestions">' + renderComposeSuggestions() + '</div>' +
             '</div>' +
-            '<p class="compose-prefill-note">함께 일한 이력으로 미리 담았어요 · 빼거나 바꿀 수 있어요</p>' +
+            '<p class="compose-prefill-note">함께 일한 이력으로 미리 담았어요</p>' +
             '<div class="compose-list">' + renderOrganizerRow(jiwoo) + addedRows + '</div>' +
           '</div>' +
         '</div>' +
@@ -1681,7 +1681,7 @@
           (state.posted ? '<span class="fact-pill">' + state.meetingRoom + '</span>' : '') +
         '</div>' +
         (state.posted
-          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '보낸 시간과 달라요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
+          ? '<div class="tentative-line is-confirmed"><strong>확정 ' + displayTime(slotById(state.selectedSlotId)) + '</strong><span>' + (confirmedDiffersFromTentative() ? '보낸 제안과 달라요. 어려운 분은 알려주세요' : '참석자 모두에게 알림을 보냈어요') + '</span></div>'
           : '<div class="tentative-line"><strong>제안 시간 ' + tentativeLabel() + '</strong><span>응답이 없으면 이대로 확정돼요 · ' + state.replyBy + '까지</span></div>') +
         // 주최자도 참석자와 대칭으로 자기 캘린더 표시를 남길 수 있게 — 조용한 링크 한 줄(과설명 금지)
         '<p class="posted-mark-note"><button type="button" class="compose-note-link" data-action="open-my-marks">나도 피하고 싶은 시간 표시하기</button></p>' +
@@ -1943,7 +1943,7 @@
   }
 
   function renderResponseLine() {
-    var sent = '<strong class="response-sent">보낸 시간 ' + tentativeLabel() + '</strong>';
+    var sent = '<strong class="response-sent">보낸 제안 ' + tentativeLabel() + '</strong>';
     var waiting = unrespondedPeople();
     if (waiting.length === 0) {
       return '<p class="response-line">' + sent + ' · ' + activePeople().length + '명 모두 응답했어요</p>';
@@ -2028,7 +2028,7 @@
         // 카드와 같은 번호 언어(1·2·3순위)를 격자에도 — 카드↔격자 연결(사용성 테스트 006 P1)
         var rankIndex = rankOrderIds.indexOf(slot.id);
         // compose(현재의 제안을 고르는 중)에서만 '제안 시간' 뱃지 — 확정 화면에서는 같은 말이
-        // '지금 제안되는 시간'으로 오독돼 순위만 남기고, 보낸 시간은 상태줄·카드가 말한다.
+        // '지금 제안되는 시간'으로 오독돼 순위만 남기고, 보낸 제안은 상태줄·카드가 말한다.
         var rankLabel = composeMode
           ? (rankIndex >= 0
               ? (rankIndex + 1) + "순위" + (slot.id === tentativeId ? " · 제안 시간" : "")
@@ -2137,7 +2137,7 @@
       return (
         '<article class="recommend-card ' + (selected ? "is-selected" : "") + '" data-card-id="' + slot.id + '">' +
           '<button class="card-summary" data-action="toggle-card" data-card-id="' + card.key + '" data-slot-id="' + slot.id + '" aria-expanded="' + String(isOpen) + '">' +
-            '<span class="rank-label">' + rank + (slot.id === tentativeSlot().id ? '<span class="card-sent-flag">보낸 시간</span>' : '') + '</span>' +
+            '<span class="rank-label">' + rank + (slot.id === tentativeSlot().id ? '<span class="card-sent-flag">보낸 제안</span>' : '') + '</span>' +
             '<span class="card-time">' + displayTime(slot) + '</span>' +
             '<span class="card-copy">' + card.copy + '</span>' +
           '</button>' +
@@ -2199,7 +2199,7 @@
           '</div>' +
           (hasPrivateBurden(slot) ? '<p class="confirm-soft-note">이 시간은 피하고 싶다는 표시가 있어요. 누가 표시했는지는 보이지 않아요.</p>' : '') +
           // 보낸 잠정안과 지금 확정하려는 시간이 다르면 — 확정 뒤 재확인이 필요하다는 걸 미리 말한다
-          (tentativeSlot().id !== slot.id ? '<p class="confirm-soft-note">보낸 시간(' + displayTime(tentativeSlot()) + ')과 달라요. 확정하면 바뀐 시간으로 한 번 더 물어봐요.</p>' : '') +
+          (tentativeSlot().id !== slot.id ? '<p class="confirm-soft-note">보낸 제안(' + displayTime(tentativeSlot()) + ')과 달라요. 확정하면 바뀐 시간으로 한 번 더 물어봐요.</p>' : '') +
           '<div class="compose-row-icon">' +
             '<span class="compose-row-label">참석자</span>' +
             '<div class="compose-row-body">' + renderConfirmAttendeeSection(slot) + '</div>' +

@@ -595,7 +595,7 @@ button {
 
 .compose-segmented button {
   min-height: 28px;
-  border-radius: 6px;
+  border-radius: var(--radius-6);
   background: transparent;
   color: var(--gray-600);
   cursor: pointer;
@@ -888,11 +888,11 @@ button {
 .sort-toggle {
   display: flex;
   width: 100%;
-  gap: var(--space-1);
+  gap: 2px;
   border: 0;
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-8);
   background: var(--gray-100);
-  padding: var(--space-1);
+  padding: 2px;
 }
 .sort-toggle button {
   flex: 1 1 0;
@@ -900,7 +900,7 @@ button {
 
 .sort-toggle button {
   min-height: 34px;
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-6);
   background: transparent;
   color: var(--gray-600);
   cursor: pointer;
