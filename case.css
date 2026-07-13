@@ -1430,20 +1430,6 @@ h3 {
   }
 }
 
-/* 지표 스트립: 리서치 밀도를 한 줄로(히어로·부록 머리) */
-/* 리서치 규모 요약: 떠 있는 텍스트가 아니라 테두리 있는 뱃지로 (프로즈 컬럼 왼쪽에 정렬) */
-.fact-strip {
-  display: inline-block;
-  margin: 0 0 var(--space-6);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-8);
-  background: var(--surface-muted);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-13);
-  font-weight: 600;
-  color: var(--gray-600);
-}
-
 /* 좁은 화면에서만 보이는 표 스크롤 안내 */
 .table-hint {
   display: none;
