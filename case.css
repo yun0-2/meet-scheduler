@@ -933,6 +933,11 @@ h3 {
   letter-spacing: -0.01em;
 }
 
+/* 부록 섹션 제목(h2)은 섹션 사이 호흡을 조금 더 준다. 본문 소제목(h3)은 그대로. */
+h2.article-subhead {
+  margin-top: var(--space-16);
+}
+
 .sr-only {
   position: absolute;
   top: 0;
